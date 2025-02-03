@@ -23,13 +23,13 @@ phi_query = inference.query(variables=['Z'], evidence=None)
 print(phi_query)
 
 print("_____________________________")
-print("P(X | Z=0)")
-phi_query = inference.query(variables=['X'], evidence={'Z': 0})
+print("P(Y | X=1, Z=0)")
+phi_query = inference.query(variables=['Y'], evidence={'X': 1, 'Z': 0})
 print(phi_query)
 
 print("_____________________________")
-print("P(X | Z=1)")
-phi_query = inference.query(variables=['X'], evidence={'Z': 1})
+print("P(Y | X=1, Z=1)")
+phi_query = inference.query(variables=['Y'], evidence={'X': 1, 'Z': 1})
 print(phi_query)
 
 #phi_query = inference.query(variables=['Y'], evidence=['X', 'Z'])
