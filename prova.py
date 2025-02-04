@@ -1,36 +1,51 @@
-from pgmpy.inference import VariableElimination
-from pgmpy.models import BayesianNetwork
-import numpy as np
+import pyAgrum as gum
 import pandas as pd
 
-#data = pd.DataFrame(np.random.randint(low=0, high=2, size=(100, 3)), columns=['X', 'Y', 'Z'])
 
-#data.to_csv(path_or_buf="DATA/prova_frequency_data.csv")
 
+from IPython.display import display, Math, Latex, HTML
+import pyAgrum.causal as csl
+
+# load dataset
 data = pd.read_csv(filepath_or_buffer="DATA/prova_frequency_data.csv")
 
+# instantiate a Causal Bayesian Network
+bn = gum.BayesNet("MyCausalBN")
+
+# add nodes to the Causal BN
+id_X = bn.add(gum.LabelizedVariable('X', "the intervention variable" , 2)) 
+id_Y = bn.add(gum.LabelizedVariable('Y', "the outcome variable" , 2)) 
+id_Z = bn.add(gum.LabelizedVariable('Z', "a confounder" , 2)) 
+
+
+#defines edges
+bn.addArc('X', 'Y') # X causes Y
+bn.addArc('Z', 'X')
+bn.addArc('Z', 'Y')
 
 
 
+# learn the parameters (i.e. the CPTs)
+learner = gum.BNLearner(data, bn)
+#learner.useSmoothingPrior(1000) # Laplace smoothing (e.g. a count C is replaced by C+1000)
+bn = learner.learnParameters(bn.dag())
+#print(bn.cpt(id_Z))
 
-model = BayesianNetwork([('Z', 'X'), ('Z', 'Y'), ('X', 'Y')])
-model.fit(data)
-inference = VariableElimination(model)
 
-print("_____________________________")
-print("P(Z)")
-phi_query = inference.query(variables=['Z'], evidence=None)
-print(phi_query)
 
-print("_____________________________")
-print("P(Y | X=1, Z=0)")
-phi_query = inference.query(variables=['Y'], evidence={'X': 1, 'Z': 0})
-print(phi_query)
+d = csl.CausalModel(bn=bn, latentVarsDescriptor=[("lat", ["X","Z"])])
+res = csl.causalImpact(cm=d, on="Y", doing="X", values={"X":0})
 
-print("_____________________________")
-print("P(Y | X=1, Z=1)")
-phi_query = inference.query(variables=['Y'], evidence={'X': 1, 'Z': 1})
-print(phi_query)
 
-#phi_query = inference.query(variables=['Y'], evidence=['X', 'Z'])
-#print(phi_query)
+estimate = res[1]
+estimand = res[0]
+
+print("__________")
+print(estimand.toLatex())
+print(estimate)
+
+#----------------------------------------
+
+
+estimate_manual = (bn.cpt('Y') * bn.cpt('Z')).sumOut(['Z'])
+print(estimate_manual)
