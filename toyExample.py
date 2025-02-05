@@ -31,7 +31,7 @@ bn = learner.learnParameters(bn.dag())
 
 
 '''
-2) Now that we have a Bayesian (causal) net, we can make perform causal effect estimation.
+2) Now that we have a Bayesian (causal) net, we can perform causal effect estimation.
 For this model, the causal effect is estimable via back-door. We apply the back-door formula 
 manually, hence obtaine the estimate via the below line of code, and print out the 
 post-intervetional distribution P(Y | do(X)) for both values of X=0 and X=1.
@@ -64,3 +64,8 @@ estimate_do_X1 = res[1]
 print("_______________________________________________")
 print("PyAgrum estimated P(Y | do(X=False)):")
 print(estimate_do_X1)
+
+
+'''
+NOTE: reference to PyAgrum documentation: https://pyagrum.readthedocs.io/en/1.17.2/notebooks/64-Causality_DoCalculusExamples.html?fbclid=IwY2xjawIQEtlleHRuA2FlbQIxMAABHSszzptUYcAYv0mmqJIa23GKpAiVjFgxYZAyWJTSkyU4DGBscDAhjwmHzw_aem_aH5lgf8fxh8BbXLMK0wemQ
+'''
