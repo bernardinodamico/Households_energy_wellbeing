@@ -49,9 +49,8 @@ and print it in Latex format. Then we print the resulting post-intervetional dis
 '''
 
 d = csl.CausalModel(bn=bn, latentVarsDescriptor=[("lat", ["X","Z"])])
-res = csl.causalImpact(cm=d, on="Y", doing="X", values={"X":'True'})
-estimate_do_X0 = res[1]
-estimand = res[0]
+estimand, estimate_do_X0, message = csl.causalImpact(cm=d, on="Y", doing="X", values={"X":'True'})
+
 
 print("_______________________________________________")
 print(f"PyAgrum estimand formula (in latex format): {estimand.toLatex()}")
@@ -59,8 +58,8 @@ print("_______________________________________________")
 print("Pyagrum estimated P(Y | do(X=True)):")
 print(estimate_do_X0)
 
-res = csl.causalImpact(cm=d, on="Y", doing="X", values={"X":'False'})
-estimate_do_X1 = res[1]
+estimand, estimate_do_X1, message = csl.causalImpact(cm=d, on="Y", doing="X", values={"X":'False'})
+
 print("_______________________________________________")
 print("PyAgrum estimated P(Y | do(X=False)):")
 print(estimate_do_X1)
