@@ -1,0 +1,87 @@
+import pyAgrum as gum
+import pandas as pd
+import pyAgrum.causal as csl
+
+'''
+1) Setting up of a Causal Bayesian Network
+'''
+
+# load dataset
+data = pd.read_csv(filepath_or_buffer="DATA/dataset_observed_variables.csv")
+
+# instantiate a (Causal) Bayesian Network
+bn = gum.BayesNet("MyCausalBN")
+
+# add nodes to the (Causal) BN
+id_X = bn.add(gum.LabelizedVariable('X', "External wall insulation" , ['0', '1'])) 
+id_Y_1 = bn.add(gum.LabelizedVariable('Y_1', "Heating energy use" , ['0', '1'])) 
+id_Y_2 = bn.add(gum.LabelizedVariable('Y_2', "Indoor temperature" , ['0', '1']))
+id_Z = bn.add(gum.LabelizedVariable('Z', "xxx" , ['0', '1']))
+id_V_1 = bn.add(gum.LabelizedVariable('V_1', "xxx" , ['0', '1']))
+id_V_2 = bn.add(gum.LabelizedVariable('V_2', "xxx" , ['0', '1']))
+id_V_3 = bn.add(gum.LabelizedVariable('V_3', "xxx" , ['0', '1']))
+id_V_4 = bn.add(gum.LabelizedVariable('V_4', "xxx" , ['0', '1']))
+id_V_5 = bn.add(gum.LabelizedVariable('V_5', "xxx" , ['0', '1']))
+id_V_6 = bn.add(gum.LabelizedVariable('V_6', "xxx" , ['0', '1']))
+id_V_7 = bn.add(gum.LabelizedVariable('V_7', "xxx" , ['0', '1']))
+id_V_8 = bn.add(gum.LabelizedVariable('V_8', "xxx" , ['0', '1']))
+id_V_9 = bn.add(gum.LabelizedVariable('V_9', "xxx" , ['0', '1']))
+
+#defines edges
+bn.addArc('X', 'Y_1') # X causes Y_1
+bn.addArc('X', 'Y_2')
+bn.addArc('Y_1', 'Y_2')
+bn.addArc('Z', 'Y_1')
+bn.addArc('V_9', 'X')
+bn.addArc('V_8', 'X')
+bn.addArc('V_7', 'Y_2')
+bn.addArc('V_7', 'Y_1')
+bn.addArc('V_5', 'Y_1')
+bn.addArc('V_6', 'Z')
+bn.addArc('V_2', 'Z')
+bn.addArc('V_1', 'Y_1')
+bn.addArc('V_3', 'V_5')
+bn.addArc('V_4', 'V_5')
+bn.addArc('V_3', 'V_4')
+bn.addArc('V_2', 'V_4')
+bn.addArc('V_1', 'V_2')
+bn.addArc('V_1', 'V_6')
+bn.addArc('V_5', 'V_6')
+bn.addArc('V_2', 'V_8')
+bn.addArc('V_7', 'V_6')
+bn.addArc('X', 'V_6')
+
+# learn the parameters (i.e. the CPTs) of the BN
+learner = gum.BNLearner(data, bn)
+learner.useSmoothingPrior(1) # Laplace smoothing (e.g. a count C is replaced by C+1)
+bn = learner.learnParameters(bn.dag())
+#----------------------------------------------------------------------------------------
+
+
+# identify causal effect (if possible at all)
+d = csl.CausalModel(bn=bn, latentVarsDescriptor=[("U_8", ["V_6","Y_2", "Y_1"]),
+                                                 ("U_7", ["V_6","Y_2", "Y_1"]),
+                                                 ("U_5", ["V_6"]),
+                                                 ("U_3", ["V_2"]),
+                                                 ("U_2", ["V_2", "V_4"]),
+                                                 ("U_0", ["V_2", "Y_1"])
+                                                 ])
+
+estimand, estimate_do_X, message = csl.causalImpact(cm=d, on="Y_1", doing="X", knowing={"Z"}, values={"X":'0'})
+
+print(f"message:{message}")
+print("_______________________________________________")
+print(f"PyAgrum estimand formula (in latex format): {estimand.toLatex()}")
+
+
+print("_______________________________________________")
+print("PyAgrum estimated P(Y_1 | do(X=0), Z):")
+print(estimate_do_X)
+
+'''
+NOTE: sooo, the Z-specific causal effect of X on Y_1 as well as Y_2 is identifiable according to Pyagrum. 
+The resulting estimand formula is really cumbersome. It can certainly be simplified (i.e. derived by hand)
+but first fix the DAG in yEd, so to reflect the one encode here. Once the dag is properly set up, re-run
+the identification algo here and work out via hand calcs the estimand so we can double-check the two estimates 
+to see if they match on these dummy data.
+'''

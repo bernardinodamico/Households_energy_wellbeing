@@ -23,6 +23,7 @@ bn.addArc('X', 'Y') # X causes Y
 bn.addArc('Z', 'X')
 bn.addArc('Z', 'Y')
 
+
 # learn the parameters (i.e. the CPTs) of the BN
 learner = gum.BNLearner(data, bn)
 learner.useSmoothingPrior(1) # Laplace smoothing (e.g. a count C is replaced by C+1)
