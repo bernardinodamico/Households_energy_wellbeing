@@ -68,6 +68,7 @@ d = csl.CausalModel(bn=bn, latentVarsDescriptor=[("U_0", ["V_7","Y_0", "V_1"]),
                                                  ("U_2", ["V_1"]),
                                                  ("U_3", ["V_1", "Y_0", "Y_1"]),
                                                  ("U_4", ["V_1", "Y_0", "Y_1"]),
+                                                 ("U_5", ["Y_0", "V_1"]),
                                                  ])
 
 estimand, estimate_do_X, message = csl.causalImpact(cm=d, on="Y_0", doing="X", knowing={"W"}, values={"X":'0'})
