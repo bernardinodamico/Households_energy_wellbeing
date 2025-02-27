@@ -63,7 +63,7 @@ bn = learner.learnParameters(bn.dag())
 
 
 # identify causal effect (if possible at all)
-d = csl.CausalModel(bn=bn, latentVarsDescriptor=[("U_0", ["V_7","Y_0"]),
+d = csl.CausalModel(bn=bn, latentVarsDescriptor=[("U_0", ["V_7","Y_0", "V_1"]),
                                                  ("U_1", ["V_6","V_7"]),
                                                  ("U_2", ["V_1"]),
                                                  ("U_3", ["V_1", "Y_0", "Y_1"]),
