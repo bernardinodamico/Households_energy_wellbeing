@@ -92,3 +92,8 @@ the identification algo here and work out via hand calcs the estimand so we can 
 to see if they match on these dummy data.
 '''
 
+
+'''
+to obtain cpts for the estimand: see https://pyagrum.readthedocs.io/en/0.18.2/BNInference.html#variable-elimination 
+'''
+
