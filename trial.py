@@ -29,6 +29,7 @@ id_V_8 = bn.add(gum.LabelizedVariable('V_8', "xxx" , ['0', '1']))
 
 
 #defines edges
+
 bn.addArc('X', 'Y_0') # X causes Y_1
 bn.addArc('X', 'Y_1')
 bn.addArc('Y_0', 'Y_1')
@@ -54,7 +55,6 @@ bn.addArc('V_0', 'V_1')
 bn.addArc('X', 'V_1')
 
 
-
 # learn the parameters (i.e. the CPTs) of the BN
 learner = gum.BNLearner(data, bn)
 learner.useSmoothingPrior(1) # Laplace smoothing (e.g. a count C is replaced by C+1)
@@ -63,6 +63,7 @@ bn = learner.learnParameters(bn.dag())
 
 
 # identify causal effect (if possible at all)
+
 d = csl.CausalModel(bn=bn, latentVarsDescriptor=[("U_0", ["V_7","Y_0", "V_1"]),
                                                  ("U_1", ["V_6","V_7"]),
                                                  ("U_2", ["V_1"]),
@@ -70,6 +71,7 @@ d = csl.CausalModel(bn=bn, latentVarsDescriptor=[("U_0", ["V_7","Y_0", "V_1"]),
                                                  ("U_4", ["V_1", "Y_0", "Y_1"]),
                                                  ("U_5", ["Y_0", "V_1"]),
                                                  ])
+
 
 estimand, estimate_do_X, message = csl.causalImpact(cm=d, on="Y_0", doing="X", knowing={"W"}, values={"X":'0'})
 
@@ -89,3 +91,4 @@ but first fix the DAG in yEd, so to reflect the one encode here. Once the dag is
 the identification algo here and work out via hand calcs the estimand so we can double-check the two estimates 
 to see if they match on these dummy data.
 '''
+
