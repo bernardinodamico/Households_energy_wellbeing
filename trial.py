@@ -2,6 +2,7 @@ import pyAgrum as gum
 import pandas as pd
 import pyAgrum.causal as csl
 
+
 '''
 1) Setting up of a Causal Bayesian Network
 '''
@@ -73,27 +74,38 @@ d = csl.CausalModel(bn=bn, latentVarsDescriptor=[("U_0", ["V_7","Y_0", "V_1"]),
                                                  ])
 
 
-estimand, estimate_do_X, message = csl.causalImpact(cm=d, on="Y_0", doing="X", knowing={"W"}, values={"X":'0'})
+estimand, estimate_do_X, message = csl.causalImpact(cm=d, on="Y_0", doing="X", knowing={"W"}, values={"X":'1'})
 
 print(f"message:{message}")
 print("_______________________________________________")
 print(f"PyAgrum estimand formula (in latex format): {estimand.toLatex()}")
 
-
 print("_______________________________________________")
-print("PyAgrum estimated P(Y_0 | do(X=0), W):")
+print("PyAgrum estimate for P(Y_0 | do(X=1), W):")
 print(estimate_do_X)
 
 '''
 NOTE: sooo... the W-specific causal effect of X on Y_0 as well as Y_1 is identifiable according to PyAgrum. 
-The resulting estimand formula is really cumbersome. It can certainly be simplified (i.e. derived by hand)
-but first fix the DAG in yEd, so to reflect the one encode here. Once the dag is properly set up, re-run
-the identification algo here and work out via hand calcs the estimand so we can double-check the two estimates 
-to see if they match on these dummy data.
+The resulting estimand formula is really cumbersome and involves a lot of variables...
+I derived the estimand for this W-specific causal effect by hand using do-calculus, hence printed below: "manual_estimate_do_X"
+the difference between the two estimeted causal effects is at most 0.1% for some values. Conversely, when computing the observational 
+distribution P(Y_0 | X, W) its values differ by as much as 10% compared to the causal estimate(s)
+
+here is the hand-calculated estimand via do-calculus (in latex format): 
+P( y_0 \mid \text{do}(x), w) = \sum_{v_7} {\left[ P\left(y_0 \mid x, w, v_7\right) \cdot \left(\frac{\sum_{v_2}{P\left(v_7, w \mid x, v_2 \right) \cdot P\left(v_2\right)}}{\sum_{v_2}{P\left(w \mid x, v_2 \right) \cdot P\left(v_2\right)}}\right) \right]}
 '''
 
 
-'''
-to obtain cpts for the estimand: see https://pyagrum.readthedocs.io/en/0.18.2/BNInference.html#variable-elimination 
-'''
+ve = gum.VariableElimination(bn)
+p_V7_W_given_X_V2 = ve.evidenceJointImpact(targets=['V_7', 'W'], evs={'X', 'V_2'}) #returns a pyAgrum.Potential for P(targets|evs) for all instantiations (values) of targets and evs variables. 
+p_W_given_X_V2 = ve.evidenceJointImpact(targets=['W'], evs={'X', 'V_2'})
+p_V2 = ve.evidenceJointImpact(targets=['V_2'], evs={})
+p_Y0_given_X_W_V7 = ve.evidenceJointImpact(targets=['Y_0'], evs={'X', 'W', 'V_7'})
 
+
+manual_estimate_do_X = (p_Y0_given_X_W_V7 * ((p_V7_W_given_X_V2 * p_V2).sumOut(['V_2']) / (p_W_given_X_V2 * p_V2).sumOut(['V_2']))).sumOut(['V_7'])
+
+
+print("_______________________________________________")
+print("Hand-calculated estimate for P(Y_0 | do(X=0), W) and for P(Y_0 | do(X=1), W):")
+print(manual_estimate_do_X)
