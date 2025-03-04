@@ -1,6 +1,7 @@
 import pyAgrum as gum
 import pandas as pd
 import pyAgrum.causal as csl
+import networkx as nx
 
 
 '''
@@ -71,7 +72,9 @@ d = csl.CausalModel(bn=bn, latentVarsDescriptor=[("U_0", ["V_7","Y_0", "V_1"]),
                                                  ("U_3", ["V_1", "Y_0", "Y_1"]),
                                                  ("U_4", ["V_1", "Y_0", "Y_1"]),
                                                  ("U_5", ["Y_0", "V_1"]),
-                                                 ])
+                                                 ],
+                                                 keepArcs=True
+                                                 )
 
 
 estimand, estimate_do_X, message = csl.causalImpact(cm=d, on="Y_0", doing="X", knowing={"W"}, values={"X":'1'})
@@ -109,3 +112,17 @@ manual_estimate_do_X = (p_Y0_given_X_W_V7 * ((p_V7_W_given_X_V2 * p_V2).sumOut([
 print("_______________________________________________")
 print("Hand-calculated estimate for P(Y_0 | do(X=0), W) and for P(Y_0 | do(X=1), W):")
 print(manual_estimate_do_X)
+
+
+indp = bn.isIndependent(['X'],['V_7'],['V_2', 'Y_0']) #check if first variables are independent of second variables conditional on third variables
+
+G = nx.DiGraph()
+for (parent, child) in bn.arcs():
+    parent_name = bn.variable(parent).name()  
+    child_name = bn.variable(child).name()
+    G.add_edge(parent_name, child_name)
+
+for path in nx.all_simple_paths(G=G.to_undirected(), source='Y_0', target='X', cutoff=None):
+    print(path)
+
+
