@@ -74,15 +74,19 @@ class CausalBayesianNet():
             G_subgraph.remove_edge('X', 'V_1')
             G_subgraph.remove_edge('X', 'Y_1')
             G_subgraph.remove_edge('X', 'Y_0')
+            G_subgraph.name = 'G_X_underscored'
         elif which_graph == 'G_X_overscored': # the mutilated graph G with all arrows into X being removed 
             G_subgraph.remove_edge('V_2', 'X')
             G_subgraph.remove_edge('V_3', 'X')
+            G_subgraph.name = 'G_X_overscored'
         elif which_graph == 'G': # the original graph G
             pass
+        else:
+            raise ValueError('wrong value assigned to <which_graph> parameter ')
         return G_subgraph
 
 
-    def get_paths(self, sub_graph: DiGraph, st_var: str, end_var: str) -> list:
+    def get_paths(self, sub_graph: DiGraph, st_var: str, end_var: str, print_paths: bool = True) -> list:
         """
         Returns the list of all undirected paths between two nodes. 
         Parameters: 
@@ -90,20 +94,43 @@ class CausalBayesianNet():
         - st_var: name of one of the variables
         - end_var: name of the other variable
         """
-        print(f"\n All existing undirected paths from {st_var} to {end_var} in the provided graph:")
         paths = []
         for path in nx.all_simple_paths(G=sub_graph.to_undirected(), source=st_var, target=end_var, cutoff=None):
-            print(path)
             paths.append(path)
+        
+        if print_paths is True:
+            print(f"\n Found {len(paths)} undirected paths between {st_var} and {end_var} in graph {sub_graph.name}:")
+            for path in paths:
+                print(path)
+
         return paths
 
 
     def define_graph(self) -> None:
+        '''Add directed adges from observed variables to the DiGraph "G".'''
         self.G = nx.DiGraph()
+        self.G.name = 'G'
         for (parent, child) in self.b_net.arcs():
             parent_name = self.b_net.variable(parent).name()  
             child_name = self.b_net.variable(child).name()
             self.G.add_edge(parent_name, child_name)
+        
+        '''Add directed adges from latent variables to the DiGraph "G".'''
+        self.G.add_edge("U_0", "V_7")
+        self.G.add_edge("U_0", "Y_0")
+        self.G.add_edge("U_0", "V_1")
+        self.G.add_edge("U_1", "V_6")
+        self.G.add_edge("U_1", "V_7")
+        self.G.add_edge("U_2", "V_1")
+        self.G.add_edge("U_3", "V_1")
+        self.G.add_edge("U_3", "Y_0")
+        self.G.add_edge("U_3", "Y_1")
+        self.G.add_edge("U_4", "V_1")
+        self.G.add_edge("U_4", "Y_0")
+        self.G.add_edge("U_4", "Y_1")
+        self.G.add_edge("U_5", "Y_0")
+        self.G.add_edge("U_5", "V_1")
+
         return
     
 
@@ -116,6 +143,9 @@ class CausalBayesianNet():
     
 
     def add_latent_vars(self)->None:
+        '''
+        Method to add latent variables to the PyAgrum Causal model "c_model". 
+        '''
         self.c_model = csl.CausalModel(bn=self.b_net, 
                                   latentVarsDescriptor=[("U_0", ["V_7","Y_0", "V_1"]),
                                                         ("U_1", ["V_6","V_7"]),
@@ -134,6 +164,24 @@ class CausalBayesianNet():
         self.learn_params(data_file_name=self.dataset_filename)
         self.add_latent_vars()
         return
+    
+    def check_independence(self, graph: DiGraph, A_nodes: set, B_nodes: set, conditioned_on: set, print_res: bool = True) -> bool:
+        '''
+        Uses the D-Separation algo to check for conditional (or absolute) independence between sets of nodes (variables) Params:
+        - graph: a networkx DiGraph object
+        - A_nodes: a (python) set of variables
+        - B_nodes: another set of variables, so that independency is checked between the two sets
+        - conditioned_on: the set of known variables. For absolute independency checks, just give an empy set as argument, i.e. conditioned_on=set()
+        '''
+        
+        cond_indep = nx.is_d_separator(graph, A_nodes, B_nodes, conditioned_on)
+        if print_res is True:
+            print("\n")
+            if len(conditioned_on) == 0:
+                print(f"{A_nodes} _|_ {B_nodes} in graph {graph.name} it is: {cond_indep}")
+            else:
+                print(f"{A_nodes} _|_ {B_nodes} | {conditioned_on} in graph {graph.name} it is: {cond_indep}")
+        return cond_indep
 
     
 
@@ -152,7 +200,11 @@ estimand, estimate_do_X, message = csl.causalImpact(cm=cbn.c_model, on="Y_0", do
 
 
 G_X_underscored = cbn.get_subgraph(which_graph='G_X_underscored')
-cbn.get_paths(sub_graph=G_X_underscored,st_var='Y_0', end_var='X')
+#cbn.get_paths(sub_graph=G_X_underscored,st_var='Y_0', end_var='X', print_paths=True)
 
-indp = cbn.b_net.isIndependent(['X'],['V_7'],['V_2']) #check if first variables are independent of second variables conditional on third variables
-print(indp)
+G_X_overscored = cbn.get_subgraph(which_graph='G_X_overscored')
+
+cbn.check_independence(graph=G_X_underscored, A_nodes={'Y_0'}, B_nodes={'X'}, conditioned_on={'W', 'V_7'}, print_res=True)
+cbn.check_independence(graph=G_X_underscored, A_nodes={'V_7', 'W'}, B_nodes={'X'}, conditioned_on={'V_2'}, print_res=True)
+cbn.check_independence(graph=G_X_overscored, A_nodes={'V_2'}, B_nodes={'X'}, conditioned_on=set(), print_res=True)
+cbn.check_independence(graph=G_X_underscored, A_nodes={'W'}, B_nodes={'X'}, conditioned_on={'V_2'}, print_res=True)
