@@ -8,7 +8,7 @@ from networkx import DiGraph
 from pyAgrum import BayesNet
 
 
-class CausalBayesianNet():
+class CausalGraphicalModel():
     dataset_filename: str = None 
     b_net: BayesNet = None
     c_model: CausalModel = None
@@ -99,7 +99,8 @@ class CausalBayesianNet():
             paths.append(path)
         
         if print_paths is True:
-            print(f"\n Found {len(paths)} undirected paths between {st_var} and {end_var} in graph {sub_graph.name}:")
+            print("\n")
+            print(f"Found {len(paths)} undirected paths between {st_var} and {end_var} in graph {sub_graph.name}:")
             for path in paths:
                 print(path)
 
@@ -186,25 +187,4 @@ class CausalBayesianNet():
     
 
 
-'''
-===============================================================================================
-this below works correctly. Implement it into a script to generate the proof for the hand do-calculus
-i.e. generate all paths to figure out those blocked by colliders and those blocked by the adjustment set.
-'''
 
-
-cbn = CausalBayesianNet(dataset_filename='dataset_observed_variables.csv')
-cbn.build()
-
-estimand, estimate_do_X, message = csl.causalImpact(cm=cbn.c_model, on="Y_0", doing="X", knowing={"W"}, values={"X":'1'})
-
-
-G_X_underscored = cbn.get_subgraph(which_graph='G_X_underscored')
-#cbn.get_paths(sub_graph=G_X_underscored,st_var='Y_0', end_var='X', print_paths=True)
-
-G_X_overscored = cbn.get_subgraph(which_graph='G_X_overscored')
-
-cbn.check_independence(graph=G_X_underscored, A_nodes={'Y_0'}, B_nodes={'X'}, conditioned_on={'W', 'V_7'}, print_res=True)
-cbn.check_independence(graph=G_X_underscored, A_nodes={'V_7', 'W'}, B_nodes={'X'}, conditioned_on={'V_2'}, print_res=True)
-cbn.check_independence(graph=G_X_overscored, A_nodes={'V_2'}, B_nodes={'X'}, conditioned_on=set(), print_res=True)
-cbn.check_independence(graph=G_X_underscored, A_nodes={'W'}, B_nodes={'X'}, conditioned_on={'V_2'}, print_res=True)
