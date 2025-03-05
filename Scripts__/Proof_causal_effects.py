@@ -21,7 +21,7 @@ cbn.check_independence(graph=G_X_underscored, A_nodes={'V_7', 'W'}, B_nodes={'X'
 cbn.check_independence(graph=G_X_overscored, A_nodes={'V_2'}, B_nodes={'X'}, conditioned_on=set(), print_res=True)
 cbn.check_independence(graph=G_X_underscored, A_nodes={'W'}, B_nodes={'X'}, conditioned_on={'V_2'}, print_res=True)
 
-
+#cbn.get_paths(sub_graph=G_X_underscored, st_var="Y_0", end_var="X")
 
 '''
 '''

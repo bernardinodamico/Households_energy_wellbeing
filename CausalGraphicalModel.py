@@ -1,5 +1,4 @@
 import pyAgrum as gum
-from pandas import DataFrame
 import pandas as pd
 import pyAgrum.causal as csl
 from pyAgrum.causal import CausalModel
