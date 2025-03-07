@@ -77,14 +77,14 @@ d = csl.CausalModel(bn=bn, latentVarsDescriptor=[("U_0", ["V_7","Y_0", "V_1"]),
                                                  )
 
 
-estimand, estimate_do_X, message = csl.causalImpact(cm=d, on="Y_0", doing="X", knowing={"W"}, values={"X":'1'})
+estimand, estimate_do_X, message = csl.causalImpact(cm=d, on="Y_1", doing="X", knowing={"W"}, values={"X":'0'})
 
 print(f"message:{message}")
 print("_______________________________________________")
-print(f"PyAgrum estimand formula (in latex format): {estimand.toLatex()}")
+print(f"PyAgrum estimator formula (in latex format): {estimand.toLatex()}")
 
 print("_______________________________________________")
-print("PyAgrum estimate for P(Y_0 | do(X=1), W):")
+print("PyAgrum estimate for P(Y_1 | do(X=0), W):")
 print(estimate_do_X)
 
 '''
@@ -94,8 +94,6 @@ I derived the estimand for this W-specific causal effect by hand using do-calcul
 the difference between the two estimeted causal effects is at most 0.1% for some values. Conversely, when computing the observational 
 distribution P(Y_0 | X, W) its values differ by as much as 10% compared to the causal estimate(s)
 
-here is the hand-calculated estimand via do-calculus (in latex format): 
-P( y_0 \mid \text{do}(x), w) = \sum_{v_7} {\left[ P\left(y_0 \mid x, w, v_7\right) \cdot \left(\frac{\sum_{v_2}{P\left(v_7, w \mid x, v_2 \right) \cdot P\left(v_2\right)}}{\sum_{v_2}{P\left(w \mid x, v_2 \right) \cdot P\left(v_2\right)}}\right) \right]}
 '''
 
 
@@ -103,26 +101,15 @@ ve = gum.VariableElimination(bn)
 p_V7_W_given_X_V2 = ve.evidenceJointImpact(targets=['V_7', 'W'], evs={'X', 'V_2'}) #returns a pyAgrum.Potential for P(targets|evs) for all instantiations (values) of targets and evs variables. 
 p_W_given_X_V2 = ve.evidenceJointImpact(targets=['W'], evs={'X', 'V_2'})
 p_V2 = ve.evidenceJointImpact(targets=['V_2'], evs={})
-p_Y0_given_X_W_V7 = ve.evidenceJointImpact(targets=['Y_0'], evs={'X', 'W', 'V_7'})
+p_Y1_given_X_W_V7 = ve.evidenceJointImpact(targets=['Y_1'], evs={'X', 'W', 'V_7'})
 
 
-manual_estimate_do_X = (p_Y0_given_X_W_V7 * ((p_V7_W_given_X_V2 * p_V2).sumOut(['V_2']) / (p_W_given_X_V2 * p_V2).sumOut(['V_2']))).sumOut(['V_7'])
+manual_estimate_do_X = (p_Y1_given_X_W_V7 * ((p_V7_W_given_X_V2 * p_V2).sumOut(['V_2']) / (p_W_given_X_V2 * p_V2).sumOut(['V_2']))).sumOut(['V_7'])
 
 
 print("_______________________________________________")
-print("Hand-calculated estimate for P(Y_0 | do(X=0), W) and for P(Y_0 | do(X=1), W):")
+print("Hand-calculated estimate for P(Y_1 | do(X=0), W) and for P(Y_1 | do(X=1), W):")
 print(manual_estimate_do_X)
 
-
-indp = bn.isIndependent(['X'],['V_7'],['V_2', 'Y_0']) #check if first variables are independent of second variables conditional on third variables
-
-G = nx.DiGraph()
-for (parent, child) in bn.arcs():
-    parent_name = bn.variable(parent).name()  
-    child_name = bn.variable(child).name()
-    G.add_edge(parent_name, child_name)
-
-for path in nx.all_simple_paths(G=G.to_undirected(), source='Y_0', target='X', cutoff=None):
-    print(path)
 
 

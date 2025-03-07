@@ -40,7 +40,7 @@ class CausalGraphicalModel():
     
 
     def add_causal_edges(self) -> None:
-        self.b_net.addArc('X', 'Y_0') # X causes Y_1
+        self.b_net.addArc('X', 'Y_0') # X causes Y_0
         self.b_net.addArc('X', 'Y_1')
         self.b_net.addArc('Y_0', 'Y_1')
         self.b_net.addArc('W', 'Y_0')
@@ -85,9 +85,9 @@ class CausalGraphicalModel():
         return G_subgraph
 
 
-    def get_paths(self, sub_graph: DiGraph, st_var: str, end_var: str, print_paths: bool = True) -> list:
+    def get_paths(self, sub_graph: DiGraph, st_var: str, end_var: str, print_paths: bool = True, print_count: bool = True) -> list:
         """
-        Returns the list of all undirected paths between two nodes. 
+        Returns the list (or count) of all undirected paths between two nodes. 
         Parameters: 
         - sub_graph: the graph to inspect
         - st_var: name of one of the variables
@@ -97,12 +97,12 @@ class CausalGraphicalModel():
         for path in nx.all_simple_paths(G=sub_graph.to_undirected(), source=st_var, target=end_var, cutoff=None):
             paths.append(path)
         
-        if print_paths is True:
+        if print_count is True:
             print("\n")
-            print(f"Found {len(paths)} undirected paths between {st_var} and {end_var} in graph {sub_graph.name}:")
+            print(f"Found {len(paths)} undirected paths between {st_var} and {end_var} in graph {sub_graph.name}")
+        if print_paths is True:
             for path in paths:
                 print(path)
-
         return paths
 
 
@@ -130,7 +130,6 @@ class CausalGraphicalModel():
         self.G.add_edge("U_4", "Y_1")
         self.G.add_edge("U_5", "Y_0")
         self.G.add_edge("U_5", "V_1")
-
         return
     
 
@@ -142,9 +141,9 @@ class CausalGraphicalModel():
         return
     
 
-    def add_latent_vars(self)->None:
+    def add_latent_vars(self)-> None:
         '''
-        Method to add latent variables to the PyAgrum Causal model "c_model". 
+        Method to add latent variables to the PyAgrum CausalModel object "c_model". 
         '''
         self.c_model = csl.CausalModel(bn=self.b_net, 
                                   latentVarsDescriptor=[("U_0", ["V_7","Y_0", "V_1"]),
@@ -165,15 +164,15 @@ class CausalGraphicalModel():
         self.add_latent_vars()
         return
     
+
     def check_independence(self, graph: DiGraph, A_nodes: set, B_nodes: set, conditioned_on: set, print_res: bool = True) -> bool:
         '''
-        Uses the D-Separation algo to check for conditional (or absolute) independence between sets of nodes (variables) Params:
+        Uses the d-separation algo to check for conditional (or absolute) independence between sets of nodes. Params:
         - graph: a networkx DiGraph object
-        - A_nodes: a (python) set of variables
+        - A_nodes: a python-set of variables
         - B_nodes: another set of variables, so that independency is checked between the two sets
         - conditioned_on: the set of known variables. For absolute independency checks, just give an empy set as argument, i.e. conditioned_on=set()
         '''
-        
         cond_indep = nx.is_d_separator(graph, A_nodes, B_nodes, conditioned_on)
         if print_res is True:
             print("\n")
