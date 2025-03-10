@@ -1,6 +1,9 @@
 from DataProcessing import DataProcessing
 
-
+'''
+Script to process all the raw datasources, so to build the dataset for training the
+model parameters of the Causal Bayesian Network.
+'''
 
 dp = DataProcessing()
 dp.initialise_dset_obsrv_vars()
