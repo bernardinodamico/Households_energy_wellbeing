@@ -7,7 +7,6 @@ class DataProcessing():
     ds_obsrv_vars: DataFrame = None
 
 
-    
     def initialise_dset_obsrv_vars(self) -> None:
         self.ds_obsrv_vars = pd.DataFrame()
 
@@ -18,6 +17,7 @@ class DataProcessing():
         self.ds_obsrv_vars.loc[:, 'V_0'] = fuel_poverty_ds.loc[:, 'DWtype']
         self.ds_obsrv_vars.loc[:, 'V_2'] = fuel_poverty_ds.loc[:, 'tenure4x']
         self.ds_obsrv_vars.loc[:, 'V_3'] = fuel_poverty_ds.loc[:, 'DWage']
+        self.ds_obsrv_vars.loc[:, 'V_4'] = fuel_poverty_ds.loc[:, 'Unoc']
         self.ds_obsrv_vars.loc[:, 'V_5'] = fuel_poverty_ds.loc[:, 'Hhsize']
         self.ds_obsrv_vars.loc[:, 'V_6'] = fuel_poverty_ds.loc[:, 'FloorArea']
         self.ds_obsrv_vars.loc[:, 'V_7'] = fuel_poverty_ds.loc[:, 'fpfullinc']
@@ -35,7 +35,7 @@ class DataProcessing():
         self.ds_obsrv_vars = self.ds_obsrv_vars[self.ds_obsrv_vars.Mainfueltype != 3]
         return
     
-    
+
     def filter_for_income(self) -> None:
         '''
         Removes instances where household income is bigger than £100k (as they are lumped all together 
@@ -44,3 +44,12 @@ class DataProcessing():
         self.ds_obsrv_vars = self.ds_obsrv_vars[self.ds_obsrv_vars.V_7 > 1000.]
         self.ds_obsrv_vars = self.ds_obsrv_vars[self.ds_obsrv_vars.V_7 < 99999.]
         return
+    
+
+
+    '''
+    better to keep values as numeric, just create a dictionary or something that maps from 
+    numeric value to cathegory, interval, etc. 
+    '''
+
+
