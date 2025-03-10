@@ -23,7 +23,7 @@ class CausalGraphicalModel():
     def add_nodes(self) -> None:
         self.b_net = gum.BayesNet("MyCausalBN")
 
-        self.b_net.add(gum.LabelizedVariable('X', "External wall insulation" , ['0', '1'])) 
+        self.b_net.add(gum.LabelizedVariable('X', "External walls insulation" , ['0', '1'])) 
         self.b_net.add(gum.LabelizedVariable('Y_0', "Heating energy use" , ['0', '1'])) 
         self.b_net.add(gum.LabelizedVariable('Y_1', "Indoor temperature" , ['0', '1']))
         self.b_net.add(gum.LabelizedVariable('W', "xxx" , ['0', '1']))

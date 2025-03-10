@@ -29,7 +29,7 @@ class DataProcessing():
 
     def filter_for_main_fuel_type(self) -> None:
         '''
-        Removes instances where mayn fule type for space heating is not "Gas"
+        Removes instances where main fuel type for space heating is not "Gas".
         '''
         self.ds_obsrv_vars = self.ds_obsrv_vars[self.ds_obsrv_vars.Mainfueltype != 2]
         self.ds_obsrv_vars = self.ds_obsrv_vars[self.ds_obsrv_vars.Mainfueltype != 3]
@@ -39,10 +39,23 @@ class DataProcessing():
     def filter_for_income(self) -> None:
         '''
         Removes instances where household income is bigger than £100k (as they are lumped all together 
-        above that value) or smaller than £1k
+        above that value in the original dataset) or smaller than £1k.
         '''
         self.ds_obsrv_vars = self.ds_obsrv_vars[self.ds_obsrv_vars.V_7 > 1000.]
         self.ds_obsrv_vars = self.ds_obsrv_vars[self.ds_obsrv_vars.V_7 < 99999.]
+        return
+    
+    def aggregate_wall_type(self) -> None:
+        '''Removes instances where wall type is "other".'''
+        self.ds_obsrv_vars = self.ds_obsrv_vars[self.ds_obsrv_vars.X != 5]
+
+        '''Aggregates cavity-insulated and solid-insulatedwalls (and cavity-uninsulated and solid-uninsulated)
+        So that: 
+            insulated walls = 1
+            uninsulated walls = 2
+        '''
+        self.ds_obsrv_vars = self.ds_obsrv_vars.replace({'X': 3}, 1)
+        self.ds_obsrv_vars = self.ds_obsrv_vars.replace({'X': 4}, 2)
         return
     
 
