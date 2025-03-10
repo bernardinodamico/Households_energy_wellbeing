@@ -107,7 +107,7 @@ class CausalGraphicalModel():
 
 
     def define_graph(self) -> None:
-        '''Add directed adges from observed variables to the DiGraph "G".'''
+        '''Add directed adges between observed variables to the DiGraph "G".'''
         self.G = nx.DiGraph()
         self.G.name = 'G'
         for (parent, child) in self.b_net.arcs():
