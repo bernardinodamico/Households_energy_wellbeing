@@ -11,14 +11,14 @@ Only labelised variables (categorical, ordinal etc.) are mapped e.g. Dwelling ag
 
 # External walls insulation
 X_values = {
-    1: "Insulated wall (cavity/solid)",
-    2: "Uninsulated wall (cavity/solid)"
+    1: "Insulated (cavity/solid) walls",
+    2: "Uninsulated (cavity/solid) walls"
 }
 
 # Heating energy (gas) use
 Y_0_values = {}
 
-# Mean rooms temperature
+# Mean room temperature
 Y_1_values = {}
 
 # Heating energy burden
@@ -55,11 +55,43 @@ V_3_values = {
     6: "1965 to 1974",
     7: "1975 to 1980",
     8: "1981 to 1990",
-    9: "post 1990"
+    9: "Post 1990"
 }
 
-# Under Occupancy
+# Under occupancy
 V_4_values = {
     1: "Not under-occupied",
     2: "Under-occupied"
+}
+
+# Household size
+V_5_values = {
+    1: "1",
+    2: "2",
+    3: "3",
+    4: "4",
+    5: "5 or more",
+}
+
+# Dwelling floor area
+V_6_values = {
+    1: "Less than 50 sqm",
+    2: "50 to 69 sqm",
+    3: "70 to 89 sqm",
+    4: "90 to 109 sqm",
+    5: "110 sqm or more",
+}
+
+# Household income
+V_7_values = {}
+
+# Household composition
+V_8_values = {
+    1: "Couple, no dependent child(ren) under 60",
+    2: "Couple, no dependent child(ren) aged 60 or over",
+    3: "Couple with dependent child(ren)",
+    4: "Lone parent with dependent child(ren)",
+    5: "Other multi-person households",
+    6: "One person under 60",
+    7: "One person aged 60 or over"
 }

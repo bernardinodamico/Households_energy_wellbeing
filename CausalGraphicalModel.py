@@ -15,7 +15,7 @@ class CausalGraphicalModel():
  
     def __init__(self, dataset_filename: str):
         """
-        parameter: dataset_filename = the name of the training dataset (including its the file extention)
+        parameter: dataset_filename = the name of the training dataset (including its file extention)
         """
         self.dataset_filename = dataset_filename
         return
@@ -24,18 +24,18 @@ class CausalGraphicalModel():
         self.b_net = gum.BayesNet("MyCausalBN")
 
         self.b_net.add(gum.LabelizedVariable('X', "External walls insulation" , ['0', '1'])) 
-        self.b_net.add(gum.LabelizedVariable('Y_0', "Heating energy use" , ['0', '1'])) 
-        self.b_net.add(gum.LabelizedVariable('Y_1', "Indoor temperature" , ['0', '1']))
-        self.b_net.add(gum.LabelizedVariable('W', "xxx" , ['0', '1']))
-        self.b_net.add(gum.LabelizedVariable('V_0', "xxx" , ['0', '1']))
-        self.b_net.add(gum.LabelizedVariable('V_1', "xxx" , ['0', '1']))
-        self.b_net.add(gum.LabelizedVariable('V_2', "xxx" , ['0', '1']))
-        self.b_net.add(gum.LabelizedVariable('V_3', "xxx" , ['0', '1']))
-        self.b_net.add(gum.LabelizedVariable('V_4', "xxx" , ['0', '1']))
-        self.b_net.add(gum.LabelizedVariable('V_5', "xxx" , ['0', '1']))
-        self.b_net.add(gum.LabelizedVariable('V_6', "xxx" , ['0', '1']))
-        self.b_net.add(gum.LabelizedVariable('V_7', "xxx" , ['0', '1']))
-        self.b_net.add(gum.LabelizedVariable('V_8', "xxx" , ['0', '1']))
+        self.b_net.add(gum.LabelizedVariable('Y_0', "Heating energy (gas) use" , ['0', '1'])) 
+        self.b_net.add(gum.LabelizedVariable('Y_1', "Mean room temperature" , ['0', '1']))
+        self.b_net.add(gum.LabelizedVariable('W', "Heating energy burden" , ['0', '1']))
+        self.b_net.add(gum.LabelizedVariable('V_0', "Dwelling type" , ['0', '1']))
+        self.b_net.add(gum.LabelizedVariable('V_1', "Space heating cost" , ['0', '1']))
+        self.b_net.add(gum.LabelizedVariable('V_2', "Tenancy" , ['0', '1']))
+        self.b_net.add(gum.LabelizedVariable('V_3', "Dwelling age" , ['0', '1']))
+        self.b_net.add(gum.LabelizedVariable('V_4', "Under Occupancy" , ['0', '1']))
+        self.b_net.add(gum.LabelizedVariable('V_5', "Household size" , ['0', '1']))
+        self.b_net.add(gum.LabelizedVariable('V_6', "Dwelling floor area" , ['0', '1']))
+        self.b_net.add(gum.LabelizedVariable('V_7', "Household income" , ['0', '1']))
+        self.b_net.add(gum.LabelizedVariable('V_8', "Household composition" , ['0', '1']))
         return
     
 
