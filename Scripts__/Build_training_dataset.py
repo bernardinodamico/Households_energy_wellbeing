@@ -7,7 +7,7 @@ model parameters of the Causal Bayesian Network.
 '''
 
 dp = DataProcessing()
-dp.initialise_dset_obsrv_vars(first100rows_only=False)
+dp.initialise_dset_obsrv_vars(first100rows_only=True)
 dp.filter_for_main_fuel_type()
 dp.filter_for_income()
 dp.aggregate_wall_type()
