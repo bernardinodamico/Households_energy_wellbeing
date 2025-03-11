@@ -109,7 +109,8 @@ class DataProcessing():
         weight_V_7 = 1. / math.pow(gc_stdev_given_V_7, 2)
 
         gc_weighted_mean_val = ((weight_V_6 * gc_mean_given_V_6) + (weight_V_0 * gc_mean_given_V_0) + (weight_V_3 * gc_mean_given_V_3) + (weight_V_2 * gc_mean_given_V_2) + (weight_V_7 * gc_mean_given_V_7)) / (weight_V_6 + weight_V_0 + weight_V_3 + weight_V_2 + weight_V_7)
-                            
+     
+
         return str(round(gc_weighted_mean_val, 1))
     
 
