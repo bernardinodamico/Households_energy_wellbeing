@@ -4,8 +4,8 @@ import pyAgrum.causal as csl
 import networkx as nx
 
 
-'''
-1) Setting up of a Causal Bayesian Network
+'''  
+1) Setting up of a Causal Bayesian Network.
 '''
 
 # load dataset
