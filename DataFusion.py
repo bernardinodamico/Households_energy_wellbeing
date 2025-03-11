@@ -82,7 +82,7 @@ class DataProcessing():
         '''
         V_7_val = self.V7_to_num(real_valued=V_7_val)
 
-        fpath = os.path.join(os.path.dirname(__file__), r"DATA\RAW\Gas_consumption_data.xlsx")
+        fpath = os.path.join(os.path.dirname(__file__), r"DATA\RAW\Gas_consumption_data_2021.xlsx")
 
         gc_by_V_6 = pd.read_excel(io=fpath, sheet_name="by_floor_area")
         gc_by_V_0 = pd.read_excel(io=fpath, sheet_name="by_dwelling_type")
