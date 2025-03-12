@@ -11,8 +11,8 @@ class DataFusion():
     def initialise_dset_obsrv_vars(self, first100rows_only: bool = False) -> None:
         self.ds_obsrv_vars = pd.DataFrame()
 
-        fuel_poverty_ds = pd.read_excel(io=os.path.join(os.path.dirname(__file__), r"DATA\RAW\Fuel_poverty_2021.xlsx"),
-                                        sheet_name="fuel_poverty_2021_ukda")
+        fuel_poverty_ds = pd.read_excel(io=os.path.join(os.path.dirname(__file__), r"DATA\RAW\Fuel_poverty_2015.xlsx"),
+                                        sheet_name="fuel_poverty_2015_ukda")
         
         self.ds_obsrv_vars.loc[:, 'X'] = fuel_poverty_ds.loc[:, 'WallType']
         self.ds_obsrv_vars.loc[:, 'V_0'] = fuel_poverty_ds.loc[:, 'DWtype']
