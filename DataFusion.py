@@ -33,7 +33,7 @@ class DataProcessing():
 
     def filter_for_main_fuel_type(self) -> None:
         '''
-        Removes instances where main fuel type for space heating is not "Gas".
+        Removes instances where main fuel type for space heating is not "Gas"
         '''
         self.ds_obsrv_vars = self.ds_obsrv_vars[self.ds_obsrv_vars.Mainfueltype != 2]
         self.ds_obsrv_vars = self.ds_obsrv_vars[self.ds_obsrv_vars.Mainfueltype != 3]
