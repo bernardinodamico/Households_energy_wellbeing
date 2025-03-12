@@ -60,8 +60,8 @@ V_3_values = {
 
 # Under occupancy
 V_4_values = {
-    1: "Not under-occupied",
-    2: "Under-occupied"
+    0: "Not under-occupied",
+    1: "Under-occupied"
 }
 
 # Household size

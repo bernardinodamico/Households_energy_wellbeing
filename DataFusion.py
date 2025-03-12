@@ -3,7 +3,7 @@ from pandas import DataFrame, Series
 import os
 import math
 
-class DataProcessing():
+class DataFusion():
 
     ds_obsrv_vars: DataFrame = None
 
@@ -77,12 +77,17 @@ class DataProcessing():
 
     def gas_cnsmp_IVW(self, V_6_val, V_0_val, V_3_val, V_2_val, V_7_val) -> float:
         '''
-        Given a series of observed values for variables V_6, V_0, V_3, V_2 and V_7
-        the method returns an Inverse-Variance Weighted mean estimate of gas consumption.
+        Given a series of observed values for the following variables:
+         - V_6: dwelling floor area
+         - V_0: dwelling type
+         - V_3: dwelling age
+         - V_2: tenancy
+         - V_7: household income
+        the method returns an Inverse-Variance Weighted mean estimate of annual energy (gas) consumption.
         '''
         V_7_val = self.V7_to_num(real_valued=V_7_val)
 
-        fpath = os.path.join(os.path.dirname(__file__), r"DATA\RAW\Gas_consumption_data_2021.xlsx")
+        fpath = os.path.join(os.path.dirname(__file__), r"DATA\RAW\Gas_consumption_data_2011.xlsx")
 
         gc_by_V_6 = pd.read_excel(io=fpath, sheet_name="by_floor_area")
         gc_by_V_0 = pd.read_excel(io=fpath, sheet_name="by_dwelling_type")

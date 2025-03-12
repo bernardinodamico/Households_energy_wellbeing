@@ -1,4 +1,4 @@
-from DataFusion import DataProcessing
+from DataFusion import DataFusion
 import time
 
 '''
@@ -6,7 +6,7 @@ Script to process all the raw datasources, so to build the dataset for training 
 model parameters of the Causal Bayesian Network.
 '''
 
-dp = DataProcessing()
+dp = DataFusion()
 dp.initialise_dset_obsrv_vars(first100rows_only=True)
 dp.filter_for_main_fuel_type()
 dp.filter_for_income()
@@ -18,6 +18,9 @@ end_time = time.time()
 print("Elapsed time (s): ", end_time - start_time)
 
 
+'''
+Saving the generated training dataset into 'DATA' folder
+'''
 dp.ds_obsrv_vars.to_csv(path_or_buf="DATA/processed_dataset.csv", index=False)
 
 
