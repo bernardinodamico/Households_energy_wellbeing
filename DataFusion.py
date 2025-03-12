@@ -1,7 +1,8 @@
 import pandas as pd
-from pandas import DataFrame, Series
+from pandas import DataFrame
 import os
 import math
+import numpy as np
 
 class DataFusion():
 
@@ -75,6 +76,33 @@ class DataFusion():
         return
     
 
+    def indoord_tmpt_IVW(self, V_0_val, V_3_val, V_6_val, X_val, V_2_val, V_5_val, V_4_val) -> float:
+        '''
+        Given a series of observed values for the following variables:
+         - V_0: dwelling type
+         - V_3: dwelling age
+         - V_6: dwelling floor area
+         - X:   walls insulation
+         - V_2: tenancy
+         - V_5: household size
+         - V_4: under-occupancy
+        the method returns an Inverse-Variance Weighted mean estimate of annual energy (gas) consumption.
+        '''
+        fpath = os.path.join(os.path.dirname(__file__), r"DATA\RAW\Energy_follow_Up_Survey_2011_mean_temp")
+
+        it_by_V_0 = pd.read_excel(io=fpath, sheet_name="by_dwelling_type")
+        it_by_V_3 = pd.read_excel(io=fpath, sheet_name="by_dwelling_age")
+        it_by_V_6 = pd.read_excel(io=fpath, sheet_name="by_floor_area")
+        it_by_X = pd.read_excel(io=fpath, sheet_name="by_wall_insulation")
+        it_by_V_2 = pd.read_excel(io=fpath, sheet_name="by_tenancy")
+        it_by_V_5 = pd.read_excel(io=fpath, sheet_name="by_household_size")
+        it_by_V_4 = pd.read_excel(io=fpath, sheet_name="by_under_occupancy")
+
+        it_mean_given_V_0 = it_by_V_0.loc[it_by_V_0['DwellingType_value_num'] == V_0_val, 'Dwelling_mean_temp'].iloc[0]
+        it_mean_given_V_3 = it_by_V_3.loc[it_by_V_3['DwellingAge_value_num'] == V_3_val, 'Dwelling_mean_temp'].iloc[0]
+
+        return
+
     def gas_cnsmp_IVW(self, V_6_val, V_0_val, V_3_val, V_2_val, V_7_val) -> float:
         '''
         Given a series of observed values for the following variables:
@@ -113,9 +141,13 @@ class DataFusion():
         weight_V_2 = 1. / math.pow(gc_stdev_given_V_2, 2)
         weight_V_7 = 1. / math.pow(gc_stdev_given_V_7, 2)
 
-        gc_weighted_mean_val = ((weight_V_6 * gc_mean_given_V_6) + (weight_V_0 * gc_mean_given_V_0) + (weight_V_3 * gc_mean_given_V_3) + (weight_V_2 * gc_mean_given_V_2) + (weight_V_7 * gc_mean_given_V_7)) / (weight_V_6 + weight_V_0 + weight_V_3 + weight_V_2 + weight_V_7)
-     
+        weights = np.array([weight_V_6, weight_V_0, weight_V_3, weight_V_2, weight_V_7])
+        means = np.array([gc_mean_given_V_6, gc_mean_given_V_0, gc_mean_given_V_3, gc_mean_given_V_2, gc_mean_given_V_7])
 
+        gc_weighted_mean_val = np.sum(weights * means) / np.sum(weights)
+
+        #gc_weighted_mean_val = ((weight_V_6 * gc_mean_given_V_6) + (weight_V_0 * gc_mean_given_V_0) + (weight_V_3 * gc_mean_given_V_3) + (weight_V_2 * gc_mean_given_V_2) + (weight_V_7 * gc_mean_given_V_7)) / (weight_V_6 + weight_V_0 + weight_V_3 + weight_V_2 + weight_V_7)
+     
         return str(round(gc_weighted_mean_val, 1))
     
 
