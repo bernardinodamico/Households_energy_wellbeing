@@ -131,7 +131,7 @@ class DataFusion():
 
         sampled = np.random.normal(gc_weighted_mean_val, gc_weighted_std_dev_val) #instead of returning the mean we sample a random value from the combined distrib.
 
-        return str(sampled, 4)
+        return round(sampled, 1)
         #return str(round(gc_weighted_mean_val, 4))
     
 
@@ -199,11 +199,9 @@ class DataFusion():
 
         sampled = np.random.normal(it_weighted_mean_val, it_weighted_std_dev_val) #instead of returning the mean we sample a random value from the combined distrib.
 
-        return str(sampled, 4) 
+        return round(sampled, 4) 
         #return str(round(it_weighted_mean_val, 4))
     
-
-
 
     def V7_to_num(self, real_valued: float) -> int:
         real_valued = float(real_valued)
@@ -225,6 +223,42 @@ class DataFusion():
             return 8
 
 
+    def fill_in_gas_cost_data(self) -> None:
+            '''
+            Fills in values of annual energy (gas) cost [£/year] (V_1) into the dataframe "ds_obsrv_vars"
+            '''
+            self.ds_obsrv_vars['V_1'] = ""
+            self.ds_obsrv_vars['V_1'] = self.ds_obsrv_vars.apply(lambda row: round(self.gas_cost(row['gasmop']) * row['Y_0'], 1), axis=1)
+       
+            return
+    
+
+    def gas_cost(self, gasmop_val) -> float:
+        '''
+        Given the observed value for the following variable: 
+        - gasmop: method of payment for gas
+        the function returns a value for the energy (gas) price [£/kWh] variable.
+        '''
+        fpath = os.path.join(os.path.dirname(__file__), r"DATA\RAW\Gas_price_per_kWh_2011.xlsx")
+
+        gp_by_gasmop = pd.read_excel(io=fpath, sheet_name="2011_gas_price_per_kWh")
+        gp_given_gasmop = gp_by_gasmop.loc[gp_by_gasmop['Payment_method_value_num'] == gasmop_val, 'Annual gas price per 1 kWh'].iloc[0]
+
+        return gp_given_gasmop
+    
+
+    def fill_in_energy_burden_data(self) -> None:
+        '''
+        Fills in values of energy burden [£/£] (W) into the dataframe "ds_obsrv_vars"
+        '''
+        self.ds_obsrv_vars['W'] = ""
+        self.ds_obsrv_vars['W'] = round(self.ds_obsrv_vars['V_1'] / self.ds_obsrv_vars['V_7'], 4)
+    
+        return
+    
+    def rearrange_cols(self) -> None:
+        self.ds_obsrv_vars = self.ds_obsrv_vars[['X', 'Y_0', 'Y_1', 'W', 'V_0', 'V_1', 'V_2', 'V_3', 'V_4', 'V_5', 'V_6', 'V_7', 'V_8']]
+        return
     
 
 
