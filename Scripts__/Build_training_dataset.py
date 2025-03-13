@@ -21,7 +21,6 @@ dp.fill_in_energy_burden_data()
 dp.ds_obsrv_vars.drop('Mainfueltype', axis=1, inplace=True)
 dp.ds_obsrv_vars.drop('gasmop', axis=1, inplace=True)
 dp.rearrange_cols()
-
 end_time = time.time()
 
 print("Processing time (h:m:s) ", str(datetime.timedelta(seconds = round(end_time - start_time, 0))))
