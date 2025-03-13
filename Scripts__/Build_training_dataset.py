@@ -13,10 +13,12 @@ dp.filter_for_income()
 dp.aggregate_wall_type()
 
 start_time = time.time()
-dp.fill_in_gas_cnsmp_data() # this takes approx. 30 min to run on the full dataset
+#dp.fill_in_gas_cnsmp_data() # this takes approx. 30 min to run on the full dataset
+dp.fill_in_ind_temp_data()
 end_time = time.time()
 print("Elapsed time (s): ", end_time - start_time)
 
+dp.ds_obsrv_vars.drop('Mainfueltype', axis=1, inplace=True)
 
 '''
 Saving the generated training dataset into 'DATA' folder

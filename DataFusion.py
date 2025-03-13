@@ -28,7 +28,7 @@ class DataFusion():
         self.ds_obsrv_vars.loc[:, 'Mainfueltype'] = fuel_poverty_ds.loc[:, 'Mainfueltype']
 
         if first100rows_only is True:
-            self.ds_obsrv_vars = self.ds_obsrv_vars[:100] # only keep first 100 rows
+            self.ds_obsrv_vars = self.ds_obsrv_vars[:500] # only keep first 100 rows
         return 
     
 
@@ -70,38 +70,10 @@ class DataFusion():
         Fills in values of Gas energy use (Y_0) into the dataframe "ds_obsrv_vars"
         '''
         self.ds_obsrv_vars['Y_0'] = ""
-        self.ds_obsrv_vars.drop('Mainfueltype', axis=1, inplace=True)
 
         self.ds_obsrv_vars['Y_0'] = self.ds_obsrv_vars.apply(lambda row: self.gas_cnsmp_IVW(row['V_6'], row['V_0'], row['V_3'], row['V_2'], row['V_7']), axis=1)
         return
     
-
-    def indoord_tmpt_IVW(self, V_0_val, V_3_val, V_6_val, X_val, V_2_val, V_5_val, V_4_val) -> float:
-        '''
-        Given a series of observed values for the following variables:
-         - V_0: dwelling type
-         - V_3: dwelling age
-         - V_6: dwelling floor area
-         - X:   walls insulation
-         - V_2: tenancy
-         - V_5: household size
-         - V_4: under-occupancy
-        the method returns an Inverse-Variance Weighted mean estimate of annual energy (gas) consumption.
-        '''
-        fpath = os.path.join(os.path.dirname(__file__), r"DATA\RAW\Energy_follow_Up_Survey_2011_mean_temp")
-
-        it_by_V_0 = pd.read_excel(io=fpath, sheet_name="by_dwelling_type")
-        it_by_V_3 = pd.read_excel(io=fpath, sheet_name="by_dwelling_age")
-        it_by_V_6 = pd.read_excel(io=fpath, sheet_name="by_floor_area")
-        it_by_X = pd.read_excel(io=fpath, sheet_name="by_wall_insulation")
-        it_by_V_2 = pd.read_excel(io=fpath, sheet_name="by_tenancy")
-        it_by_V_5 = pd.read_excel(io=fpath, sheet_name="by_household_size")
-        it_by_V_4 = pd.read_excel(io=fpath, sheet_name="by_under_occupancy")
-
-        it_mean_given_V_0 = it_by_V_0.loc[it_by_V_0['DwellingType_value_num'] == V_0_val, 'Dwelling_mean_temp'].iloc[0]
-        it_mean_given_V_3 = it_by_V_3.loc[it_by_V_3['DwellingAge_value_num'] == V_3_val, 'Dwelling_mean_temp'].iloc[0]
-
-        return
 
     def gas_cnsmp_IVW(self, V_6_val, V_0_val, V_3_val, V_2_val, V_7_val) -> float:
         '''
@@ -145,11 +117,84 @@ class DataFusion():
         means = np.array([gc_mean_given_V_6, gc_mean_given_V_0, gc_mean_given_V_3, gc_mean_given_V_2, gc_mean_given_V_7])
 
         gc_weighted_mean_val = np.sum(weights * means) / np.sum(weights)
+        gc_weighted_variance_val = 1. / np.sum(weights)
+        gc_weighted_std_dev_val = math.sqrt(gc_weighted_variance_val)
 
-        #gc_weighted_mean_val = ((weight_V_6 * gc_mean_given_V_6) + (weight_V_0 * gc_mean_given_V_0) + (weight_V_3 * gc_mean_given_V_3) + (weight_V_2 * gc_mean_given_V_2) + (weight_V_7 * gc_mean_given_V_7)) / (weight_V_6 + weight_V_0 + weight_V_3 + weight_V_2 + weight_V_7)
-     
-        return str(round(gc_weighted_mean_val, 1))
+        sampled = np.random.normal(gc_weighted_mean_val, gc_weighted_std_dev_val) #instead of returning the mean we sample a random value from the combined distrib.
+
+        return str(sampled, 4)
+        #return str(round(gc_weighted_mean_val, 4))
     
+
+    def fill_in_ind_temp_data(self) -> None:
+        '''
+        Fills in values of indoor temperature (Y_1) into the dataframe "ds_obsrv_vars"
+        '''
+        self.ds_obsrv_vars['Y_1'] = ""
+        self.ds_obsrv_vars['Y_1'] = self.ds_obsrv_vars.apply(lambda row: self.indoord_tmpt_IVW(row['V_0'], row['V_3'], row['V_6'], row['X'], row['V_2'], row['V_5'], row['V_4']), axis=1)
+        return
+    
+
+    def indoord_tmpt_IVW(self, V_0_val, V_3_val, V_6_val, X_val, V_2_val, V_5_val, V_4_val) -> float:
+        '''
+        Given a series of observed values for the following variables:
+         - V_0: dwelling type
+         - V_3: dwelling age
+         - V_6: dwelling floor area
+         - X:   walls insulation
+         - V_2: tenancy
+         - V_5: household size
+         - V_4: under-occupancy
+        the method returns an Inverse-Variance Weighted mean estimate of annual energy (gas) consumption.
+        '''
+        fpath = os.path.join(os.path.dirname(__file__), r"DATA\RAW\Energy_follow_Up_Survey_2011_mean_temp.xlsx")
+
+        it_by_V_0 = pd.read_excel(io=fpath, sheet_name="by_dwelling_type")
+        it_by_V_3 = pd.read_excel(io=fpath, sheet_name="by_dwelling_age")
+        it_by_V_6 = pd.read_excel(io=fpath, sheet_name="by_floor_area")
+        it_by_X = pd.read_excel(io=fpath, sheet_name="by_walls_insulation")
+        it_by_V_2 = pd.read_excel(io=fpath, sheet_name="by_tenancy")
+        it_by_V_5 = pd.read_excel(io=fpath, sheet_name="by_household_size")
+        it_by_V_4 = pd.read_excel(io=fpath, sheet_name="by_under_occupancy")
+
+        it_mean_given_V_0 = it_by_V_0.loc[it_by_V_0['DwellingType_value_num'] == V_0_val, 'Dwelling_mean_temp'].iloc[0]
+        it_mean_given_V_3 = it_by_V_3.loc[it_by_V_3['DwellingAge_value_num'] == V_3_val, 'Dwelling_mean_temp'].iloc[0]
+        it_mean_given_V_6 = it_by_V_6.loc[it_by_V_6['Floor_area_value_num'] == V_6_val, 'Dwelling_mean_temp'].iloc[0]
+        it_mean_given_X   = it_by_X.loc[it_by_X['Walls_insulation_value_num'] == X_val, 'Dwelling_mean_temp'].iloc[0]
+        it_mean_given_V_2 = it_by_V_2.loc[it_by_V_2['Tenancy_value_num'] == V_2_val, 'Dwelling_mean_temp'].iloc[0]
+        it_mean_given_V_5 = it_by_V_5.loc[it_by_V_5['Household_size_value_num'] == V_5_val, 'Dwelling_mean_temp'].iloc[0]
+        it_mean_given_V_4 = it_by_V_4.loc[it_by_V_4['Under_occupancy_value_num'] == V_4_val, 'Dwelling_mean_temp'].iloc[0]
+
+        it_stdev_given_V_0 = it_by_V_0.loc[it_by_V_0['DwellingType_value_num'] == V_0_val, 'Dwelling_st_dev_temp'].iloc[0]
+        it_stdev_given_V_3 = it_by_V_3.loc[it_by_V_3['DwellingAge_value_num'] == V_3_val, 'Dwelling_st_dev_temp'].iloc[0]
+        it_stdev_given_V_6 = it_by_V_6.loc[it_by_V_6['Floor_area_value_num'] == V_6_val, 'Dwelling_st_dev_temp'].iloc[0]
+        it_stdev_given_X   = it_by_X.loc[it_by_X['Walls_insulation_value_num'] == X_val, 'Dwelling_st_dev_temp'].iloc[0]
+        it_stdev_given_V_2 = it_by_V_2.loc[it_by_V_2['Tenancy_value_num'] == V_2_val, 'Dwelling_st_dev_temp'].iloc[0]
+        it_stdev_given_V_5 = it_by_V_5.loc[it_by_V_5['Household_size_value_num'] == V_5_val, 'Dwelling_st_dev_temp'].iloc[0]
+        it_stdev_given_V_4 = it_by_V_4.loc[it_by_V_4['Under_occupancy_value_num'] == V_4_val, 'Dwelling_st_dev_temp'].iloc[0]
+
+        weight_V_0 = 1. / math.pow(it_stdev_given_V_0, 2) # weight as inverse of Variance
+        weight_V_3 = 1. / math.pow(it_stdev_given_V_3, 2)
+        weight_V_6 = 1. / math.pow(it_stdev_given_V_6, 2)
+        weight_X = 1. / math.pow(it_stdev_given_X, 2)
+        weight_V_2 = 1. / math.pow(it_stdev_given_V_2, 2)
+        weight_V_5 = 1. / math.pow(it_stdev_given_V_5, 2)
+        weight_V_4 = 1. / math.pow(it_stdev_given_V_4, 2)
+
+        weights = np.array([weight_V_0, weight_V_3, weight_V_6, weight_X, weight_V_2, weight_V_5, weight_V_4])
+        means = np.array([it_mean_given_V_0, it_mean_given_V_3, it_mean_given_V_6, it_mean_given_X, it_mean_given_V_2, it_mean_given_V_5, it_mean_given_V_4])
+
+        it_weighted_mean_val = np.sum(weights * means) / np.sum(weights)
+        it_weighted_variance_val = 1. / np.sum(weights)
+        it_weighted_std_dev_val = math.sqrt(it_weighted_variance_val)
+
+        sampled = np.random.normal(it_weighted_mean_val, it_weighted_std_dev_val) #instead of returning the mean we sample a random value from the combined distrib.
+
+        return str(sampled, 4) 
+        #return str(round(it_weighted_mean_val, 4))
+    
+
+
 
     def V7_to_num(self, real_valued: float) -> int:
         real_valued = float(real_valued)
