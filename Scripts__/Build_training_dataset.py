@@ -9,6 +9,7 @@ model parameters of the Causal Bayesian Network.
 dp = DataFusion()
 dp.initialise_dset_obsrv_vars(first100rows_only=True)
 dp.filter_for_main_fuel_type()
+dp.filter_for_method_of_payment()
 dp.filter_for_income()
 dp.aggregate_wall_type()
 
@@ -19,6 +20,7 @@ end_time = time.time()
 print("Elapsed time (s): ", end_time - start_time)
 
 dp.ds_obsrv_vars.drop('Mainfueltype', axis=1, inplace=True)
+dp.ds_obsrv_vars.drop('gasmop', axis=1, inplace=True)
 
 '''
 Saving the generated training dataset into 'DATA' folder
