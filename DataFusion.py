@@ -54,10 +54,10 @@ class DataFusion():
     def filter_for_income(self) -> None:
         '''
         Removes instances (rows) where household income is bigger than £100k (as they are lumped all together 
-        above that value in the original dataset) or smaller than £1k.
+        above that value in the original dataset) or smaller than £1000.
         '''
         self.ds_obsrv_vars = self.ds_obsrv_vars[self.ds_obsrv_vars.V_7 > 1000.]
-        self.ds_obsrv_vars = self.ds_obsrv_vars[self.ds_obsrv_vars.V_7 < 99999.]
+        #self.ds_obsrv_vars = self.ds_obsrv_vars[self.ds_obsrv_vars.V_7 < 99999.]
         return
     
 
@@ -97,7 +97,7 @@ class DataFusion():
         '''
         V_7_val = self.V7_to_num(real_valued=V_7_val)
 
-        fpath = os.path.join(os.path.dirname(__file__), r"DATA\RAW\Gas_consumption_data_2011.xlsx")
+        fpath = os.path.join(os.path.dirname(__file__), r"DATA\RAW\Gas_consumption_data_2015.xlsx")
 
         gc_by_V_6 = pd.read_excel(io=fpath, sheet_name="by_floor_area")
         gc_by_V_0 = pd.read_excel(io=fpath, sheet_name="by_dwelling_type")
@@ -218,10 +218,12 @@ class DataFusion():
             return 5
         elif real_valued <= 59999:
             return 6
-        elif real_valued <= 69000:
+        elif real_valued <= 69999:
             return 7
-        else:
+        elif real_valued <= 99999:
             return 8
+        else:
+            return 9
 
 
     def fill_in_gas_cost_data(self) -> None:
@@ -240,9 +242,9 @@ class DataFusion():
         - gasmop: method of payment for gas
         the function returns a value for the energy (gas) price [£/kWh] variable.
         '''
-        fpath = os.path.join(os.path.dirname(__file__), r"DATA\RAW\Gas_price_per_kWh_2011.xlsx")
+        fpath = os.path.join(os.path.dirname(__file__), r"DATA\RAW\Gas_price_per_kWh_2015.xlsx")
 
-        gp_by_gasmop = pd.read_excel(io=fpath, sheet_name="2011_gas_price_per_kWh")
+        gp_by_gasmop = pd.read_excel(io=fpath, sheet_name="2015_gas_price_per_kWh")
         gp_given_gasmop = gp_by_gasmop.loc[gp_by_gasmop['Payment_method_value_num'] == gasmop_val, 'Annual gas price per 1 kWh'].iloc[0]
 
         return gp_given_gasmop
