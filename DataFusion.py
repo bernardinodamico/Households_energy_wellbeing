@@ -268,7 +268,19 @@ class DataFusion():
         return
     
 
-    def discretise_vars(self) -> None:
+    def discretise(self) -> None:
+
+        self.discrete_ds_obsrv_vars = self.ds_obsrv_vars.copy(deep=True)
+
+        self.discrete_ds_obsrv_vars['V_7'] = pd.cut(self.discrete_ds_obsrv_vars['V_7'],
+               bins=[0, 15000, 20000, 30000, 40000, 50000, 60000, 70000, 99999, 200000],
+               labels=['1', '2', '3', '4', '5', '6', '7', '8', '9']
+               )
+        
+        '''
+        NOTE: for the other real-valued variables, e.g. energy burden, plot the
+        hystogram to have an idea of the number (and bounds of bins) to discretise into
+        '''
 
         return
 
