@@ -280,6 +280,7 @@ class DataFusion():
         '''
         NOTE: for the other real-valued variables, e.g. energy burden, plot the
         hystogram to have an idea of the number (and bounds of bins) to discretise into
+        BOUNDS do not need be uniform.
         '''
 
         return
