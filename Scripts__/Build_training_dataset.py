@@ -8,7 +8,7 @@ model parameters of the Causal Bayesian Network.
 '''
 start_time = time.time()
 dp = DataFusion()
-dp.initialise_dset_obsrv_vars(first100rows_only=True)
+dp.initialise_dset_obsrv_vars(subset_only=True, how_many=1000)
 dp.filter_for_main_fuel_type()
 dp.filter_for_method_of_payment()
 dp.filter_for_income()

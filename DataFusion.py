@@ -9,7 +9,8 @@ class DataFusion():
     ds_obsrv_vars: DataFrame = None
 
 
-    def initialise_dset_obsrv_vars(self, first100rows_only: bool = False) -> None:
+    def initialise_dset_obsrv_vars(self, subset_only: bool = False, how_many: int = 100) -> None:
+        
         self.ds_obsrv_vars = pd.DataFrame()
 
         fuel_poverty_ds = pd.read_excel(io=os.path.join(os.path.dirname(__file__), r"DATA\RAW\English_Housing_Survey_FuelP_dataset_2015.xlsx"),
@@ -28,8 +29,8 @@ class DataFusion():
         self.ds_obsrv_vars.loc[:, 'Mainfueltype'] = fuel_poverty_ds.loc[:, 'Mainfueltype'] # Main fule type variable
         self.ds_obsrv_vars.loc[:, 'gasmop'] = fuel_poverty_ds.loc[:, 'gasmop'] # Method of payment for gas {1: Direct debit; 2: Standard credit; 3: Pre payment} 
 
-        if first100rows_only is True:
-            self.ds_obsrv_vars = self.ds_obsrv_vars[:100] # only keep first 100 rows
+        if subset_only is True:
+            self.ds_obsrv_vars = self.ds_obsrv_vars[:how_many] # only keep first 100 rows
         return 
     
 
