@@ -28,6 +28,7 @@ class DataFusion():
 
         self.ds_obsrv_vars.loc[:, 'Mainfueltype'] = fuel_poverty_ds.loc[:, 'Mainfueltype'] # Main fule type variable
         self.ds_obsrv_vars.loc[:, 'gasmop'] = fuel_poverty_ds.loc[:, 'gasmop'] # Method of payment for gas {1: Direct debit; 2: Standard credit; 3: Pre payment} 
+        self.ds_obsrv_vars.loc[:, 'litecost'] = fuel_poverty_ds.loc[:, 'litecost'] # Annual cost (£) to the household of powering their lights and appliances
 
         if subset_only is True:
             self.ds_obsrv_vars = self.ds_obsrv_vars[:how_many] # only keep first 100 rows
@@ -253,9 +254,10 @@ class DataFusion():
     def fill_in_energy_burden_data(self) -> None:
         '''
         Fills in values of energy burden [£/£] (W) into the dataframe "ds_obsrv_vars"
+        NOTE: the total energy cost (gas + electricity) is used to calculate  energy burden.
         '''
         self.ds_obsrv_vars['W'] = ""
-        self.ds_obsrv_vars['W'] = round(self.ds_obsrv_vars['V_1'] / self.ds_obsrv_vars['V_7'], 4)
+        self.ds_obsrv_vars['W'] = round((self.ds_obsrv_vars['V_1'] + self.ds_obsrv_vars['litecost']) / self.ds_obsrv_vars['V_7'], 4)
     
         return
     
