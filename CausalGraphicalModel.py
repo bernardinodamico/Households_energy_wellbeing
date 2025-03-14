@@ -5,6 +5,8 @@ from pyAgrum.causal import CausalModel
 import networkx as nx
 from networkx import DiGraph
 from pyAgrum import BayesNet
+from Values_mapping import VariableValues as vvalues
+
 
 
 class CausalGraphicalModel():
@@ -23,19 +25,20 @@ class CausalGraphicalModel():
     def add_nodes(self) -> None:
         self.b_net = gum.BayesNet("MyCausalBN")
 
-        self.b_net.add(gum.LabelizedVariable('X', "External walls insulation" , ['0', '1'])) 
-        self.b_net.add(gum.LabelizedVariable('Y_0', "Heating energy (gas) use" , ['0', '1'])) 
-        self.b_net.add(gum.LabelizedVariable('Y_1', "Mean room temperature" , ['0', '1']))
-        self.b_net.add(gum.LabelizedVariable('W', "Heating energy burden" , ['0', '1']))
-        self.b_net.add(gum.LabelizedVariable('V_0', "Dwelling type" , ['0', '1']))
-        self.b_net.add(gum.LabelizedVariable('V_1', "Space heating cost" , ['0', '1']))
-        self.b_net.add(gum.LabelizedVariable('V_2', "Tenancy" , ['0', '1']))
-        self.b_net.add(gum.LabelizedVariable('V_3', "Dwelling age" , ['0', '1']))
-        self.b_net.add(gum.LabelizedVariable('V_4', "Under Occupancy" , ['0', '1']))
-        self.b_net.add(gum.LabelizedVariable('V_5', "Household size" , ['0', '1']))
-        self.b_net.add(gum.LabelizedVariable('V_6', "Dwelling floor area" , ['0', '1']))
-        self.b_net.add(gum.LabelizedVariable('V_7', "Household income" , ['0', '1']))
-        self.b_net.add(gum.LabelizedVariable('V_8', "Household composition" , ['0', '1']))
+        self.b_net.add(gum.LabelizedVariable('X', "External walls insulation" , vvalues.get_nums('X'))) 
+        self.b_net.add(gum.LabelizedVariable('Y_0', "Energy (gas) consumption" , vvalues.get_nums('Y_0'))) 
+        self.b_net.add(gum.LabelizedVariable('Y_1', "Dwelling indoor temperature" , vvalues.get_nums('Y_1')))
+        self.b_net.add(gum.LabelizedVariable('W', "Energy burden" , vvalues.get_nums('W')))
+        self.b_net.add(gum.LabelizedVariable('V_0', "Dwelling type" , vvalues.get_nums('V_0')))
+        self.b_net.add(gum.LabelizedVariable('V_1', "Energy (gas) cost" , vvalues.get_nums('V_1')))
+        self.b_net.add(gum.LabelizedVariable('V_2', "Tenancy" , vvalues.get_nums('V_2')))
+        self.b_net.add(gum.LabelizedVariable('V_3', "Dwelling age" , vvalues.get_nums('V_3')))
+        self.b_net.add(gum.LabelizedVariable('V_4', "Under Occupancy" , vvalues.get_nums('V_4')))
+        self.b_net.add(gum.LabelizedVariable('V_5', "Household size" , vvalues.get_nums('V_5')))
+        self.b_net.add(gum.LabelizedVariable('V_6', "Dwelling floor area" , vvalues.get_nums('V_6')))
+        self.b_net.add(gum.LabelizedVariable('V_7', "Household income" , vvalues.get_nums('V_7')))
+        self.b_net.add(gum.LabelizedVariable('V_8', "Household composition" , vvalues.get_nums('V_8')))
+
         return
     
 

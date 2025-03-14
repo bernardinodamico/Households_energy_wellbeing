@@ -7,6 +7,7 @@ import numpy as np
 class DataFusion():
 
     ds_obsrv_vars: DataFrame = None
+    discrete_ds_obsrv_vars: DataFrame = None
 
 
     def initialise_dset_obsrv_vars(self, subset_only: bool = False, how_many: int = 100) -> None:
@@ -261,11 +262,15 @@ class DataFusion():
     
         return
     
+
     def rearrange_cols(self) -> None:
         self.ds_obsrv_vars = self.ds_obsrv_vars[['X', 'Y_0', 'Y_1', 'W', 'V_0', 'V_1', 'V_2', 'V_3', 'V_4', 'V_5', 'V_6', 'V_7', 'V_8']]
         return
     
 
+    def discretise_vars(self) -> None:
+
+        return
 
 
 

@@ -1,13 +1,36 @@
+
+class VariableValues:
+
+    @staticmethod
+    def get_nums(var_symbol: str) -> list[str]:
+        '''
+        input: var_symbol = the symbol of the variable (e.g. X, Y_0 etc.)
+        output: a list of the numerical values (e.g. 1, 2, 3...) for that variable
+        '''
+        var = Variables_dic[var_symbol]
+        vals_list = []
+        for v in list(var.keys()):
+            vals_list.append(str(v))
+        return vals_list
+    
+    @staticmethod
+    def get_labels(var_symbol: str) -> list[str]:
+        '''
+        input: var_symbol = the symbol of the variable (e.g. X, Y_0 etc.)
+        output: a list of the lable values (e.g. "End terrace", "Mid terrace"...) for that variable
+        '''
+        var = Variables_dic[var_symbol]
+        vals_list = []
+        for v in list(var.values()):
+            vals_list.append(str(v))
+        return vals_list
+    
+
 '''
-Values for each observed variable are represened as key-value pairs in a python dictionary.
+Below are variables dictionaries: the values for each observed variable are represened as key-value pairs in a python dictionary.
 the dict "key" corresponds to the "number" of the Variable's value (which is entered in the csv datased).
-the dict "value" correspond to the "label" of the Variable's value
-
-NOTE: real-valued Variables (e.g. Household income) are not mapped (empty dict). 
-Only labelised variables (categorical, ordinal etc.) are mapped e.g. Dwelling age.
+the dict "value" correspond to the "label" of the Variable's value.
 '''
-
-
 
 # External walls insulation
 X_values = {
@@ -83,7 +106,17 @@ V_6_values = {
 }
 
 # Household income
-V_7_values = {}
+V_7_values = {
+    1:	"Less than £15,000",
+    2:	"£15,000 to £19,999",
+    3:	"£20,000 to £29,999",
+    4:	"£30,000 to £39,999",
+    5:	"£40,000 to £49,999",
+    6:	"£50,000 to £59,999",
+    7:	"£60,000 to £69,999",
+    8:	"£70,000 to £99,999",
+    9:	"£100,000 and above"
+}
 
 # Household composition
 V_8_values = {
@@ -94,4 +127,27 @@ V_8_values = {
     5: "Other multi-person households",
     6: "One person under 60",
     7: "One person aged 60 or over"
+}
+
+
+
+'''
+Dictionary of all observed variables where: 
+- dict-key = variable symbol
+- dict-value = variable dictionary
+'''
+Variables_dic = {
+    'X': X_values,
+    'Y_0': Y_0_values,
+    'Y_1': Y_1_values,
+    'W': W_values,
+    'V_0': V_0_values,
+    'V_1': V_1_values,
+    'V_2': V_2_values,
+    'V_3': V_3_values,
+    'V_4': V_4_values,
+    'V_5': V_5_values,
+    'V_6': V_6_values,
+    'V_7': V_7_values,
+    'V_8': V_8_values,
 }
