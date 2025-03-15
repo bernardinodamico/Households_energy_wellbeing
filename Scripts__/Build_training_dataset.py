@@ -7,7 +7,7 @@ Script to process all the raw datasources, so to build the dataset for training 
 model parameters of the Causal Bayesian Network.
 '''
 start_time = time.time()
-dp = DataFusion(subset_only=False, how_many=500)
+dp = DataFusion(subset_only=False, how_many=None)
 
 dp.filter_for_main_fuel_type()
 dp.filter_for_method_of_payment()
