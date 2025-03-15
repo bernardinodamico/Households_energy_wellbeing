@@ -3,6 +3,7 @@ from pandas import DataFrame
 import os
 import math
 import numpy as np
+from Values_mapping import GetVariableValues
 
 class DataFusion():
 
@@ -330,22 +331,23 @@ class DataFusion():
         self.discrete_ds_obsrv_vars = self.ds_obsrv_vars.copy(deep=True)
 
         self.discrete_ds_obsrv_vars['V_7'] = pd.cut(self.discrete_ds_obsrv_vars['V_7'],
-               bins=[0, 15000, 20000, 30000, 40000, 50000, 60000, 70000, 99999, 200000],
-               labels=['1', '2', '3', '4', '5', '6', '7', '8', '9']
+               bins=GetVariableValues.get_bins_intervals(var_symbol='V_7'),
+               labels=GetVariableValues.get_nums(var_symbol='V_7')
                )
         
         self.discrete_ds_obsrv_vars['W'] = pd.cut(self.discrete_ds_obsrv_vars['W'],
-               bins=[0, 0.02, 0.03, 0.04, 0.05, 0.06, 0.07, 0.08, 0.09, 0.1, 0.11, 0.12, 0.13, 0.14, 0.15, 0.16, 1],
-               labels=['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16']
+               bins=GetVariableValues.get_bins_intervals(var_symbol='W'),
+               labels=GetVariableValues.get_nums(var_symbol='W')
                )
         
         '''
-        NOTE: for the other real-valued variables, e.g. energy burden, plot the
-        hystogram to have an idea of the number (and bounds of bins) to discretise into
-        BOUNDS do not need be uniform.
+        Add the rest of the real variables...
+        NOTE: the bins and labels lists must be read from: 
+        GetVariableValues.get_nums() for labels[] here
+        GetVariableValues.get_bins_intervals() for bins[] here
+
         '''
+        
 
         return
-
-
 

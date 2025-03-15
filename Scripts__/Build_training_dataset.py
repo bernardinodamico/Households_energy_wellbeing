@@ -2,6 +2,10 @@ from DataFusion import DataFusion
 import time
 import datetime
 
+
+
+
+
 '''
 Script to process all the raw datasources, so to build the dataset for training the
 model parameters of the Causal Bayesian Network.
@@ -28,7 +32,11 @@ dp.ds_obsrv_vars.drop('gasmop', axis=1, inplace=True)
 dp.ds_obsrv_vars.drop('litecost', axis=1, inplace=True)
 
 dp.rearrange_cols()
-dp.discretise()
+
+'''
+NOTE method below to be changed...see inside
+'''
+dp.discretise() 
 
 # save processed datasets to csv files
 dp.ds_obsrv_vars.to_csv(path_or_buf="DATA/processed_dataset.csv", index=False)

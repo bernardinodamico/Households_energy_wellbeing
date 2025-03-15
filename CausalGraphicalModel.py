@@ -5,7 +5,7 @@ from pyAgrum.causal import CausalModel
 import networkx as nx
 from networkx import DiGraph
 from pyAgrum import BayesNet
-from Values_mapping import VariableValues as vvalues
+from Values_mapping import GetVariableValues as vvalues
 
 
 
