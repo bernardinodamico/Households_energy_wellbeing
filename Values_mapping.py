@@ -45,7 +45,30 @@ Y_0_values = {}
 Y_1_values = {}
 
 # Heating energy burden
-W_values = {}
+W_values = {
+    1: 'Less than 2%',
+    2: '2% to 3%',
+    3: '3% to 4%',
+    4: '4% to 5%',
+    5: '5% to 6%',
+    6: '6% to 7%',
+    7: '7% to 8%',
+    8: '8% to 9%',
+    9: '9% to 10%',
+    10: '10% to 11%',
+    11: '11% to 12%',
+    12: '12% to 13%',
+    13: '13% to 14%',
+    14: '14% to 15%',
+    15: '15% to 16%',
+    16: '16% and above',
+}
+
+# Fuel poverty
+F_p_values = {
+    0: "Not fuel poor",
+    1: "Fuel poor"
+}
 
 # Dwelling type
 V_0_values = {
@@ -118,6 +141,7 @@ V_7_values = {
     9:	"£100,000 and above"
 }
 
+
 # Household composition
 V_8_values = {
     1: "Couple, no dependent child(ren) under 60",
@@ -128,6 +152,7 @@ V_8_values = {
     6: "One person under 60",
     7: "One person aged 60 or over"
 }
+
 
 
 

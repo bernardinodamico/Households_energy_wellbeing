@@ -10,6 +10,62 @@ class DataFusion():
     discrete_ds_obsrv_vars: DataFrame = None
 
 
+    it_by_V_0: DataFrame = None
+    it_by_V_3: DataFrame = None
+    it_by_V_6: DataFrame = None
+    it_by_X: DataFrame = None
+    it_by_V_2: DataFrame = None
+    it_by_V_5: DataFrame = None
+    it_by_V_4: DataFrame = None
+
+    gc_by_V_6: DataFrame = None
+    gc_by_V_0: DataFrame = None
+    gc_by_V_3: DataFrame = None
+    gc_by_V_2: DataFrame = None
+    gc_by_V_7: DataFrame = None
+    gp_by_gasmop: DataFrame = None
+
+    def __init__(self, subset_only: bool = False, how_many: int = 100):
+        self.initialise_dset_obsrv_vars(subset_only=subset_only, how_many=how_many)
+        self.initialise_indoor_temp_dsets()
+        self.initialise_gas_cnsmp_dsets()
+        self.initialise_gas_price_by_mop_dsets()
+        
+        return
+
+
+    def initialise_gas_price_by_mop_dsets(self) -> None:
+        fpath = os.path.join(os.path.dirname(__file__), r"DATA\RAW\Gas_price_per_kWh_2015.xlsx")
+        self.gp_by_gasmop = pd.read_excel(io=fpath, sheet_name="2015_gas_price_per_kWh")
+        return
+
+
+    def initialise_gas_cnsmp_dsets(self) -> None:
+        fpath = os.path.join(os.path.dirname(__file__), r"DATA\RAW\Gas_consumption_data_2015.xlsx")
+
+        self.gc_by_V_6 = pd.read_excel(io=fpath, sheet_name="by_floor_area")
+        self.gc_by_V_0 = pd.read_excel(io=fpath, sheet_name="by_dwelling_type")
+        self.gc_by_V_3 = pd.read_excel(io=fpath, sheet_name="by_dwelling_age")
+        self.gc_by_V_2 = pd.read_excel(io=fpath, sheet_name="by_tenancy")
+        self.gc_by_V_7 = pd.read_excel(io=fpath, sheet_name="by_income")
+
+        return
+
+
+    def initialise_indoor_temp_dsets(self) -> None:
+        fpath = os.path.join(os.path.dirname(__file__), r"DATA\RAW\Energy_follow_Up_Survey_2011_mean_temp.xlsx")
+        
+        self.it_by_V_0 = pd.read_excel(io=fpath, sheet_name="by_dwelling_type")
+        self.it_by_V_3 = pd.read_excel(io=fpath, sheet_name="by_dwelling_age")
+        self.it_by_V_6 = pd.read_excel(io=fpath, sheet_name="by_floor_area")
+        self.it_by_X = pd.read_excel(io=fpath, sheet_name="by_walls_insulation")
+        self.it_by_V_2 = pd.read_excel(io=fpath, sheet_name="by_tenancy")
+        self.it_by_V_5 = pd.read_excel(io=fpath, sheet_name="by_household_size")
+        self.it_by_V_4 = pd.read_excel(io=fpath, sheet_name="by_under_occupancy")
+
+        return
+
+
     def initialise_dset_obsrv_vars(self, subset_only: bool = False, how_many: int = 100) -> None:
         
         self.ds_obsrv_vars = pd.DataFrame()
@@ -55,11 +111,9 @@ class DataFusion():
 
     def filter_for_income(self) -> None:
         '''
-        Removes instances (rows) where household income is bigger than £100k (as they are lumped all together 
-        above that value in the original dataset) or smaller than £1000.
+        Removes instances (rows) where household income is smaller than £1000.
         '''
         self.ds_obsrv_vars = self.ds_obsrv_vars[self.ds_obsrv_vars.V_7 > 1000.]
-        #self.ds_obsrv_vars = self.ds_obsrv_vars[self.ds_obsrv_vars.V_7 < 99999.]
         return
     
 
@@ -83,11 +137,11 @@ class DataFusion():
         '''
         self.ds_obsrv_vars['Y_0'] = ""
 
-        self.ds_obsrv_vars['Y_0'] = self.ds_obsrv_vars.apply(lambda row: self.gas_cnsmp_IVW(row['V_6'], row['V_0'], row['V_3'], row['V_2'], row['V_7']), axis=1)
+        self.ds_obsrv_vars['Y_0'] = self.ds_obsrv_vars.apply(lambda row: self._gas_cnsmp_IVW(row['V_6'], row['V_0'], row['V_3'], row['V_2'], row['V_7']), axis=1)
         return
     
 
-    def gas_cnsmp_IVW(self, V_6_val, V_0_val, V_3_val, V_2_val, V_7_val) -> float:
+    def _gas_cnsmp_IVW(self, V_6_val, V_0_val, V_3_val, V_2_val, V_7_val) -> float:
         '''
         Given a series of observed values for the following variables:
          - V_6: dwelling floor area
@@ -97,27 +151,19 @@ class DataFusion():
          - V_7: household income
         the method returns an Inverse-Variance Weighted mean estimate of annual energy (gas) consumption.
         '''
-        V_7_val = self.V7_to_num(real_valued=V_7_val)
+        V_7_val = self._V7_to_num(real_valued=V_7_val)
 
-        fpath = os.path.join(os.path.dirname(__file__), r"DATA\RAW\Gas_consumption_data_2015.xlsx")
+        gc_mean_given_V_6 = self.gc_by_V_6.loc[self.gc_by_V_6['Floor_area_value_num'] == V_6_val, 'Gas_consumption_mean'].iloc[0]
+        gc_mean_given_V_0 = self.gc_by_V_0.loc[self.gc_by_V_0['DwellingType_value_num'] == V_0_val, 'Gas_consumption_mean'].iloc[0]
+        gc_mean_given_V_3 = self.gc_by_V_3.loc[self.gc_by_V_3['DwellingAge_value_num'] == V_3_val, 'Gas_consumption_mean'].iloc[0]
+        gc_mean_given_V_2 = self.gc_by_V_2.loc[self.gc_by_V_2['Tenancy_value_num'] == V_2_val, 'Gas_consumption_mean'].iloc[0]
+        gc_mean_given_V_7 = self.gc_by_V_7.loc[self.gc_by_V_7['Income_value_num'] == V_7_val, 'Gas_consumption_mean'].iloc[0]
 
-        gc_by_V_6 = pd.read_excel(io=fpath, sheet_name="by_floor_area")
-        gc_by_V_0 = pd.read_excel(io=fpath, sheet_name="by_dwelling_type")
-        gc_by_V_3 = pd.read_excel(io=fpath, sheet_name="by_dwelling_age")
-        gc_by_V_2 = pd.read_excel(io=fpath, sheet_name="by_tenancy")
-        gc_by_V_7 = pd.read_excel(io=fpath, sheet_name="by_income")
-
-        gc_mean_given_V_6 = gc_by_V_6.loc[gc_by_V_6['Floor_area_value_num'] == V_6_val, 'Gas_consumption_mean'].iloc[0]
-        gc_mean_given_V_0 = gc_by_V_0.loc[gc_by_V_0['DwellingType_value_num'] == V_0_val, 'Gas_consumption_mean'].iloc[0]
-        gc_mean_given_V_3 = gc_by_V_3.loc[gc_by_V_3['DwellingAge_value_num'] == V_3_val, 'Gas_consumption_mean'].iloc[0]
-        gc_mean_given_V_2 = gc_by_V_2.loc[gc_by_V_2['Tenancy_value_num'] == V_2_val, 'Gas_consumption_mean'].iloc[0]
-        gc_mean_given_V_7 = gc_by_V_7.loc[gc_by_V_7['Income_value_num'] == V_7_val, 'Gas_consumption_mean'].iloc[0]
-
-        gc_stdev_given_V_6 = gc_by_V_6.loc[gc_by_V_6['Floor_area_value_num'] == V_6_val, 'Gas_consumption_st_dev'].iloc[0]
-        gc_stdev_given_V_0 = gc_by_V_0.loc[gc_by_V_0['DwellingType_value_num'] == V_0_val, 'Gas_consumption_st_dev'].iloc[0]
-        gc_stdev_given_V_3 = gc_by_V_3.loc[gc_by_V_3['DwellingAge_value_num'] == V_3_val, 'Gas_consumption_st_dev'].iloc[0]
-        gc_stdev_given_V_2 = gc_by_V_2.loc[gc_by_V_2['Tenancy_value_num'] == V_2_val, 'Gas_consumption_st_dev'].iloc[0]
-        gc_stdev_given_V_7 = gc_by_V_7.loc[gc_by_V_7['Income_value_num'] == V_7_val, 'Gas_consumption_st_dev'].iloc[0]
+        gc_stdev_given_V_6 = self.gc_by_V_6.loc[self.gc_by_V_6['Floor_area_value_num'] == V_6_val, 'Gas_consumption_st_dev'].iloc[0]
+        gc_stdev_given_V_0 = self.gc_by_V_0.loc[self.gc_by_V_0['DwellingType_value_num'] == V_0_val, 'Gas_consumption_st_dev'].iloc[0]
+        gc_stdev_given_V_3 = self.gc_by_V_3.loc[self.gc_by_V_3['DwellingAge_value_num'] == V_3_val, 'Gas_consumption_st_dev'].iloc[0]
+        gc_stdev_given_V_2 = self.gc_by_V_2.loc[self.gc_by_V_2['Tenancy_value_num'] == V_2_val, 'Gas_consumption_st_dev'].iloc[0]
+        gc_stdev_given_V_7 = self.gc_by_V_7.loc[self.gc_by_V_7['Income_value_num'] == V_7_val, 'Gas_consumption_st_dev'].iloc[0]
         
         weight_V_6 = 1. / math.pow(gc_stdev_given_V_6, 2) # weight as inverse of Variance
         weight_V_0 = 1. / math.pow(gc_stdev_given_V_0, 2)
@@ -135,7 +181,7 @@ class DataFusion():
         sampled = np.random.normal(gc_weighted_mean_val, gc_weighted_std_dev_val) #instead of returning the mean we sample a random value from the combined distrib.
 
         return round(sampled, 1)
-        #return str(round(gc_weighted_mean_val, 4))
+        #return round(gc_weighted_mean_val, 1)
     
 
     def fill_in_ind_temp_data(self) -> None:
@@ -143,11 +189,11 @@ class DataFusion():
         Fills in values of indoor temperature (Y_1) into the dataframe "ds_obsrv_vars"
         '''
         self.ds_obsrv_vars['Y_1'] = ""
-        self.ds_obsrv_vars['Y_1'] = self.ds_obsrv_vars.apply(lambda row: self.indoord_tmpt_IVW(row['V_0'], row['V_3'], row['V_6'], row['X'], row['V_2'], row['V_5'], row['V_4']), axis=1)
+        self.ds_obsrv_vars['Y_1'] = self.ds_obsrv_vars.apply(lambda row: self._indoord_tmpt_IVW(row['V_0'], row['V_3'], row['V_6'], row['X'], row['V_2'], row['V_5'], row['V_4']), axis=1)
         return
     
 
-    def indoord_tmpt_IVW(self, V_0_val, V_3_val, V_6_val, X_val, V_2_val, V_5_val, V_4_val) -> float:
+    def _indoord_tmpt_IVW(self, V_0_val, V_3_val, V_6_val, X_val, V_2_val, V_5_val, V_4_val) -> float:
         '''
         Given a series of observed values for the following variables:
          - V_0: dwelling type
@@ -159,31 +205,22 @@ class DataFusion():
          - V_4: under-occupancy
         the method returns an Inverse-Variance Weighted mean estimate of annual energy (gas) consumption.
         '''
-        fpath = os.path.join(os.path.dirname(__file__), r"DATA\RAW\Energy_follow_Up_Survey_2011_mean_temp.xlsx")
 
-        it_by_V_0 = pd.read_excel(io=fpath, sheet_name="by_dwelling_type")
-        it_by_V_3 = pd.read_excel(io=fpath, sheet_name="by_dwelling_age")
-        it_by_V_6 = pd.read_excel(io=fpath, sheet_name="by_floor_area")
-        it_by_X = pd.read_excel(io=fpath, sheet_name="by_walls_insulation")
-        it_by_V_2 = pd.read_excel(io=fpath, sheet_name="by_tenancy")
-        it_by_V_5 = pd.read_excel(io=fpath, sheet_name="by_household_size")
-        it_by_V_4 = pd.read_excel(io=fpath, sheet_name="by_under_occupancy")
+        it_mean_given_V_0 = self.it_by_V_0.loc[self.it_by_V_0['DwellingType_value_num'] == V_0_val, 'Dwelling_mean_temp'].iloc[0]
+        it_mean_given_V_3 = self.it_by_V_3.loc[self.it_by_V_3['DwellingAge_value_num'] == V_3_val, 'Dwelling_mean_temp'].iloc[0]
+        it_mean_given_V_6 = self.it_by_V_6.loc[self.it_by_V_6['Floor_area_value_num'] == V_6_val, 'Dwelling_mean_temp'].iloc[0]
+        it_mean_given_X   = self.it_by_X.loc[self.it_by_X['Walls_insulation_value_num'] == X_val, 'Dwelling_mean_temp'].iloc[0]
+        it_mean_given_V_2 = self.it_by_V_2.loc[self.it_by_V_2['Tenancy_value_num'] == V_2_val, 'Dwelling_mean_temp'].iloc[0]
+        it_mean_given_V_5 = self.it_by_V_5.loc[self.it_by_V_5['Household_size_value_num'] == V_5_val, 'Dwelling_mean_temp'].iloc[0]
+        it_mean_given_V_4 = self.it_by_V_4.loc[self.it_by_V_4['Under_occupancy_value_num'] == V_4_val, 'Dwelling_mean_temp'].iloc[0]
 
-        it_mean_given_V_0 = it_by_V_0.loc[it_by_V_0['DwellingType_value_num'] == V_0_val, 'Dwelling_mean_temp'].iloc[0]
-        it_mean_given_V_3 = it_by_V_3.loc[it_by_V_3['DwellingAge_value_num'] == V_3_val, 'Dwelling_mean_temp'].iloc[0]
-        it_mean_given_V_6 = it_by_V_6.loc[it_by_V_6['Floor_area_value_num'] == V_6_val, 'Dwelling_mean_temp'].iloc[0]
-        it_mean_given_X   = it_by_X.loc[it_by_X['Walls_insulation_value_num'] == X_val, 'Dwelling_mean_temp'].iloc[0]
-        it_mean_given_V_2 = it_by_V_2.loc[it_by_V_2['Tenancy_value_num'] == V_2_val, 'Dwelling_mean_temp'].iloc[0]
-        it_mean_given_V_5 = it_by_V_5.loc[it_by_V_5['Household_size_value_num'] == V_5_val, 'Dwelling_mean_temp'].iloc[0]
-        it_mean_given_V_4 = it_by_V_4.loc[it_by_V_4['Under_occupancy_value_num'] == V_4_val, 'Dwelling_mean_temp'].iloc[0]
-
-        it_stdev_given_V_0 = it_by_V_0.loc[it_by_V_0['DwellingType_value_num'] == V_0_val, 'Dwelling_st_dev_temp'].iloc[0]
-        it_stdev_given_V_3 = it_by_V_3.loc[it_by_V_3['DwellingAge_value_num'] == V_3_val, 'Dwelling_st_dev_temp'].iloc[0]
-        it_stdev_given_V_6 = it_by_V_6.loc[it_by_V_6['Floor_area_value_num'] == V_6_val, 'Dwelling_st_dev_temp'].iloc[0]
-        it_stdev_given_X   = it_by_X.loc[it_by_X['Walls_insulation_value_num'] == X_val, 'Dwelling_st_dev_temp'].iloc[0]
-        it_stdev_given_V_2 = it_by_V_2.loc[it_by_V_2['Tenancy_value_num'] == V_2_val, 'Dwelling_st_dev_temp'].iloc[0]
-        it_stdev_given_V_5 = it_by_V_5.loc[it_by_V_5['Household_size_value_num'] == V_5_val, 'Dwelling_st_dev_temp'].iloc[0]
-        it_stdev_given_V_4 = it_by_V_4.loc[it_by_V_4['Under_occupancy_value_num'] == V_4_val, 'Dwelling_st_dev_temp'].iloc[0]
+        it_stdev_given_V_0 = self.it_by_V_0.loc[self.it_by_V_0['DwellingType_value_num'] == V_0_val, 'Dwelling_st_dev_temp'].iloc[0]
+        it_stdev_given_V_3 = self.it_by_V_3.loc[self.it_by_V_3['DwellingAge_value_num'] == V_3_val, 'Dwelling_st_dev_temp'].iloc[0]
+        it_stdev_given_V_6 = self.it_by_V_6.loc[self.it_by_V_6['Floor_area_value_num'] == V_6_val, 'Dwelling_st_dev_temp'].iloc[0]
+        it_stdev_given_X   = self.it_by_X.loc[self.it_by_X['Walls_insulation_value_num'] == X_val, 'Dwelling_st_dev_temp'].iloc[0]
+        it_stdev_given_V_2 = self.it_by_V_2.loc[self.it_by_V_2['Tenancy_value_num'] == V_2_val, 'Dwelling_st_dev_temp'].iloc[0]
+        it_stdev_given_V_5 = self.it_by_V_5.loc[self.it_by_V_5['Household_size_value_num'] == V_5_val, 'Dwelling_st_dev_temp'].iloc[0]
+        it_stdev_given_V_4 = self.it_by_V_4.loc[self.it_by_V_4['Under_occupancy_value_num'] == V_4_val, 'Dwelling_st_dev_temp'].iloc[0]
 
         weight_V_0 = 1. / math.pow(it_stdev_given_V_0, 2) # weight as inverse of Variance
         weight_V_3 = 1. / math.pow(it_stdev_given_V_3, 2)
@@ -203,10 +240,10 @@ class DataFusion():
         sampled = np.random.normal(it_weighted_mean_val, it_weighted_std_dev_val) #instead of returning the mean we sample a random value from the combined distrib.
 
         return round(sampled, 4) 
-        #return str(round(it_weighted_mean_val, 4))
+        #return round(it_weighted_mean_val, 4)
     
 
-    def V7_to_num(self, real_valued: float) -> int:
+    def _V7_to_num(self, real_valued: float) -> int:
         real_valued = float(real_valued)
         if real_valued < 15000:
             return 1
@@ -233,21 +270,19 @@ class DataFusion():
             Fills in values of annual energy (gas) cost [£/year] (V_1) into the dataframe "ds_obsrv_vars"
             '''
             self.ds_obsrv_vars['V_1'] = ""
-            self.ds_obsrv_vars['V_1'] = self.ds_obsrv_vars.apply(lambda row: round(self.gas_cost(row['gasmop']) * row['Y_0'], 1), axis=1)
+            self.ds_obsrv_vars['V_1'] = self.ds_obsrv_vars.apply(lambda row: round(self._gas_cost(row['gasmop']) * row['Y_0'], 1), axis=1)
        
             return
     
 
-    def gas_cost(self, gasmop_val) -> float:
+    def _gas_cost(self, gasmop_val) -> float:
         '''
         Given the observed value for the following variable: 
         - gasmop: method of payment for gas
         the function returns a value for the energy (gas) price [£/kWh] variable.
         '''
-        fpath = os.path.join(os.path.dirname(__file__), r"DATA\RAW\Gas_price_per_kWh_2015.xlsx")
 
-        gp_by_gasmop = pd.read_excel(io=fpath, sheet_name="2015_gas_price_per_kWh")
-        gp_given_gasmop = gp_by_gasmop.loc[gp_by_gasmop['Payment_method_value_num'] == gasmop_val, 'Annual gas price per 1 kWh'].iloc[0]
+        gp_given_gasmop = self.gp_by_gasmop.loc[self.gp_by_gasmop['Payment_method_value_num'] == gasmop_val, 'Annual gas price per 1 kWh'].iloc[0]
 
         return gp_given_gasmop
     
@@ -264,9 +299,31 @@ class DataFusion():
     
 
     def rearrange_cols(self) -> None:
-        self.ds_obsrv_vars = self.ds_obsrv_vars[['X', 'Y_0', 'Y_1', 'W', 'V_0', 'V_1', 'V_2', 'V_3', 'V_4', 'V_5', 'V_6', 'V_7', 'V_8']]
+        self.ds_obsrv_vars = self.ds_obsrv_vars[['X', 'Y_0', 'Y_1', 'W', 'F_p', 'V_0', 'V_1', 'V_2', 'V_3', 'V_4', 'V_5', 'V_6', 'V_7', 'V_8']]
         return
     
+
+    def filter_for_en_burden(self) -> None:
+        '''
+        Removes instances (rows) where energy_burden is biggher than a treshold.
+        '''
+        self.ds_obsrv_vars = self.ds_obsrv_vars[self.ds_obsrv_vars.W < 0.3]
+        return
+
+
+    def fill_in_W_binary(self, fuel_poverty_treshold: float = 0.1) -> None:
+        '''
+        Add a secondary variable for fuel poverty discretised as a binary:
+            F_p = 0 --> "Not fuel poor"
+            F_p = 1 --> "Fuel poor"
+        '''
+        self.ds_obsrv_vars['F_p'] = self.ds_obsrv_vars['W']
+        self.ds_obsrv_vars['F_p'] = pd.cut(self.ds_obsrv_vars['F_p'],
+               bins=[0, fuel_poverty_treshold, 1],
+               labels=['0', '1']
+               )
+        return
+
 
     def discretise(self) -> None:
 
@@ -275,6 +332,11 @@ class DataFusion():
         self.discrete_ds_obsrv_vars['V_7'] = pd.cut(self.discrete_ds_obsrv_vars['V_7'],
                bins=[0, 15000, 20000, 30000, 40000, 50000, 60000, 70000, 99999, 200000],
                labels=['1', '2', '3', '4', '5', '6', '7', '8', '9']
+               )
+        
+        self.discrete_ds_obsrv_vars['W'] = pd.cut(self.discrete_ds_obsrv_vars['W'],
+               bins=[0, 0.02, 0.03, 0.04, 0.05, 0.06, 0.07, 0.08, 0.09, 0.1, 0.11, 0.12, 0.13, 0.14, 0.15, 0.16, 1],
+               labels=['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16']
                )
         
         '''
