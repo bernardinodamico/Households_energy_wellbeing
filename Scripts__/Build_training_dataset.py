@@ -32,10 +32,6 @@ dp.ds_obsrv_vars.drop('gasmop', axis=1, inplace=True)
 dp.ds_obsrv_vars.drop('litecost', axis=1, inplace=True)
 
 dp.rearrange_cols()
-
-'''
-NOTE method below to be changed...see inside
-'''
 dp.discretise() 
 
 # save processed datasets to csv files

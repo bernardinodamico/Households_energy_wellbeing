@@ -331,9 +331,14 @@ class DataFusion():
 
         self.discrete_ds_obsrv_vars = self.ds_obsrv_vars.copy(deep=True)
 
-        self.discrete_ds_obsrv_vars['V_7'] = pd.cut(self.discrete_ds_obsrv_vars['V_7'],
-               bins=GetVariableValues.get_bins_intervals(var_symbol='V_7'),
-               labels=GetVariableValues.get_nums(var_symbol='V_7')
+        self.discrete_ds_obsrv_vars['Y_0'] = pd.cut(self.discrete_ds_obsrv_vars['Y_0'],
+               bins=GetVariableValues.get_bins_intervals(var_symbol='Y_0'),
+               labels=GetVariableValues.get_nums(var_symbol='Y_0')
+               )
+        
+        self.discrete_ds_obsrv_vars['Y_1'] = pd.cut(self.discrete_ds_obsrv_vars['Y_1'],
+               bins=GetVariableValues.get_bins_intervals(var_symbol='Y_1'),
+               labels=GetVariableValues.get_nums(var_symbol='Y_1')
                )
         
         self.discrete_ds_obsrv_vars['W'] = pd.cut(self.discrete_ds_obsrv_vars['W'],
@@ -341,14 +346,15 @@ class DataFusion():
                labels=GetVariableValues.get_nums(var_symbol='W')
                )
         
-        '''
-        Add the rest of the real variables...
-        NOTE: the bins and labels lists must be read from: 
-        GetVariableValues.get_nums() for labels[] here
-        GetVariableValues.get_bins_intervals() for bins[] here
-
-        '''
+        self.discrete_ds_obsrv_vars['V_1'] = pd.cut(self.discrete_ds_obsrv_vars['V_1'],
+               bins=GetVariableValues.get_bins_intervals(var_symbol='V_1'),
+               labels=GetVariableValues.get_nums(var_symbol='V_1')
+               )
         
+        self.discrete_ds_obsrv_vars['V_7'] = pd.cut(self.discrete_ds_obsrv_vars['V_7'],
+               bins=GetVariableValues.get_bins_intervals(var_symbol='V_7'),
+               labels=GetVariableValues.get_nums(var_symbol='V_7')
+               )
 
         return
 
