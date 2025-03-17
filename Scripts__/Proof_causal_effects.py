@@ -11,7 +11,7 @@ so to obtain causal estimator formulae for the covariate-specific
 causal effects P(Y_0 | do(X), W)) and P(Y_1 | do(X), W)).
 '''
 
-#load training dataset:
+#Initialise Causal Graphical Model:
 cbn = CausalGraphicalModel(dataset_filename='dataset_observed_variables.csv')
 cbn.build()
 
