@@ -174,15 +174,16 @@ class DataFusion():
 
         weights = np.array([weight_V_6, weight_V_0, weight_V_3, weight_V_2, weight_V_7])
         means = np.array([gc_mean_given_V_6, gc_mean_given_V_0, gc_mean_given_V_3, gc_mean_given_V_2, gc_mean_given_V_7])
+        st_devs = np.array([gc_stdev_given_V_6, gc_stdev_given_V_0, gc_stdev_given_V_3, gc_stdev_given_V_2, gc_stdev_given_V_7])
+
 
         gc_weighted_mean_val = np.sum(weights * means) / np.sum(weights)
-        gc_weighted_variance_val = 1. / np.sum(weights)
-        gc_weighted_std_dev_val = math.sqrt(gc_weighted_variance_val)
+        gc_weighted_std_dev_val = np.sum(weights * st_devs) / np.sum(weights)
 
         sampled = np.random.normal(gc_weighted_mean_val, gc_weighted_std_dev_val) #instead of returning the mean we sample a random value from the combined distrib.
 
-        return round(sampled, 1)
-        #return round(gc_weighted_mean_val, 1)
+        #return round(sampled, 1)
+        return round(gc_weighted_mean_val, 1)
     
 
     def fill_in_ind_temp_data(self) -> None:
@@ -233,15 +234,15 @@ class DataFusion():
 
         weights = np.array([weight_V_0, weight_V_3, weight_V_6, weight_X, weight_V_2, weight_V_5, weight_V_4])
         means = np.array([it_mean_given_V_0, it_mean_given_V_3, it_mean_given_V_6, it_mean_given_X, it_mean_given_V_2, it_mean_given_V_5, it_mean_given_V_4])
+        st_devs = np.array([it_stdev_given_V_0, it_stdev_given_V_3, it_stdev_given_V_6, it_stdev_given_X, it_stdev_given_V_2, it_stdev_given_V_5, it_stdev_given_V_4])
 
         it_weighted_mean_val = np.sum(weights * means) / np.sum(weights)
-        it_weighted_variance_val = 1. / np.sum(weights)
-        it_weighted_std_dev_val = math.sqrt(it_weighted_variance_val)
+        it_weighted_std_dev_val = np.sum(weights * st_devs) / np.sum(weights)
 
         sampled = np.random.normal(it_weighted_mean_val, it_weighted_std_dev_val) #instead of returning the mean we sample a random value from the combined distrib.
 
-        return round(sampled, 4) 
-        #return round(it_weighted_mean_val, 4)
+        #return round(sampled, 4) 
+        return round(it_weighted_mean_val, 4)
     
 
     def _V7_to_num(self, real_valued: float) -> int:
