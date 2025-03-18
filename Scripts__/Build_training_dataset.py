@@ -19,7 +19,6 @@ def gen_training_dataset():
 
     dp.fill_in_gas_cnsmp_data() 
     dp.fill_in_ind_temp_data()
-    dp.fill_in_gas_cost_data()
     dp.fill_in_energy_burden_data()
     dp.fill_in_W_binary(fuel_poverty_treshold=0.1)
 

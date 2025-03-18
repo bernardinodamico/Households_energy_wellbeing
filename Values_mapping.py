@@ -73,8 +73,8 @@ class VariableValues():
     '''
     # External walls insulation
     X_values = {
-        1: "Insulated (cavity/solid) walls",
-        2: "Uninsulated (cavity/solid) walls"
+        1: "Uninsulated (cavity/solid) walls",
+        2: "Insulated (cavity/solid) walls"
     }
 
     # Fuel poverty
@@ -154,10 +154,10 @@ class VariableValues():
     Real-valued variables (to discretise)
     '''
 
-    discrete_setting_Y_0 = set_discrete_range_and_bounds(lower_bond=11700., upper_bond=17000., bins_num=6, round_by=0)
+    discrete_setting_Y_0 = set_discrete_range_and_bounds(lower_bond=5000., upper_bond=25000., bins_num=8, round_by=0)
     discrete_setting_Y_1 = set_discrete_range_and_bounds(lower_bond=18.4, upper_bond=19.4, bins_num=8, round_by=3)
-    discrete_setting_W = set_discrete_range_and_bounds(lower_bond=0.02, upper_bond=0.08, bins_num=5, round_by=4)
-    discrete_setting_V_1 = set_discrete_range_and_bounds(lower_bond=430, upper_bond=750, bins_num=8, round_by=0)
+    discrete_setting_W = set_discrete_range_and_bounds(lower_bond=0.02, upper_bond=0.1, bins_num=6, round_by=4)
+    discrete_setting_V_1 = set_discrete_range_and_bounds(lower_bond=250, upper_bond=1200, bins_num=8, round_by=0)
     discrete_setting_V_7 = set_discrete_range_and_bounds(lower_bond=10000, upper_bond=99999.999, bins_num=11, round_by=0)
 
     # Energy (gas) consumption

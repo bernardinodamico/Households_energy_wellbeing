@@ -19,18 +19,12 @@ class DataFusion():
     it_by_V_5: DataFrame = None
     it_by_V_4: DataFrame = None
 
-    gc_by_V_6: DataFrame = None
-    gc_by_V_0: DataFrame = None
-    gc_by_V_3: DataFrame = None
-    gc_by_V_2: DataFrame = None
-    gc_by_V_7: DataFrame = None
-    gc_by_X: DataFrame = None
     gp_by_gasmop: DataFrame = None
+
 
     def __init__(self, subset_only: bool = False, how_many: int = 100):
         self.initialise_dset_obsrv_vars(subset_only=subset_only, how_many=how_many)
         self.initialise_indoor_temp_dsets()
-        self.initialise_gas_cnsmp_dsets()
         self.initialise_gas_price_by_mop_dsets()
         
         return
@@ -39,19 +33,6 @@ class DataFusion():
     def initialise_gas_price_by_mop_dsets(self) -> None:
         fpath = os.path.join(os.path.dirname(__file__), r"DATA\RAW\Gas_price_per_kWh_2015.xlsx")
         self.gp_by_gasmop = pd.read_excel(io=fpath, sheet_name="2015_gas_price_per_kWh")
-        return
-
-
-    def initialise_gas_cnsmp_dsets(self) -> None:
-        fpath = os.path.join(os.path.dirname(__file__), r"DATA\RAW\Gas_consumption_data_2015.xlsx")
-
-        self.gc_by_V_6 = pd.read_excel(io=fpath, sheet_name="by_floor_area")
-        self.gc_by_V_0 = pd.read_excel(io=fpath, sheet_name="by_dwelling_type")
-        self.gc_by_V_3 = pd.read_excel(io=fpath, sheet_name="by_dwelling_age")
-        self.gc_by_V_2 = pd.read_excel(io=fpath, sheet_name="by_tenancy")
-        self.gc_by_V_7 = pd.read_excel(io=fpath, sheet_name="by_income")
-        self.gc_by_X = pd.read_excel(io=fpath, sheet_name="by_walls_insulation")
-
         return
 
 
@@ -78,6 +59,7 @@ class DataFusion():
         
         self.ds_obsrv_vars.loc[:, 'X'] = fuel_poverty_ds.loc[:, 'WallType']
         self.ds_obsrv_vars.loc[:, 'V_0'] = fuel_poverty_ds.loc[:, 'DWtype']
+        self.ds_obsrv_vars.loc[:, 'V_1'] = fuel_poverty_ds.loc[:, 'spahcost']
         self.ds_obsrv_vars.loc[:, 'V_2'] = fuel_poverty_ds.loc[:, 'tenure4x']
         self.ds_obsrv_vars.loc[:, 'V_3'] = fuel_poverty_ds.loc[:, 'DWage']
         self.ds_obsrv_vars.loc[:, 'V_4'] = fuel_poverty_ds.loc[:, 'Unoc']
@@ -126,8 +108,8 @@ class DataFusion():
 
         '''Aggregates cavity-insulated and solid-insulatedwalls (and cavity-uninsulated and solid-uninsulated)
         So that: 
-            insulated walls = 1
-            uninsulated walls = 2
+            Uninsulated walls = 1
+            Insulated walls = 2
         '''
         self.ds_obsrv_vars = self.ds_obsrv_vars.replace({'X': 3}, 1)
         self.ds_obsrv_vars = self.ds_obsrv_vars.replace({'X': 4}, 2)
@@ -140,56 +122,20 @@ class DataFusion():
         '''
         self.ds_obsrv_vars['Y_0'] = ""
 
-        self.ds_obsrv_vars['Y_0'] = self.ds_obsrv_vars.apply(lambda row: self._gas_cnsmp_IVW(row['V_6'], row['V_0'], row['V_3'], row['V_2'], row['V_7'], row['X']), axis=1)
+        self.ds_obsrv_vars['Y_0'] = self.ds_obsrv_vars.apply(lambda row: self._gas_cnsmp(row['V_1'], row['gasmop']), axis=1)
+        #self.ds_obsrv_vars['Y_0'] = self.ds_obsrv_vars['V_1'] /0.05
         return
     
 
-    def _gas_cnsmp_IVW(self, V_6_val, V_0_val, V_3_val, V_2_val, V_7_val, X_val) -> float:
+    def _gas_cnsmp(self, V_1_val, gmop_val) -> float:
         '''
-        Given a series of observed values for the following variables:
-         - V_6: dwelling floor area
-         - V_0: dwelling type
-         - V_3: dwelling age
-         - V_2: tenancy
-         - V_7: household income
-         - X: walls insulaton
-        the method returns an Inverse-Variance Weighted mean estimate of annual energy (gas) consumption.
+        The method returns a value for energy (gas) consumption based on the household heating (gas) cost (V_1) and gas price, which
+        is dependend on the method of payment: direct-debit, standard credit, pre-payment 
         '''
-        V_7_val = self._V7_to_num(real_valued=V_7_val)
+        gprice_given_gmop = self.gp_by_gasmop.loc[self.gp_by_gasmop['Payment_method_value_num'] == gmop_val, 'Annual gas price per 1 kWh'].iloc[0]
+        gas_consumtion = V_1_val / gprice_given_gmop
 
-        gc_mean_given_V_6 = self.gc_by_V_6.loc[self.gc_by_V_6['Floor_area_value_num'] == V_6_val, 'Gas_consumption_mean'].iloc[0]
-        gc_mean_given_V_0 = self.gc_by_V_0.loc[self.gc_by_V_0['DwellingType_value_num'] == V_0_val, 'Gas_consumption_mean'].iloc[0]
-        gc_mean_given_V_3 = self.gc_by_V_3.loc[self.gc_by_V_3['DwellingAge_value_num'] == V_3_val, 'Gas_consumption_mean'].iloc[0]
-        gc_mean_given_V_2 = self.gc_by_V_2.loc[self.gc_by_V_2['Tenancy_value_num'] == V_2_val, 'Gas_consumption_mean'].iloc[0]
-        gc_mean_given_V_7 = self.gc_by_V_7.loc[self.gc_by_V_7['Income_value_num'] == V_7_val, 'Gas_consumption_mean'].iloc[0]
-        gc_mean_given_X = self.gc_by_X.loc[self.gc_by_X['Walls_insulation_value_num'] == X_val, 'Gas_consumption_mean'].iloc[0]
-
-        gc_stdev_given_V_6 = self.gc_by_V_6.loc[self.gc_by_V_6['Floor_area_value_num'] == V_6_val, 'Gas_consumption_st_dev'].iloc[0]
-        gc_stdev_given_V_0 = self.gc_by_V_0.loc[self.gc_by_V_0['DwellingType_value_num'] == V_0_val, 'Gas_consumption_st_dev'].iloc[0]
-        gc_stdev_given_V_3 = self.gc_by_V_3.loc[self.gc_by_V_3['DwellingAge_value_num'] == V_3_val, 'Gas_consumption_st_dev'].iloc[0]
-        gc_stdev_given_V_2 = self.gc_by_V_2.loc[self.gc_by_V_2['Tenancy_value_num'] == V_2_val, 'Gas_consumption_st_dev'].iloc[0]
-        gc_stdev_given_V_7 = self.gc_by_V_7.loc[self.gc_by_V_7['Income_value_num'] == V_7_val, 'Gas_consumption_st_dev'].iloc[0]
-        gc_stdev_given_X = self.gc_by_X.loc[self.gc_by_X['Walls_insulation_value_num'] == X_val, 'Gas_consumption_st_dev'].iloc[0]
-        
-        weight_V_6 = 1. / math.pow(gc_stdev_given_V_6, 2) # weight as inverse of Variance
-        weight_V_0 = 1. / math.pow(gc_stdev_given_V_0, 2)
-        weight_V_3 = 1. / math.pow(gc_stdev_given_V_3, 2)
-        weight_V_2 = 1. / math.pow(gc_stdev_given_V_2, 2)
-        weight_V_7 = 1. / math.pow(gc_stdev_given_V_7, 2)
-        weight_X = 1. / math.pow(gc_stdev_given_V_7, 2)
-
-        weights = np.array([weight_X, weight_V_7])#, weight_V_6, weight_V_2, weight_V_0, weight_V_3])
-        means = np.array([gc_mean_given_X, gc_mean_given_V_7])# gc_mean_given_V_6#, gc_mean_given_V_2, gc_mean_given_V_0, gc_mean_given_V_3])
-        st_devs = np.array([gc_stdev_given_V_6, gc_stdev_given_V_0, gc_stdev_given_V_3, gc_stdev_given_V_2, gc_stdev_given_V_7, gc_stdev_given_X])
-
-
-        gc_weighted_mean_val = np.sum(weights * means) / np.sum(weights)
-        #gc_weighted_std_dev_val = np.sum(weights * st_devs) / np.sum(weights)
-
-        #sampled = np.random.normal(gc_weighted_mean_val, gc_weighted_std_dev_val) #instead of returning the mean we sample a random value from the combined distrib.
-
-        #return round(sampled, 1)
-        return round(gc_weighted_mean_val, 1)
+        return round(gas_consumtion, 1)
     
 
     def fill_in_ind_temp_data(self) -> None:
@@ -272,28 +218,6 @@ class DataFusion():
         else:
             return 9
 
-
-    def fill_in_gas_cost_data(self) -> None:
-            '''
-            Fills in values of annual energy (gas) cost [£/year] (V_1) into the dataframe "ds_obsrv_vars"
-            '''
-            self.ds_obsrv_vars['V_1'] = ""
-            self.ds_obsrv_vars['V_1'] = self.ds_obsrv_vars.apply(lambda row: round(self._gas_cost(row['gasmop']) * row['Y_0'], 1), axis=1)
-       
-            return
-    
-
-    def _gas_cost(self, gasmop_val) -> float:
-        '''
-        Given the observed value for the following variable: 
-        - gasmop: method of payment for gas
-        the function returns a value for the energy (gas) price [£/kWh] variable.
-        '''
-
-        gp_given_gasmop = self.gp_by_gasmop.loc[self.gp_by_gasmop['Payment_method_value_num'] == gasmop_val, 'Annual gas price per 1 kWh'].iloc[0]
-
-        return gp_given_gasmop
-    
 
     def fill_in_energy_burden_data(self) -> None:
         '''
