@@ -155,16 +155,12 @@ class VariableValues():
     '''
 
     discrete_setting_Y_0 = set_discrete_range_and_bounds(lower_bond=5000., upper_bond=25000., bins_num=8, round_by=0)
-    discrete_setting_Y_1 = set_discrete_range_and_bounds(lower_bond=18.4, upper_bond=19.4, bins_num=8, round_by=3)
     discrete_setting_W = set_discrete_range_and_bounds(lower_bond=0.02, upper_bond=0.1, bins_num=6, round_by=4)
     discrete_setting_V_1 = set_discrete_range_and_bounds(lower_bond=250, upper_bond=1200, bins_num=8, round_by=0)
     discrete_setting_V_7 = set_discrete_range_and_bounds(lower_bond=10000, upper_bond=99999.999, bins_num=11, round_by=0)
 
     # Energy (gas) consumption
     Y_0_values = discrete_setting_Y_0[1]
-
-    # Indoor temperature
-    Y_1_values = discrete_setting_Y_1[1]
 
     # Energy burden
     W_values = discrete_setting_W[1]
@@ -184,7 +180,6 @@ class VariableValues():
     Variables_dic = {
         'X': X_values,
         'Y_0': Y_0_values,
-        'Y_1': Y_1_values,
         'W': W_values,
         'V_0': V_0_values,
         'V_1': V_1_values,
@@ -199,7 +194,6 @@ class VariableValues():
 
     Variables_bins_intervals = {
         'Y_0': discrete_setting_Y_0[0],
-        'Y_1': discrete_setting_Y_1[0],
         'W': discrete_setting_W[0],
         'V_1': discrete_setting_V_1[0],
         'V_7': discrete_setting_V_7[0],

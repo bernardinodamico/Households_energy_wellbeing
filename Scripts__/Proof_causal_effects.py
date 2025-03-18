@@ -8,11 +8,11 @@ Script to:
 
 These information is used to perform the do-calculus computations carried out manually, 
 so to obtain causal estimator formulae for the covariate-specific
-causal effects P(Y_0 | do(X), W)) and P(Y_1 | do(X), W)).
+causal effect P(Y_0 | do(X), W)).
 '''
 
 #Initialise Causal Graphical Model:
-cbn = CausalGraphicalModel(dataset_filename='dataset_observed_variables.csv')
+cbn = CausalGraphicalModel(dataset_filename='discretised_processed_dataset.csv')
 cbn.build()
 
 #extract subgraphs from the model:
@@ -26,8 +26,6 @@ cbn.check_independence(graph=G_X_underscored, A_nodes={'V_7', 'W'}, B_nodes={'X'
 cbn.check_independence(graph=G_X_overscored, A_nodes={'V_2'}, B_nodes={'X'}, conditioned_on=set(), print_res=True)
 cbn.check_independence(graph=G_X_underscored, A_nodes={'W'}, B_nodes={'X'}, conditioned_on={'V_2'}, print_res=True)
 
-cbn.check_independence(graph=G_X_underscored, A_nodes={'Y_1'}, B_nodes={'X'}, conditioned_on={'W', 'V_7'}, print_res=True)
-
 
 
 cbn.get_paths(sub_graph=G_X_underscored, st_var="Y_0", end_var="X", print_paths=False)
@@ -35,5 +33,4 @@ cbn.get_paths(sub_graph=G_X_underscored, st_var="V_7", end_var="X", print_paths=
 cbn.get_paths(sub_graph=G_X_underscored, st_var="W", end_var="X", print_paths=False)
 cbn.get_paths(sub_graph=G_X_overscored, st_var="V_2", end_var="X", print_paths=False)
 
-cbn.get_paths(sub_graph=G_X_underscored, st_var="Y_1", end_var="X", print_paths=False)
 

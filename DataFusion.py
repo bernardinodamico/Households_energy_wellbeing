@@ -10,21 +10,11 @@ class DataFusion():
     ds_obsrv_vars: DataFrame = None
     discrete_ds_obsrv_vars: DataFrame = None
 
-
-    it_by_V_0: DataFrame = None
-    it_by_V_3: DataFrame = None
-    it_by_V_6: DataFrame = None
-    it_by_X: DataFrame = None
-    it_by_V_2: DataFrame = None
-    it_by_V_5: DataFrame = None
-    it_by_V_4: DataFrame = None
-
     gp_by_gasmop: DataFrame = None
 
 
     def __init__(self, subset_only: bool = False, how_many: int = 100):
         self.initialise_dset_obsrv_vars(subset_only=subset_only, how_many=how_many)
-        self.initialise_indoor_temp_dsets()
         self.initialise_gas_price_by_mop_dsets()
         
         return
@@ -33,20 +23,6 @@ class DataFusion():
     def initialise_gas_price_by_mop_dsets(self) -> None:
         fpath = os.path.join(os.path.dirname(__file__), r"DATA\RAW\Gas_price_per_kWh_2015.xlsx")
         self.gp_by_gasmop = pd.read_excel(io=fpath, sheet_name="2015_gas_price_per_kWh")
-        return
-
-
-    def initialise_indoor_temp_dsets(self) -> None:
-        fpath = os.path.join(os.path.dirname(__file__), r"DATA\RAW\Energy_follow_Up_Survey_2011_mean_temp.xlsx")
-        
-        self.it_by_V_0 = pd.read_excel(io=fpath, sheet_name="by_dwelling_type")
-        self.it_by_V_3 = pd.read_excel(io=fpath, sheet_name="by_dwelling_age")
-        self.it_by_V_6 = pd.read_excel(io=fpath, sheet_name="by_floor_area")
-        self.it_by_X = pd.read_excel(io=fpath, sheet_name="by_walls_insulation")
-        self.it_by_V_2 = pd.read_excel(io=fpath, sheet_name="by_tenancy")
-        self.it_by_V_5 = pd.read_excel(io=fpath, sheet_name="by_household_size")
-        self.it_by_V_4 = pd.read_excel(io=fpath, sheet_name="by_under_occupancy")
-
         return
 
 
@@ -123,7 +99,6 @@ class DataFusion():
         self.ds_obsrv_vars['Y_0'] = ""
 
         self.ds_obsrv_vars['Y_0'] = self.ds_obsrv_vars.apply(lambda row: self._gas_cnsmp(row['V_1'], row['gasmop']), axis=1)
-        #self.ds_obsrv_vars['Y_0'] = self.ds_obsrv_vars['V_1'] /0.05
         return
     
 
@@ -136,65 +111,6 @@ class DataFusion():
         gas_consumtion = V_1_val / gprice_given_gmop
 
         return round(gas_consumtion, 1)
-    
-
-    def fill_in_ind_temp_data(self) -> None:
-        '''
-        Fills in values of indoor temperature (Y_1) into the dataframe "ds_obsrv_vars"
-        '''
-        self.ds_obsrv_vars['Y_1'] = ""
-        self.ds_obsrv_vars['Y_1'] = self.ds_obsrv_vars.apply(lambda row: self._indoord_tmpt_IVW(row['V_0'], row['V_3'], row['V_6'], row['X'], row['V_2'], row['V_5'], row['V_4']), axis=1)
-        return
-    
-
-    def _indoord_tmpt_IVW(self, V_0_val, V_3_val, V_6_val, X_val, V_2_val, V_5_val, V_4_val) -> float:
-        '''
-        Given a series of observed values for the following variables:
-         - V_0: dwelling type
-         - V_3: dwelling age
-         - V_6: dwelling floor area
-         - X:   walls insulation
-         - V_2: tenancy
-         - V_5: household size
-         - V_4: under-occupancy
-        the method returns an Inverse-Variance Weighted mean estimate of annual energy (gas) consumption.
-        '''
-
-        it_mean_given_V_0 = self.it_by_V_0.loc[self.it_by_V_0['DwellingType_value_num'] == V_0_val, 'Dwelling_mean_temp'].iloc[0]
-        it_mean_given_V_3 = self.it_by_V_3.loc[self.it_by_V_3['DwellingAge_value_num'] == V_3_val, 'Dwelling_mean_temp'].iloc[0]
-        it_mean_given_V_6 = self.it_by_V_6.loc[self.it_by_V_6['Floor_area_value_num'] == V_6_val, 'Dwelling_mean_temp'].iloc[0]
-        it_mean_given_X   = self.it_by_X.loc[self.it_by_X['Walls_insulation_value_num'] == X_val, 'Dwelling_mean_temp'].iloc[0]
-        it_mean_given_V_2 = self.it_by_V_2.loc[self.it_by_V_2['Tenancy_value_num'] == V_2_val, 'Dwelling_mean_temp'].iloc[0]
-        it_mean_given_V_5 = self.it_by_V_5.loc[self.it_by_V_5['Household_size_value_num'] == V_5_val, 'Dwelling_mean_temp'].iloc[0]
-        it_mean_given_V_4 = self.it_by_V_4.loc[self.it_by_V_4['Under_occupancy_value_num'] == V_4_val, 'Dwelling_mean_temp'].iloc[0]
-
-        it_stdev_given_V_0 = self.it_by_V_0.loc[self.it_by_V_0['DwellingType_value_num'] == V_0_val, 'Dwelling_st_dev_temp'].iloc[0]
-        it_stdev_given_V_3 = self.it_by_V_3.loc[self.it_by_V_3['DwellingAge_value_num'] == V_3_val, 'Dwelling_st_dev_temp'].iloc[0]
-        it_stdev_given_V_6 = self.it_by_V_6.loc[self.it_by_V_6['Floor_area_value_num'] == V_6_val, 'Dwelling_st_dev_temp'].iloc[0]
-        it_stdev_given_X   = self.it_by_X.loc[self.it_by_X['Walls_insulation_value_num'] == X_val, 'Dwelling_st_dev_temp'].iloc[0]
-        it_stdev_given_V_2 = self.it_by_V_2.loc[self.it_by_V_2['Tenancy_value_num'] == V_2_val, 'Dwelling_st_dev_temp'].iloc[0]
-        it_stdev_given_V_5 = self.it_by_V_5.loc[self.it_by_V_5['Household_size_value_num'] == V_5_val, 'Dwelling_st_dev_temp'].iloc[0]
-        it_stdev_given_V_4 = self.it_by_V_4.loc[self.it_by_V_4['Under_occupancy_value_num'] == V_4_val, 'Dwelling_st_dev_temp'].iloc[0]
-
-        weight_V_0 = 1. / math.pow(it_stdev_given_V_0, 2) # weight as inverse of Variance
-        weight_V_3 = 1. / math.pow(it_stdev_given_V_3, 2)
-        weight_V_6 = 1. / math.pow(it_stdev_given_V_6, 2)
-        weight_X = 1. / math.pow(it_stdev_given_X, 2)
-        weight_V_2 = 1. / math.pow(it_stdev_given_V_2, 2)
-        weight_V_5 = 1. / math.pow(it_stdev_given_V_5, 2)
-        weight_V_4 = 1. / math.pow(it_stdev_given_V_4, 2)
-
-        weights = np.array([weight_V_0, weight_V_3, weight_V_6, weight_X, weight_V_2, weight_V_5, weight_V_4])
-        means = np.array([it_mean_given_V_0, it_mean_given_V_3, it_mean_given_V_6, it_mean_given_X, it_mean_given_V_2, it_mean_given_V_5, it_mean_given_V_4])
-        st_devs = np.array([it_stdev_given_V_0, it_stdev_given_V_3, it_stdev_given_V_6, it_stdev_given_X, it_stdev_given_V_2, it_stdev_given_V_5, it_stdev_given_V_4])
-
-        it_weighted_mean_val = np.sum(weights * means) / np.sum(weights)
-        it_weighted_std_dev_val = np.sum(weights * st_devs) / np.sum(weights)
-
-        sampled = np.random.normal(it_weighted_mean_val, it_weighted_std_dev_val) #instead of returning the mean we sample a random value from the combined distrib.
-
-        #return round(sampled, 4) 
-        return round(it_weighted_mean_val, 4)
     
 
     def _V7_to_num(self, real_valued: float) -> int:
@@ -231,7 +147,7 @@ class DataFusion():
     
 
     def rearrange_cols(self) -> None:
-        self.ds_obsrv_vars = self.ds_obsrv_vars[['X', 'Y_0', 'Y_1', 'W', 'F_p', 'V_0', 'V_1', 'V_2', 'V_3', 'V_4', 'V_5', 'V_6', 'V_7', 'V_8']]
+        self.ds_obsrv_vars = self.ds_obsrv_vars[['X', 'Y_0', 'W', 'F_p', 'V_0', 'V_1', 'V_2', 'V_3', 'V_4', 'V_5', 'V_6', 'V_7', 'V_8']]
         return
     
 
@@ -252,7 +168,7 @@ class DataFusion():
         self.ds_obsrv_vars['F_p'] = self.ds_obsrv_vars['W']
         self.ds_obsrv_vars['F_p'] = pd.cut(self.ds_obsrv_vars['F_p'],
                bins=[0, fuel_poverty_treshold, 1],
-               labels=['0', '1']
+               labels=[0, 1]
                )
         return
 
@@ -264,11 +180,6 @@ class DataFusion():
         self.discrete_ds_obsrv_vars['Y_0'] = pd.cut(self.discrete_ds_obsrv_vars['Y_0'],
                bins=GetVariableValues.get_bins_intervals(var_symbol='Y_0'),
                labels=GetVariableValues.get_nums(var_symbol='Y_0')
-               )
-        
-        self.discrete_ds_obsrv_vars['Y_1'] = pd.cut(self.discrete_ds_obsrv_vars['Y_1'],
-               bins=GetVariableValues.get_bins_intervals(var_symbol='Y_1'),
-               labels=GetVariableValues.get_nums(var_symbol='Y_1')
                )
         
         self.discrete_ds_obsrv_vars['W'] = pd.cut(self.discrete_ds_obsrv_vars['W'],
