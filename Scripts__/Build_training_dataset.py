@@ -18,11 +18,8 @@ def gen_training_dataset():
     dp.aggregate_wall_type()
 
     dp.fill_in_gas_cnsmp_data() 
-    dp.fill_in_ind_temp_data()
-    dp.fill_in_gas_cost_data()
     dp.fill_in_energy_burden_data()
     dp.fill_in_W_binary(fuel_poverty_treshold=0.1)
-
     dp.filter_for_en_burden()
 
     dp.ds_obsrv_vars.drop('Mainfueltype', axis=1, inplace=True)

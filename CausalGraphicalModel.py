@@ -27,7 +27,6 @@ class CausalGraphicalModel():
 
         self.b_net.add(gum.LabelizedVariable('X', "External walls insulation" , vvalues.get_nums('X'))) 
         self.b_net.add(gum.LabelizedVariable('Y_0', "Energy (gas) consumption" , vvalues.get_nums('Y_0'))) 
-        self.b_net.add(gum.LabelizedVariable('Y_1', "Dwelling indoor temperature" , vvalues.get_nums('Y_1')))
         self.b_net.add(gum.LabelizedVariable('W', "Energy burden" , vvalues.get_nums('W')))
         self.b_net.add(gum.LabelizedVariable('V_0', "Dwelling type" , vvalues.get_nums('V_0')))
         self.b_net.add(gum.LabelizedVariable('V_1', "Energy (gas) cost" , vvalues.get_nums('V_1')))
@@ -44,12 +43,9 @@ class CausalGraphicalModel():
 
     def add_causal_edges(self) -> None:
         self.b_net.addArc('X', 'Y_0') # X causes Y_0
-        self.b_net.addArc('X', 'Y_1')
-        self.b_net.addArc('Y_0', 'Y_1')
         self.b_net.addArc('W', 'Y_0')
         self.b_net.addArc('V_2', 'X')
         self.b_net.addArc('V_3', 'X')
-        self.b_net.addArc('V_0', 'Y_1')
         self.b_net.addArc('V_0', 'Y_0')
         self.b_net.addArc('V_4', 'Y_0')
         self.b_net.addArc('V_4', 'V_1')
@@ -74,7 +70,6 @@ class CausalGraphicalModel():
         G_subgraph = self.G
         if which_graph == 'G_X_underscored': # the mutilated graph G with all arrows out of X being removed 
             G_subgraph.remove_edge('X', 'V_1')
-            G_subgraph.remove_edge('X', 'Y_1')
             G_subgraph.remove_edge('X', 'Y_0')
             G_subgraph.name = 'G_X_underscored'
         elif which_graph == 'G_X_overscored': # the mutilated graph G with all arrows into X being removed 
@@ -127,10 +122,8 @@ class CausalGraphicalModel():
         self.G.add_edge("U_2", "V_1")
         self.G.add_edge("U_3", "V_1")
         self.G.add_edge("U_3", "Y_0")
-        self.G.add_edge("U_3", "Y_1")
         self.G.add_edge("U_4", "V_1")
         self.G.add_edge("U_4", "Y_0")
-        self.G.add_edge("U_4", "Y_1")
         self.G.add_edge("U_5", "Y_0")
         self.G.add_edge("U_5", "V_1")
         return
@@ -152,8 +145,8 @@ class CausalGraphicalModel():
                                   latentVarsDescriptor=[("U_0", ["V_7","Y_0", "V_1"]),
                                                         ("U_1", ["V_6","V_7"]),
                                                         ("U_2", ["V_1"]),
-                                                        ("U_3", ["V_1", "Y_0", "Y_1"]),
-                                                        ("U_4", ["V_1", "Y_0", "Y_1"]),
+                                                        ("U_3", ["V_1", "Y_0"]),
+                                                        ("U_4", ["V_1", "Y_0"]),
                                                         ("U_5", ["Y_0", "V_1"]),
                                                         ],
                                   keepArcs=True)
