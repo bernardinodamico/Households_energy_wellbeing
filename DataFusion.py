@@ -178,8 +178,8 @@ class DataFusion():
         weight_V_7 = 1. / math.pow(gc_stdev_given_V_7, 2)
         weight_X = 1. / math.pow(gc_stdev_given_V_7, 2)
 
-        weights = np.array([weight_X, weight_V_7, weight_V_6])#, weight_V_2, weight_V_0, weight_V_3])
-        means = np.array([gc_mean_given_X, gc_mean_given_V_7, gc_mean_given_V_6])#, gc_mean_given_V_2, gc_mean_given_V_0, gc_mean_given_V_3])
+        weights = np.array([weight_X, weight_V_7])#, weight_V_6, weight_V_2, weight_V_0, weight_V_3])
+        means = np.array([gc_mean_given_X, gc_mean_given_V_7])# gc_mean_given_V_6#, gc_mean_given_V_2, gc_mean_given_V_0, gc_mean_given_V_3])
         st_devs = np.array([gc_stdev_given_V_6, gc_stdev_given_V_0, gc_stdev_given_V_3, gc_stdev_given_V_2, gc_stdev_given_V_7, gc_stdev_given_X])
 
 
