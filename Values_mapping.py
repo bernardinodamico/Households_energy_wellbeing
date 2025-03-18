@@ -154,10 +154,10 @@ class VariableValues():
     Real-valued variables (to discretise)
     '''
 
-    discrete_setting_Y_0 = set_discrete_range_and_bounds(lower_bond=8900., upper_bond=16700., bins_num=8, round_by=0)
+    discrete_setting_Y_0 = set_discrete_range_and_bounds(lower_bond=10380., upper_bond=15480., bins_num=8, round_by=0)
     discrete_setting_Y_1 = set_discrete_range_and_bounds(lower_bond=18.4, upper_bond=19.4, bins_num=8, round_by=3)
     discrete_setting_W = set_discrete_range_and_bounds(lower_bond=0.01, upper_bond=0.16, bins_num=8, round_by=4)
-    discrete_setting_V_1 = set_discrete_range_and_bounds(lower_bond=403, upper_bond=780, bins_num=8, round_by=0)
+    discrete_setting_V_1 = set_discrete_range_and_bounds(lower_bond=430, upper_bond=750, bins_num=8, round_by=0)
     discrete_setting_V_7 = set_discrete_range_and_bounds(lower_bond=10000, upper_bond=99999.999, bins_num=11, round_by=0)
 
     # Energy (gas) consumption
