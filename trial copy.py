@@ -23,7 +23,7 @@ print(f"message:{message}")
 print("_______________________________________________")
 print(f"PyAgrum estimator formula (in latex format): {estimand.toLatex()}")
 
-print("_______________________________________________")
+print("_______________________________________________" )
 print("PyAgrum estimate for P(Y_0 | do(X=0), W):")
 print(estimate_do_X)
 '''
