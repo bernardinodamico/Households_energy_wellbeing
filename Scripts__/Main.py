@@ -3,7 +3,7 @@ from pandas import DataFrame
 import pyAgrum.causal as csl
 from CausalGraphicalModel import CausalGraphicalModel
 from pyAgrum import Potential
-from Scripts__.Build_training_dataset import gen_training_dataset
+from DataFusion import gen_training_dataset
 
 
 
