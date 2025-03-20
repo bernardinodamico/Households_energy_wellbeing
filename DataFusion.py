@@ -76,9 +76,10 @@ class DataFusion():
 
     def filter_for_income(self) -> None:
         '''
-        Removes instances (rows) where household income is smaller than £1000.
+        Removes instances (rows) for household income outlyers.
         '''
-        self.ds_obsrv_vars = self.ds_obsrv_vars[self.ds_obsrv_vars.V_7 > 1000.]
+        self.ds_obsrv_vars = self.ds_obsrv_vars[self.ds_obsrv_vars.V_7 > 5000.]
+        self.ds_obsrv_vars = self.ds_obsrv_vars[self.ds_obsrv_vars.V_7 < 100000.]
         return
     
 
