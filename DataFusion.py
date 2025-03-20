@@ -79,7 +79,7 @@ class DataFusion():
         Removes instances (rows) for household income outlyers.
         '''
         self.ds_obsrv_vars = self.ds_obsrv_vars[self.ds_obsrv_vars.V_7 > 5000.]
-        self.ds_obsrv_vars = self.ds_obsrv_vars[self.ds_obsrv_vars.V_7 < 100000.]
+        self.ds_obsrv_vars = self.ds_obsrv_vars[self.ds_obsrv_vars.V_7 < 99999.]
         return
     
 
@@ -118,28 +118,6 @@ class DataFusion():
         return round(gas_consumtion, 1)
     
 
-    def _V7_to_num(self, real_valued: float) -> int:
-        real_valued = float(real_valued)
-        if real_valued < 15000:
-            return 1
-        elif real_valued <= 19999:
-            return 2
-        elif real_valued <= 29999:
-            return 3
-        elif real_valued <=39999:
-            return 4
-        elif real_valued <= 49999:
-            return 5
-        elif real_valued <= 59999:
-            return 6
-        elif real_valued <= 69999:
-            return 7
-        elif real_valued <= 99999:
-            return 8
-        else:
-            return 9
-
-
     def fill_in_energy_burden_data(self) -> None:
         '''
         Fills in values of energy burden [£/£] (W) into the dataframe "ds_obsrv_vars"
@@ -158,9 +136,10 @@ class DataFusion():
 
     def filter_for_en_burden(self) -> None:
         '''
-        Removes instances (rows) where energy_burden is biggher than a treshold.
+        Removes instances (rows) where energy_burden is biggher (smaller) than a treshold.
         '''
         self.ds_obsrv_vars = self.ds_obsrv_vars[self.ds_obsrv_vars.W < 0.3]
+        self.ds_obsrv_vars = self.ds_obsrv_vars[self.ds_obsrv_vars.W > 0.01]
         return
 
 
