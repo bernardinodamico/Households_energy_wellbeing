@@ -5,7 +5,10 @@ def set_discrete_range_and_bounds(lower_bond, upper_bond, bins_num, round_by):
     bins_intervals.append(0.)
     incr = (upper_bond - lower_bond) / (bins_num - 2)
     for i in range(0, bins_num-1):
-        bins_intervals.append(round(lower_bond + incr * i, round_by))  
+        if round_by == 0:
+            bins_intervals.append(int(lower_bond + incr * i))
+        else:
+            bins_intervals.append(round(lower_bond + incr * i, round_by))  
     bins_intervals.append(1000000.)
 
 
