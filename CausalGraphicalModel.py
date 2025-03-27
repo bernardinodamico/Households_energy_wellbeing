@@ -132,7 +132,7 @@ class CausalGraphicalModel():
     def learn_params(self, data_file_name: str) -> None:
         data = pd.read_csv(filepath_or_buffer=f"DATA/{data_file_name}")
         learner = gum.BNLearner(data, self.b_net)
-        learner.useSmoothingPrior(1) # Laplace smoothing (e.g. a count C is replaced by C+1)
+        learner.useSmoothingPrior(0.00001) # Laplace smoothing (e.g. a count C is replaced by C+1)
         self.b_net = learner.learnParameters(self.b_net.dag())
         return
     

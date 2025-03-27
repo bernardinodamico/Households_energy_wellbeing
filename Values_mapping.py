@@ -1,5 +1,8 @@
 
 def set_discrete_range_and_bounds(lower_bond, upper_bond, bins_num, round_by):
+    '''
+    Only applicable to continuous variables
+    '''
     
     bins_intervals = []
     bins_intervals.append(0.)
@@ -9,7 +12,7 @@ def set_discrete_range_and_bounds(lower_bond, upper_bond, bins_num, round_by):
             bins_intervals.append(int(lower_bond + incr * i))
         else:
             bins_intervals.append(round(lower_bond + incr * i, round_by))  
-    bins_intervals.append(1000000.)
+    bins_intervals.append(upper_bond + incr)
 
 
     Var_values = {}
@@ -19,7 +22,11 @@ def set_discrete_range_and_bounds(lower_bond, upper_bond, bins_num, round_by):
         elif i == bins_num - 1:
             Var_values[int(i+1)] = f"> {bins_intervals[i]}"
         else:
-            Var_values[int(i+1)] = f"{bins_intervals[i]} to {bins_intervals[i+1]}"
+            #Var_values[int(i+1)] = f"{bins_intervals[i]} to {bins_intervals[i+1]}"
+            if round_by == 0:
+                Var_values[int(i+1)] = f"{int((bins_intervals[i+1] + bins_intervals[i]) / 2.)}"
+            else:
+                Var_values[int(i+1)] = f"{round(((bins_intervals[i+1] + bins_intervals[i]) / 2.), round_by)}"
 
     return [bins_intervals, Var_values]
 
@@ -157,7 +164,8 @@ class VariableValues():
     Real-valued variables (to discretise)
     '''
 
-    discrete_setting_Y_0 = set_discrete_range_and_bounds(lower_bond=4000., upper_bond=24000., bins_num=12, round_by=0)
+    #discrete_setting_Y_0 = set_discrete_range_and_bounds(lower_bond=4000., upper_bond=24000., bins_num=12, round_by=0)
+    discrete_setting_Y_0 = set_discrete_range_and_bounds(lower_bond=2000., upper_bond=32000., bins_num=22, round_by=0)
     discrete_setting_W = set_discrete_range_and_bounds(lower_bond=0.03, upper_bond=0.14, bins_num=13, round_by=4)
     discrete_setting_V_1 = set_discrete_range_and_bounds(lower_bond=250, upper_bond=1200, bins_num=8, round_by=0)
     discrete_setting_V_7 = set_discrete_range_and_bounds(lower_bond=10000, upper_bond=90000, bins_num=8, round_by=0)
