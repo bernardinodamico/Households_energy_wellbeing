@@ -5,6 +5,7 @@ import pyAgrum.causal as csl
 from CausalGraphicalModel import CausalGraphicalModel
 from pyAgrum import Potential
 from Values_mapping import GetVariableValues
+import numpy as np
 from DataFusion import gen_training_dataset
 pd.option_context('display.max_rows', None)
 
@@ -107,3 +108,20 @@ class Estimator():
         p_Y0_given_doXx = df
 
         return p_Y0_given_doXx
+    
+
+    def expectation(self, df_Xx: DataFrame, val_col_name: str, prob_col_name: str) -> float:
+        '''
+        Returns the expected value of a probability distribution. Inputs are:
+        - df_Xx: a two-column dataframe reporting the post-intervention probability 
+        distribution, e.g. P(Y_0 | do(X=1)
+        - val_col_name: the name of the values column
+        - prob_col_name: the name of the probabiity column
+        '''
+        df_Xx[val_col_name] = df_Xx[val_col_name].replace({'<': '', '>': '', ',': ''}, regex=True).astype(float)
+        df_Xx[prob_col_name] = df_Xx[prob_col_name].astype(float)
+
+        probabilities = df_Xx[prob_col_name].to_numpy()
+        values = df_Xx[val_col_name].to_numpy()
+
+        return np.sum(values * probabilities)

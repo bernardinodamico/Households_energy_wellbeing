@@ -6,7 +6,7 @@ from CausalGraphicalModel import CausalGraphicalModel
 from pyAgrum import Potential
 from DataFusion import gen_training_dataset
 from Estimator import Estimator
-import matplotlib.pyplot as plt
+from Plotter import Plotter
 pd.option_context('display.max_rows', None)
 
 
@@ -26,35 +26,24 @@ p_Y0_given_doXx_1 = est.effect_distribution(X_val='1', use_label_vals=True)
 p_Y0_given_doXx_2 = est.effect_distribution(X_val='2', use_label_vals=True)
 p_Y0_given_doXx_Ww = est.cov_specific_effect_distribution(X_val='1', W_val='1', use_label_vals=False)
 
+# obtain causal effect expectations i.e. E(Y_0 | do(X=x)) and E(Y_0 | do(X=x), W=w)
+exp_Y0_given_doXx_1 = est.expectation(df_Xx=p_Y0_given_doXx_1, val_col_name='Y_0', prob_col_name='P(Y_0 | do(X=1))')
+exp_Y0_given_doXx_2 = est.expectation(df_Xx=p_Y0_given_doXx_2, val_col_name='Y_0', prob_col_name='P(Y_0 | do(X=2))')
+
+
 print(p_Y0_given_doXx_1)
 
 
+# Plot ATE 
+plotter = Plotter()
+plotter.plot_ATE(figure_name='ATE', 
+                 width_cm=8., 
+                 height_cm=8.,
+                 doXx_1_distrib=p_Y0_given_doXx_1, 
+                 doXx_2_distrib=p_Y0_given_doXx_2,
+                 exp_Xx_1=exp_Y0_given_doXx_1,
+                 exp_Xx_2=exp_Y0_given_doXx_2
+                 )
 
 
 
-
-
-
-plt.bar(x=p_Y0_given_doXx_1['Y_0'], height=p_Y0_given_doXx_1['P(Y_0 | do(X=1))'], width=1, edgecolor='black', alpha=0.6, label="False")
-plt.bar(x=p_Y0_given_doXx_2['Y_0'], height=p_Y0_given_doXx_2['P(Y_0 | do(X=2))'], width=1, edgecolor='black', alpha=0.6, label="True")
-
-plt.rcParams["font.family"] = "Arial"
-plt.xlabel(r'Gas consumtion $(Y_0)$ [kWh/year]', fontsize=12)
-plt.ylabel(r'$P(Y_0 \mid do(X))$', fontsize=12)
-
-plt.minorticks_on()
-plt.gca().yaxis.set_major_locator(plt.MultipleLocator(0.05))  # Major ticks every 0.01 units
-plt.gca().yaxis.set_minor_locator(plt.MultipleLocator(0.01))
-
-plt.tick_params(axis='x', which='major', direction='out', length=6, labelsize=10)
-plt.tick_params(axis='x', which='minor', direction='in', length=0)
-plt.tick_params(axis='y', which='major', direction='in', length=6, labelsize=10)
-plt.tick_params(axis='y', which='minor', direction='in', length=3)
-
-plt.legend(title="Wall insulation (X)", frameon=False, fontsize=12, title_fontsize=12)
-
-plt.xticks(rotation=90)
-plt.tight_layout()
-plt.ylim(0, 0.15)
-
-plt.show()

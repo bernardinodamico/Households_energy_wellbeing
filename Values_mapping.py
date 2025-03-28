@@ -18,9 +18,9 @@ def set_discrete_range_and_bounds(lower_bond, upper_bond, bins_num, round_by):
     Var_values = {}
     for i in range(0, bins_num):
         if i == 0:
-            Var_values[int(i+1)] = f"< {bins_intervals[i+1]}"
+            Var_values[int(i+1)] = f"<{bins_intervals[i+1]}"
         elif i == bins_num - 1:
-            Var_values[int(i+1)] = f"> {bins_intervals[i]}"
+            Var_values[int(i+1)] = f">{bins_intervals[i]}"
         else:
             #Var_values[int(i+1)] = f"{bins_intervals[i]} to {bins_intervals[i+1]}"
             if round_by == 0:
