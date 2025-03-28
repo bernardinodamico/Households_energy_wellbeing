@@ -12,7 +12,7 @@ def set_discrete_range_and_bounds(lower_bond, upper_bond, bins_num, round_by):
             bins_intervals.append(int(lower_bond + incr * i))
         else:
             bins_intervals.append(round(lower_bond + incr * i, round_by))  
-    bins_intervals.append(upper_bond + incr)
+    bins_intervals.append(10000000)
 
 
     Var_values = {}

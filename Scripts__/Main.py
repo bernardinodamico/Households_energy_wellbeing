@@ -12,7 +12,7 @@ pd.option_context('display.max_rows', None)
 
 
 # Generate training dataset 
-#gen_training_dataset()
+gen_training_dataset()
 
 
 # Initialise Causal Graphical Model
@@ -46,4 +46,7 @@ plotter.plot_ATE(figure_name='ATE',
                  )
 
 
-
+'''
+NOTE: re-run the gen_training_dataset() twice, the first time with 22 bins for Y_0 when computing the ATE. The second time with 10 bins or less when computing the CATE
+Also conside twiking the Laplace smoothing if needed.
+'''
