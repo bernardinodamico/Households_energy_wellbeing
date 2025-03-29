@@ -1,7 +1,8 @@
 import matplotlib.pyplot as plt
 from pandas import DataFrame
-from scipy.stats import gaussian_kde
+from scipy.stats import gaussian_kde, gamma
 import numpy as np
+from scipy.stats import gaussian_kde
 
 
 
@@ -20,8 +21,18 @@ class Plotter():
 
         fig, ax = plt.subplots(figsize=(width_cm/2.54, height_cm/2.54))
 
+        # Add regression curves
+        x, y = self._add_regresssion_curves(df_Xx=doXx_1_distrib, prob_col_name='P(Y_0 | do(X=1))')
+        plt.plot(x, y, linewidth=0.9, color='#42A05C')
+        x2, y2 = self._add_regresssion_curves(df_Xx=doXx_2_distrib, prob_col_name='P(Y_0 | do(X=2))')
+        plt.plot(x2, y2, linewidth=0.9, color='#B35933')
+
+        plt.axvline(exp_Xx_1, color='#42A05C', linestyle='--', linewidth=1.5)
+        plt.axvline(exp_Xx_2, color='#B35933', linestyle='--', linewidth=1.5)
+
+        # Add bars
         plt.bar(x=doXx_1_distrib['Y_0'], height=doXx_1_distrib['P(Y_0 | do(X=1))'], width=self._bin_width(doXx_1_distrib), edgecolor='#3CB371', alpha=0.65, label="X=false", color='#3CB371')
-        plt.bar(x=doXx_2_distrib['Y_0'], height=doXx_2_distrib['P(Y_0 | do(X=2))'], width=self._bin_width(doXx_2_distrib), edgecolor='#FF6347', alpha=0.65, label="X=true", color='#FF6347')
+        plt.bar(x=doXx_2_distrib['Y_0'], height=doXx_2_distrib['P(Y_0 | do(X=2))'], width=self._bin_width(doXx_2_distrib), edgecolor='#FF6347', alpha=0.5, label="X=true", color='#FF6347')
 
         plt.rcParams["font.family"] = "Arial"
         plt.xlabel(r'Gas consumtion $(Y_0)$ [kWh/year]', fontsize=8)
@@ -30,9 +41,11 @@ class Plotter():
         plt.minorticks_on()
         plt.gca().yaxis.set_major_locator(plt.MultipleLocator(0.05))  # Major ticks every 0.05units
         plt.gca().yaxis.set_minor_locator(plt.MultipleLocator(0.01))
+        plt.gca().xaxis.set_major_locator(plt.MultipleLocator(5000))
+        plt.gca().xaxis.set_minor_locator(plt.MultipleLocator(1000))
 
         plt.tick_params(axis='x', which='major', direction='out', length=6, labelsize=7)
-        plt.tick_params(axis='x', which='minor', direction='in', length=0)
+        plt.tick_params(axis='x', which='minor', direction='out', length=3)
         plt.tick_params(axis='y', which='major', direction='in', length=6, labelsize=7)
         plt.tick_params(axis='y', which='minor', direction='in', length=3)
 
@@ -40,26 +53,21 @@ class Plotter():
 
         plt.xticks(rotation=90)
         plt.tight_layout()
-        plt.ylim(0, 0.16)
-        plt.xlim(0, 34000)
+        y_axis_upper_limit = max(doXx_2_distrib['P(Y_0 | do(X=2))'].to_list()) * 1.15
+        plt.ylim(0, y_axis_upper_limit)
+        plt.xlim(0, 35000)
 
         w = str(width_cm).replace('.', '-')
         h = str(height_cm).replace('.', '-')
         #------------------------------------------------------
-        # Add regression curves
-        #x, y = self._add_regresssion_curves(df_Xx=doXx_1_distrib, prob_col_name='P(Y_0 | do(X=1))')
-        #plt.plot(x, y, linewidth=1, color='#3CB371')
-        #x, y = self._add_regresssion_curves(df_Xx=doXx_2_distrib, prob_col_name='P(Y_0 | do(X=2))')
-        #plt.plot(x, y, linewidth=1, color='#FF6347')
-
-        plt.axvline(exp_Xx_1, color='#42A05C', linestyle='--', linewidth=1.5, label='Expectation')
-        plt.axvline(exp_Xx_2, color='#B35933', linestyle='--', linewidth=1.5, label='Expectation')
-
-        ax.annotate("", xy=(exp_Xx_1, 0.105), xytext=(exp_Xx_2-300, 0.105), arrowprops=dict(facecolor='black', edgecolor='black', arrowstyle='<->', lw=0.8, shrinkB=0.))
-        ax.text(exp_Xx_1+400, 0.105, f'ATE = {int(exp_Xx_2-exp_Xx_1)}', fontsize=8, ha='left', va='center')
 
 
-        fig.savefig(f"Figures/figure_{w}_cm_by_{h}_cm_{figure_name}.png", bbox_inches="tight", dpi=300)
+        
+        ax.annotate("", xy=(exp_Xx_1, y_axis_upper_limit*0.68), xytext=(exp_Xx_2-300, y_axis_upper_limit*0.68), arrowprops=dict(facecolor='black', edgecolor='black', arrowstyle='<->', lw=0.8, shrinkB=0.))
+        ax.text(exp_Xx_1+400, y_axis_upper_limit*0.68, f'ATE = {int(exp_Xx_2-exp_Xx_1)}', fontsize=8, ha='left', va='center')
+
+
+        fig.savefig(f"Figures/figure_{w}_cm_by_{h}_cm_{figure_name}.png", bbox_inches="tight", dpi=600)
 
         return
    
@@ -77,12 +85,11 @@ class Plotter():
         values = np.array(list(range(0, len(probabilities))))
         sampled_data = np.random.choice(values, size=20000, p=probabilities)
 
-        kde = gaussian_kde(sampled_data, bw_method=0.18)
+        kde = gaussian_kde(sampled_data, bw_method=0.3)
+        x = np.linspace(min(df_Xx['Y_0'].to_list()), max(df_Xx['Y_0'].to_list()), 1000)
+        y = kde(np.linspace(min(values), max(values), 1000))
 
-        x = np.linspace(min(values), max(values), 100)
-        y = kde(x)
-
-        return x, y
+        return x[:850], y[:850]
     
 
      

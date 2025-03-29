@@ -165,7 +165,7 @@ class VariableValues():
     '''
 
     #discrete_setting_Y_0 = set_discrete_range_and_bounds(lower_bond=4000., upper_bond=24000., bins_num=12, round_by=0)
-    discrete_setting_Y_0 = set_discrete_range_and_bounds(lower_bond=2000., upper_bond=32000., bins_num=22, round_by=0)
+    discrete_setting_Y_0 = set_discrete_range_and_bounds(lower_bond=1000., upper_bond=34000., bins_num=60, round_by=0)
     discrete_setting_W = set_discrete_range_and_bounds(lower_bond=0.03, upper_bond=0.14, bins_num=13, round_by=4)
     discrete_setting_V_1 = set_discrete_range_and_bounds(lower_bond=250, upper_bond=1200, bins_num=8, round_by=0)
     discrete_setting_V_7 = set_discrete_range_and_bounds(lower_bond=10000, upper_bond=90000, bins_num=8, round_by=0)
