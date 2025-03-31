@@ -36,9 +36,6 @@ exp_Y0_given_doXx_1 = est.expectation(df_Xx=p_Y0_given_doXx_1, val_col_name='Y_0
 exp_Y0_given_doXx_2 = est.expectation(df_Xx=p_Y0_given_doXx_2, val_col_name='Y_0', prob_col_name='P(Y_0 | do(X=2))')
 
 
-print(p_Y0_given_doXx_1)
-
-
 # Plot ATE 
 plotter = Plotter()
 plotter.plot_ATE(figure_name='ATE', 
