@@ -16,9 +16,19 @@ class Estimator():
     p_Y0_given_do_X_W: Potential = None
     p_Y0_given_do_X: Potential = None
 
+    Y0bn: int = None
+    Wbn: int = None
+    V1bn: int = None
+    V7bn: int = None
 
-    def __init__(self, cg_model: CausalGraphicalModel):
+
+    def __init__(self, cg_model: CausalGraphicalModel, Y_0_bins_num: int, W_bins_num: int, V_1_bins_num: int, V_7_bins_num: int):
         self.causal_grap_model = cg_model
+
+        self.Y0bn = Y_0_bins_num
+        self.Wbn = W_bins_num
+        self.V1bn = V_1_bins_num
+        self.V7bn = V_7_bins_num
         return
 
 
@@ -74,7 +84,7 @@ class Estimator():
         df.columns = ['Y_0', f'P(Y_0 | do(X={X_val}), W={W_val})']
 
         if use_label_vals is True:
-            label_list = GetVariableValues.get_labels(var_symbol='Y_0')
+            label_list = GetVariableValues.get_labels(var_symbol='Y_0', Y0bn=self.Y0bn, Wbn=self.Wbn, V1bn=self.V1bn, V7bn=self.V7bn)
             for i in range(0, len(label_list)):
                 df.loc[i, 'Y_0'] = label_list[i]
         p_Y0_given_doXx_Ww = df
@@ -102,7 +112,7 @@ class Estimator():
         df.columns = ['Y_0', f'P(Y_0 | do(X={X_val}))']
 
         if use_label_vals is True:
-            label_list = GetVariableValues.get_labels(var_symbol='Y_0')
+            label_list = GetVariableValues.get_labels(var_symbol='Y_0', Y0bn=self.Y0bn, Wbn=self.Wbn, V1bn=self.V1bn, V7bn=self.V7bn)
             for i in range(0, len(label_list)):
                 df.loc[i, 'Y_0'] = label_list[i]
         p_Y0_given_doXx = df

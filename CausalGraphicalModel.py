@@ -14,6 +14,13 @@ class CausalGraphicalModel():
     b_net: BayesNet = None
     c_model: CausalModel = None
     G: DiGraph = None
+
+    Y0bn: int = None
+    Wbn: int = None
+    V1bn: int = None
+    V7bn: int = None
+
+    Lp_smoothing: float = None
  
     def __init__(self, dataset_filename: str):
         """
@@ -21,22 +28,35 @@ class CausalGraphicalModel():
         """
         self.dataset_filename = dataset_filename
         return
+    
+
+    def set_bin_numbers(self, Y_0_bins_num: int, W_bins_num: int, V_1_bins_num: int, V_7_bins_num: int):
+        self.Y0bn = Y_0_bins_num
+        self.Wbn = W_bins_num
+        self.V1bn = V_1_bins_num
+        self.V7bn = V_7_bins_num
+        return
+    
+    def set_Lp_smoothing(self, Lp_sm: float):
+        self.Lp_smoothing = Lp_sm
+        return
+    
 
     def add_nodes(self) -> None:
         self.b_net = gum.BayesNet("MyCausalBN")
 
-        self.b_net.add(gum.LabelizedVariable('X', "External walls insulation" , vvalues.get_nums('X'))) 
-        self.b_net.add(gum.LabelizedVariable('Y_0', "Energy (gas) consumption" , vvalues.get_nums('Y_0'))) 
-        self.b_net.add(gum.LabelizedVariable('W', "Energy burden" , vvalues.get_nums('W')))
-        self.b_net.add(gum.LabelizedVariable('V_0', "Dwelling type" , vvalues.get_nums('V_0')))
-        self.b_net.add(gum.LabelizedVariable('V_1', "Energy (gas) cost" , vvalues.get_nums('V_1')))
-        self.b_net.add(gum.LabelizedVariable('V_2', "Tenancy" , vvalues.get_nums('V_2')))
-        self.b_net.add(gum.LabelizedVariable('V_3', "Dwelling age" , vvalues.get_nums('V_3')))
-        self.b_net.add(gum.LabelizedVariable('V_4', "Under Occupancy" , vvalues.get_nums('V_4')))
-        self.b_net.add(gum.LabelizedVariable('V_5', "Household size" , vvalues.get_nums('V_5')))
-        self.b_net.add(gum.LabelizedVariable('V_6', "Dwelling floor area" , vvalues.get_nums('V_6')))
-        self.b_net.add(gum.LabelizedVariable('V_7', "Household income" , vvalues.get_nums('V_7')))
-        self.b_net.add(gum.LabelizedVariable('V_8', "Household composition" , vvalues.get_nums('V_8')))
+        self.b_net.add(gum.LabelizedVariable('X', "External walls insulation" , vvalues.get_nums(var_symbol='X', Y0bn=self.Y0bn, Wbn=self.Wbn, V1bn=self.V1bn, V7bn=self.V7bn))) 
+        self.b_net.add(gum.LabelizedVariable('Y_0', "Energy (gas) consumption" , vvalues.get_nums(var_symbol='Y_0', Y0bn=self.Y0bn, Wbn=self.Wbn, V1bn=self.V1bn, V7bn=self.V7bn))) 
+        self.b_net.add(gum.LabelizedVariable('W', "Energy burden" , vvalues.get_nums(var_symbol='W', Y0bn=self.Y0bn, Wbn=self.Wbn, V1bn=self.V1bn, V7bn=self.V7bn)))
+        self.b_net.add(gum.LabelizedVariable('V_0', "Dwelling type" , vvalues.get_nums(var_symbol='V_0', Y0bn=self.Y0bn, Wbn=self.Wbn, V1bn=self.V1bn, V7bn=self.V7bn)))
+        self.b_net.add(gum.LabelizedVariable('V_1', "Energy (gas) cost" , vvalues.get_nums(var_symbol='V_1', Y0bn=self.Y0bn, Wbn=self.Wbn, V1bn=self.V1bn, V7bn=self.V7bn)))
+        self.b_net.add(gum.LabelizedVariable('V_2', "Tenancy" , vvalues.get_nums(var_symbol='V_2', Y0bn=self.Y0bn, Wbn=self.Wbn, V1bn=self.V1bn, V7bn=self.V7bn)))
+        self.b_net.add(gum.LabelizedVariable('V_3', "Dwelling age" , vvalues.get_nums(var_symbol='V_3', Y0bn=self.Y0bn, Wbn=self.Wbn, V1bn=self.V1bn, V7bn=self.V7bn)))
+        self.b_net.add(gum.LabelizedVariable('V_4', "Under Occupancy" , vvalues.get_nums(var_symbol='V_4', Y0bn=self.Y0bn, Wbn=self.Wbn, V1bn=self.V1bn, V7bn=self.V7bn)))
+        self.b_net.add(gum.LabelizedVariable('V_5', "Household size" , vvalues.get_nums(var_symbol='V_5', Y0bn=self.Y0bn, Wbn=self.Wbn, V1bn=self.V1bn, V7bn=self.V7bn)))
+        self.b_net.add(gum.LabelizedVariable('V_6', "Dwelling floor area" , vvalues.get_nums(var_symbol='V_6', Y0bn=self.Y0bn, Wbn=self.Wbn, V1bn=self.V1bn, V7bn=self.V7bn)))
+        self.b_net.add(gum.LabelizedVariable('V_7', "Household income" , vvalues.get_nums(var_symbol='V_7', Y0bn=self.Y0bn, Wbn=self.Wbn, V1bn=self.V1bn, V7bn=self.V7bn)))
+        self.b_net.add(gum.LabelizedVariable('V_8', "Household composition" , vvalues.get_nums(var_symbol='V_8', Y0bn=self.Y0bn, Wbn=self.Wbn, V1bn=self.V1bn, V7bn=self.V7bn)))
 
         return
     
@@ -132,7 +152,7 @@ class CausalGraphicalModel():
     def learn_params(self, data_file_name: str) -> None:
         data = pd.read_csv(filepath_or_buffer=f"DATA/{data_file_name}", dtype=int)
         learner = gum.BNLearner(data, self.b_net)
-        learner.useSmoothingPrior(0.00001) # Laplace smoothing (e.g. a count C is replaced by C+1)
+        learner.useSmoothingPrior(self.Lp_smoothing) # Laplace smoothing (e.g. a count C is replaced by C+1)
         self.b_net = learner.learnParameters(self.b_net.dag())
         return
     

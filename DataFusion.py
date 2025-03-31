@@ -157,28 +157,28 @@ class DataFusion():
         return
 
 
-    def discretise(self) -> None:
+    def discretise(self, Y_0_bins_num: int, W_bins_num: int, V_1_bins_num: int, V_7_bins_num: int) -> None:
 
         self.discrete_ds_obsrv_vars = self.ds_obsrv_vars.copy(deep=True)
 
         self.discrete_ds_obsrv_vars['Y_0'] = pd.cut(self.discrete_ds_obsrv_vars['Y_0'],
-               bins=GetVariableValues.get_bins_intervals(var_symbol='Y_0'),
-               labels=GetVariableValues.get_nums(var_symbol='Y_0')
+               bins=GetVariableValues.get_bins_intervals(var_symbol='Y_0', Y0bn=Y_0_bins_num, Wbn=W_bins_num, V1bn=V_1_bins_num, V7bn=V_7_bins_num),
+               labels=GetVariableValues.get_nums(var_symbol='Y_0', Y0bn=Y_0_bins_num, Wbn=W_bins_num, V1bn=V_1_bins_num, V7bn=V_7_bins_num)
                )
         
         self.discrete_ds_obsrv_vars['W'] = pd.cut(self.discrete_ds_obsrv_vars['W'],
-               bins=GetVariableValues.get_bins_intervals(var_symbol='W'),
-               labels=GetVariableValues.get_nums(var_symbol='W')
+               bins=GetVariableValues.get_bins_intervals(var_symbol='W', Y0bn=Y_0_bins_num, Wbn=W_bins_num, V1bn=V_1_bins_num, V7bn=V_7_bins_num),
+               labels=GetVariableValues.get_nums(var_symbol='W', Y0bn=Y_0_bins_num, Wbn=W_bins_num, V1bn=V_1_bins_num, V7bn=V_7_bins_num)
                )
         
         self.discrete_ds_obsrv_vars['V_1'] = pd.cut(self.discrete_ds_obsrv_vars['V_1'],
-               bins=GetVariableValues.get_bins_intervals(var_symbol='V_1'),
-               labels=GetVariableValues.get_nums(var_symbol='V_1')
+               bins=GetVariableValues.get_bins_intervals(var_symbol='V_1', Y0bn=Y_0_bins_num, Wbn=W_bins_num, V1bn=V_1_bins_num, V7bn=V_7_bins_num),
+               labels=GetVariableValues.get_nums(var_symbol='V_1', Y0bn=Y_0_bins_num, Wbn=W_bins_num, V1bn=V_1_bins_num, V7bn=V_7_bins_num)
                )
         
         self.discrete_ds_obsrv_vars['V_7'] = pd.cut(self.discrete_ds_obsrv_vars['V_7'],
-               bins=GetVariableValues.get_bins_intervals(var_symbol='V_7'),
-               labels=GetVariableValues.get_nums(var_symbol='V_7')
+               bins=GetVariableValues.get_bins_intervals(var_symbol='V_7', Y0bn=Y_0_bins_num, Wbn=W_bins_num, V1bn=V_1_bins_num, V7bn=V_7_bins_num),
+               labels=GetVariableValues.get_nums(var_symbol='V_7', Y0bn=Y_0_bins_num, Wbn=W_bins_num, V1bn=V_1_bins_num, V7bn=V_7_bins_num)
                )
 
         return
@@ -190,7 +190,7 @@ Below is a function instantiating the DataFusion class. It builds the dataset
 for training the model parameters of the Causal Bayesian Network.
 '''
 
-def gen_training_dataset():
+def gen_training_dataset(Y_0_bins_num: int, W_bins_num: int, V_1_bins_num: int, V_7_bins_num: int):
 
     start_time = time.time()
     dp = DataFusion(subset_only=False, how_many=None)
@@ -211,7 +211,7 @@ def gen_training_dataset():
     dp.ds_obsrv_vars.drop('litecost', axis=1, inplace=True)
 
     dp.rearrange_cols()
-    dp.discretise() 
+    dp.discretise(Y_0_bins_num=Y_0_bins_num, W_bins_num=W_bins_num, V_1_bins_num=V_1_bins_num, V_7_bins_num=V_7_bins_num) 
 
     # save processed datasets to csv files
     dp.ds_obsrv_vars.to_csv(path_or_buf="DATA/processed_dataset.csv", index=False)
