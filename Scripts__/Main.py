@@ -12,11 +12,11 @@ pd.option_context('display.max_rows', None)
 
 
 #set bin number for real-valued variables
-Y0bn = 50
+Y0bn = 35
 Wbn = 12
 V1bn = 12
 V7bn = 12
-Laplace_sm = 0.005
+Laplace_sm = 0.001
 # Generate training dataset 
 gen_training_dataset(Y_0_bins_num=Y0bn, W_bins_num=Wbn, V_1_bins_num=V1bn, V_7_bins_num=V7bn)
 
@@ -50,7 +50,7 @@ plotter.plot_ATE(figure_name='ATE',
 
 
 #================================================================================================================
-
+'''
 #set bin number for real-valued variables
 Y0bn = 10
 Wbn = 20
@@ -78,6 +78,6 @@ for w in range(1, Wbn+1):
     exp_Y0_given_doXx_2_Ww_1 = est.expectation(df_Xx=p_Y0_given_doXx_2_Ww_1, val_col_name='Y_0', prob_col_name=f'P(Y_0 | do(X=2), W={w})')
 
     print(GetVariableValues.get_labels(var_symbol='W', Y0bn=Y0bn, Wbn=Wbn, V1bn=V1bn, V7bn=V7bn)[w-1], exp_Y0_given_doXx_1_Ww_1 - exp_Y0_given_doXx_2_Ww_1)
-
+'''
 
 

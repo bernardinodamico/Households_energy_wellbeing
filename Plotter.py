@@ -36,7 +36,7 @@ class Plotter():
 
         plt.rcParams["font.family"] = "Arial"
         plt.xlabel(r'Gas consumtion $(Y_0)$ [kWh/year]', fontsize=8)
-        plt.ylabel(r'$P(Y_0 \mid do(X))$', fontsize=8)
+        plt.ylabel(r'$P(Y_0 \mid do(X))_{G}$', fontsize=8)
 
         plt.minorticks_on()
         plt.gca().yaxis.set_major_locator(plt.MultipleLocator(0.05))  # Major ticks every 0.05units
@@ -64,7 +64,7 @@ class Plotter():
 
         
         ax.annotate("", xy=(exp_Xx_1, y_axis_upper_limit*0.68), xytext=(exp_Xx_2-300, y_axis_upper_limit*0.68), arrowprops=dict(facecolor='black', edgecolor='black', arrowstyle='<->', lw=0.8, shrinkB=0.))
-        ax.text(exp_Xx_1+400, y_axis_upper_limit*0.68, f'ATE = {int(exp_Xx_2-exp_Xx_1)}', fontsize=8, ha='left', va='center')
+        ax.text(exp_Xx_1+400, y_axis_upper_limit*0.68, r'$ATE_{G}$' + f' = {int(exp_Xx_2-exp_Xx_1)}', fontsize=8, ha='left', va='center')
 
 
         fig.savefig(f"Figures/figure_{w}_cm_by_{h}_cm_{figure_name}.png", bbox_inches="tight", dpi=600)
