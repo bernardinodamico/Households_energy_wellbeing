@@ -49,14 +49,15 @@ plotter.plot_ATE(figure_name='ATE',
 
 
 
-#================================================================================================================
+#===============================================================================================================
 '''
 #set bin number for real-valued variables
-Y0bn = 10
-Wbn = 20
-V1bn = 10
-V7bn = 10
+Y0bn = 12
+Wbn = 10
+V1bn = 12
+V7bn = 12
 Laplace_sm = 0.01
+
 # Generate training dataset 
 gen_training_dataset(Y_0_bins_num=Y0bn, W_bins_num=Wbn, V_1_bins_num=V1bn, V_7_bins_num=V7bn)
 

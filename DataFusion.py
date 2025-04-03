@@ -13,6 +13,7 @@ class DataFusion():
 
     ds_obsrv_vars: DataFrame = None
     discrete_ds_obsrv_vars: DataFrame = None
+    ref_year: int = None 
 
     gp_by_gasmop: DataFrame = None
 
@@ -25,7 +26,7 @@ class DataFusion():
 
 
     def initialise_gas_price_by_mop_dsets(self) -> None:
-        fpath = os.path.join(os.path.dirname(__file__), r"DATA\RAW\Gas_price_per_kWh_2015.xlsx")
+        fpath = os.path.join(os.path.dirname(__file__), r"DATA\RAW\Gas_price_per_kWh.xlsx")
         self.gp_by_gasmop = pd.read_excel(io=fpath, sheet_name="2015_gas_price_per_kWh")
         return
 
@@ -34,7 +35,7 @@ class DataFusion():
         
         self.ds_obsrv_vars = pd.DataFrame()
 
-        fuel_poverty_ds = pd.read_excel(io=os.path.join(os.path.dirname(__file__), r"DATA\RAW\English_Housing_Survey_FuelP_dataset_2015.xlsx"),
+        fuel_poverty_ds = pd.read_excel(io=os.path.join(os.path.dirname(__file__), r"DATA\RAW\English_Housing_Survey_FuelP_dataset.xlsx"),
                                         sheet_name="fuel_poverty_2015_ukda")
         
         self.ds_obsrv_vars.loc[:, 'X'] = fuel_poverty_ds.loc[:, 'WallType']
@@ -51,9 +52,10 @@ class DataFusion():
         self.ds_obsrv_vars.loc[:, 'Mainfueltype'] = fuel_poverty_ds.loc[:, 'Mainfueltype'] # Main fule type variable
         self.ds_obsrv_vars.loc[:, 'gasmop'] = fuel_poverty_ds.loc[:, 'gasmop'] # Method of payment for gas {1: Direct debit; 2: Standard credit; 3: Pre payment} 
         self.ds_obsrv_vars.loc[:, 'litecost'] = fuel_poverty_ds.loc[:, 'litecost'] # Annual cost (£) to the household of powering their lights and appliances
+        self.ds_obsrv_vars.loc[:, 'aagph1415'] = fuel_poverty_ds.loc[:, 'aagph1415'] # household weight factor indicating number of units like this one in the entire English domestic building stock and household population 
 
         if subset_only is True:
-            self.ds_obsrv_vars = self.ds_obsrv_vars[:how_many] # only keep first 100 rows
+            self.ds_obsrv_vars = self.ds_obsrv_vars[:how_many] # only keep first n rows (n=how_many)
         return 
     
 
@@ -182,6 +184,19 @@ class DataFusion():
                )
 
         return
+    
+
+    def weighted_resampling(self, sample_size: int) -> None:
+        '''
+        The method uses the 'aagph1415' weight value to generate a re-sampled dataset by drawing from
+        the existing dataset based on the weight values assignded to each unir (dataset row).
+        By doing so, the returned sample dataset is representative of the English household and dwelling stock
+        - sample_size parameter is the total number of draws
+        '''
+        sampled_df = self.ds_obsrv_vars.sample(n=sample_size, weights='aagph1415', random_state=42, axis=0, replace=True)
+
+        self.ds_obsrv_vars = sampled_df 
+        return
 
 
 
@@ -206,9 +221,12 @@ def gen_training_dataset(Y_0_bins_num: int, W_bins_num: int, V_1_bins_num: int, 
     dp.fill_in_W_binary(fuel_poverty_treshold=0.1)
     dp.filter_for_en_burden()
 
+    dp.weighted_resampling(sample_size=100000)
+
     dp.ds_obsrv_vars.drop('Mainfueltype', axis=1, inplace=True)
     dp.ds_obsrv_vars.drop('gasmop', axis=1, inplace=True)
     dp.ds_obsrv_vars.drop('litecost', axis=1, inplace=True)
+    dp.ds_obsrv_vars.drop('aagph1415', axis=1, inplace=True)
 
     dp.rearrange_cols()
     dp.discretise(Y_0_bins_num=Y_0_bins_num, W_bins_num=W_bins_num, V_1_bins_num=V_1_bins_num, V_7_bins_num=V_7_bins_num) 

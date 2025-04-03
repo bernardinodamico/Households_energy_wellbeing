@@ -167,16 +167,9 @@ class VariableValues():
         Real-valued variables (to discretise)
         '''
         discrete_setting_Y_0 = set_discrete_range_and_bounds(lower_bond=1000., upper_bond=34000., bins_num=Y_0_bins_num, round_by=0)
-        discrete_setting_W = set_discrete_range_and_bounds(lower_bond=0.03, upper_bond=0.13, bins_num=W_bins_num, round_by=4)
-        discrete_setting_V_1 = set_discrete_range_and_bounds(lower_bond=120, upper_bond=2000, bins_num=V_1_bins_num, round_by=0)
-        discrete_setting_V_7 = set_discrete_range_and_bounds(lower_bond=10000, upper_bond=90000, bins_num=V_7_bins_num, round_by=0)
-
-        
-        #discrete_setting_Y_0 = set_discrete_range_and_bounds(lower_bond=1000., upper_bond=34000., bins_num=10, round_by=0)
-        #discrete_setting_Y_0 = set_discrete_range_and_bounds(lower_bond=1000., upper_bond=34000., bins_num=60, round_by=0)
-        #discrete_setting_W = set_discrete_range_and_bounds(lower_bond=0.03, upper_bond=0.14, bins_num=13, round_by=4)
-        #discrete_setting_V_1 = set_discrete_range_and_bounds(lower_bond=120, upper_bond=2000, bins_num=10, round_by=0)
-        #discrete_setting_V_7 = set_discrete_range_and_bounds(lower_bond=10000, upper_bond=90000, bins_num=8, round_by=0)
+        discrete_setting_W = set_discrete_range_and_bounds(lower_bond=0.02, upper_bond=0.12, bins_num=W_bins_num, round_by=5)
+        discrete_setting_V_1 = set_discrete_range_and_bounds(lower_bond=200, upper_bond=1400, bins_num=V_1_bins_num, round_by=1)
+        discrete_setting_V_7 = set_discrete_range_and_bounds(lower_bond=7000, upper_bond=87000, bins_num=V_7_bins_num, round_by=0)
 
         # Energy (gas) consumption
         Y_0_values = discrete_setting_Y_0[1]
