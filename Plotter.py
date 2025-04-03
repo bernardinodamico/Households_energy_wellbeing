@@ -89,7 +89,7 @@ class Plotter():
         x = np.linspace(min(df_Xx['Y_0'].to_list()), max(df_Xx['Y_0'].to_list()), 1000)
         y = kde(np.linspace(min(values), max(values), 1000))
 
-        return x[:900], y[:900]
+        return x[:850], y[:850]
     
 
      

@@ -14,20 +14,25 @@ class DataFusion():
     ds_obsrv_vars: DataFrame = None
     discrete_ds_obsrv_vars: DataFrame = None
     ref_year: int = None 
-
     gp_by_gasmop: DataFrame = None
+    weight_factor_name: str = None
 
 
-    def __init__(self, subset_only: bool = False, how_many: int = 100):
+    def __init__(self, year: int, subset_only: bool = False, how_many: int = 100):
+        '''
+        'year' parameter: any of the following: 2015, 2016, 2017, 2018
+        '''
+        self.ref_year = year
+        self._fetch_name_cols()
         self.initialise_dset_obsrv_vars(subset_only=subset_only, how_many=how_many)
         self.initialise_gas_price_by_mop_dsets()
-        
+
         return
 
 
     def initialise_gas_price_by_mop_dsets(self) -> None:
         fpath = os.path.join(os.path.dirname(__file__), r"DATA\RAW\Gas_price_per_kWh.xlsx")
-        self.gp_by_gasmop = pd.read_excel(io=fpath, sheet_name="2015_gas_price_per_kWh")
+        self.gp_by_gasmop = pd.read_excel(io=fpath, sheet_name=f"{self.ref_year}_gas_price_per_kWh")
         return
 
 
@@ -36,7 +41,7 @@ class DataFusion():
         self.ds_obsrv_vars = pd.DataFrame()
 
         fuel_poverty_ds = pd.read_excel(io=os.path.join(os.path.dirname(__file__), r"DATA\RAW\English_Housing_Survey_FuelP_dataset.xlsx"),
-                                        sheet_name="fuel_poverty_2015_ukda")
+                                        sheet_name=f"fuel_poverty_{self.ref_year}_ukda")
         
         self.ds_obsrv_vars.loc[:, 'X'] = fuel_poverty_ds.loc[:, 'WallType']
         self.ds_obsrv_vars.loc[:, 'V_0'] = fuel_poverty_ds.loc[:, 'DWtype']
@@ -52,12 +57,28 @@ class DataFusion():
         self.ds_obsrv_vars.loc[:, 'Mainfueltype'] = fuel_poverty_ds.loc[:, 'Mainfueltype'] # Main fule type variable
         self.ds_obsrv_vars.loc[:, 'gasmop'] = fuel_poverty_ds.loc[:, 'gasmop'] # Method of payment for gas {1: Direct debit; 2: Standard credit; 3: Pre payment} 
         self.ds_obsrv_vars.loc[:, 'litecost'] = fuel_poverty_ds.loc[:, 'litecost'] # Annual cost (£) to the household of powering their lights and appliances
-        self.ds_obsrv_vars.loc[:, 'aagph1415'] = fuel_poverty_ds.loc[:, 'aagph1415'] # household weight factor indicating number of units like this one in the entire English domestic building stock and household population 
+        self.ds_obsrv_vars.loc[:, self.weight_factor_name] = fuel_poverty_ds.loc[:, self.weight_factor_name] # household weight factor indicating number of units like this one in the entire English domestic building stock and household population 
 
         if subset_only is True:
             self.ds_obsrv_vars = self.ds_obsrv_vars[:how_many] # only keep first n rows (n=how_many)
         return 
     
+    def _fetch_name_cols(self) -> None:
+        '''
+        EHS Fuel Povery datasets use different column heading for some variables
+        depedning on the Year release. The method fetches the correct string name.
+        '''
+        if self.ref_year == 2015:
+            self.weight_factor_name = 'aagph1415'
+        elif self.ref_year == 2016:
+            self.weight_factor_name = 'aagph1516'
+        elif self.ref_year == 2017:
+            self.weight_factor_name = 'aagph1617'
+        elif self.ref_year == 2018:
+            self.weight_factor_name = 'aagph1718'
+
+        return
+
 
     def filter_for_main_fuel_type(self) -> None:
         '''
@@ -193,7 +214,7 @@ class DataFusion():
         By doing so, the returned sample dataset is representative of the English household and dwelling stock
         - sample_size parameter is the total number of draws
         '''
-        sampled_df = self.ds_obsrv_vars.sample(n=sample_size, weights='aagph1415', random_state=42, axis=0, replace=True)
+        sampled_df = self.ds_obsrv_vars.sample(n=sample_size, weights=self.weight_factor_name, random_state=42, axis=0, replace=True)
 
         self.ds_obsrv_vars = sampled_df 
         return
@@ -205,10 +226,10 @@ Below is a function instantiating the DataFusion class. It builds the dataset
 for training the model parameters of the Causal Bayesian Network.
 '''
 
-def gen_training_dataset(Y_0_bins_num: int, W_bins_num: int, V_1_bins_num: int, V_7_bins_num: int):
+def gen_training_dataset(ref_year: int, Y_0_bins_num: int, W_bins_num: int, V_1_bins_num: int, V_7_bins_num: int):
 
     start_time = time.time()
-    dp = DataFusion(subset_only=False, how_many=None)
+    dp = DataFusion(year=ref_year, subset_only=False, how_many=None)
 
     dp.filter_for_main_fuel_type()
     dp.filter_for_method_of_payment()
@@ -226,7 +247,7 @@ def gen_training_dataset(Y_0_bins_num: int, W_bins_num: int, V_1_bins_num: int, 
     dp.ds_obsrv_vars.drop('Mainfueltype', axis=1, inplace=True)
     dp.ds_obsrv_vars.drop('gasmop', axis=1, inplace=True)
     dp.ds_obsrv_vars.drop('litecost', axis=1, inplace=True)
-    dp.ds_obsrv_vars.drop('aagph1415', axis=1, inplace=True)
+    dp.ds_obsrv_vars.drop(dp.weight_factor_name, axis=1, inplace=True)
 
     dp.rearrange_cols()
     dp.discretise(Y_0_bins_num=Y_0_bins_num, W_bins_num=W_bins_num, V_1_bins_num=V_1_bins_num, V_7_bins_num=V_7_bins_num) 

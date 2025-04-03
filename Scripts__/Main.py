@@ -12,13 +12,15 @@ pd.option_context('display.max_rows', None)
 
 
 #set bin number for real-valued variables
-Y0bn = 35
+Y0bn = 50
 Wbn = 12
 V1bn = 12
 V7bn = 12
 Laplace_sm = 0.001
+ref_year = 2018 # the reference year for the dataset. Any of the following: 2015, 2016, 2017, 2018
+
 # Generate training dataset 
-gen_training_dataset(Y_0_bins_num=Y0bn, W_bins_num=Wbn, V_1_bins_num=V1bn, V_7_bins_num=V7bn)
+gen_training_dataset(ref_year=ref_year, Y_0_bins_num=Y0bn, W_bins_num=Wbn, V_1_bins_num=V1bn, V_7_bins_num=V7bn)
 
 # Initialise Causal Graphical Model
 cg_model = CausalGraphicalModel(dataset_filename='discretised_processed_dataset.csv')
@@ -38,7 +40,7 @@ exp_Y0_given_doXx_2 = est.expectation(df_Xx=p_Y0_given_doXx_2, val_col_name='Y_0
 
 # Plot ATE 
 plotter = Plotter()
-plotter.plot_ATE(figure_name='ATE', 
+plotter.plot_ATE(figure_name=f'ATE_{ref_year}', 
                  width_cm=8., 
                  height_cm=8.,
                  doXx_1_distrib=p_Y0_given_doXx_1, 
@@ -57,9 +59,10 @@ Wbn = 10
 V1bn = 12
 V7bn = 12
 Laplace_sm = 0.01
+ref_year = 2019 # the reference year for the dataset. Any of the following: 2015, 2016, 2017, 2018
 
 # Generate training dataset 
-gen_training_dataset(Y_0_bins_num=Y0bn, W_bins_num=Wbn, V_1_bins_num=V1bn, V_7_bins_num=V7bn)
+gen_training_dataset(ref_year=ref_year, Y_0_bins_num=Y0bn, W_bins_num=Wbn, V_1_bins_num=V1bn, V_7_bins_num=V7bn)
 
 # Initialise Causal Graphical Model
 cg_model = CausalGraphicalModel(dataset_filename='discretised_processed_dataset.csv')
@@ -78,7 +81,7 @@ for w in range(1, Wbn+1):
     exp_Y0_given_doXx_1_Ww_1 = est.expectation(df_Xx=p_Y0_given_doXx_1_Ww_1, val_col_name='Y_0', prob_col_name=f'P(Y_0 | do(X=1), W={w})')
     exp_Y0_given_doXx_2_Ww_1 = est.expectation(df_Xx=p_Y0_given_doXx_2_Ww_1, val_col_name='Y_0', prob_col_name=f'P(Y_0 | do(X=2), W={w})')
 
-    print(GetVariableValues.get_labels(var_symbol='W', Y0bn=Y0bn, Wbn=Wbn, V1bn=V1bn, V7bn=V7bn)[w-1], exp_Y0_given_doXx_1_Ww_1 - exp_Y0_given_doXx_2_Ww_1)
+    print(GetVariableValues.get_labels(var_symbol='W', Y0bn=Y0bn, Wbn=Wbn, V1bn=V1bn, V7bn=V7bn)[w-1], exp_Y0_given_doXx_2_Ww_1 - exp_Y0_given_doXx_1_Ww_1)
 '''
 
 
