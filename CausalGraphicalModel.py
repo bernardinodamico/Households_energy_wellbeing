@@ -6,11 +6,13 @@ import networkx as nx
 from networkx import DiGraph
 from pyAgrum import BayesNet
 from Values_mapping import GetVariableValues as vvalues
+from pandas import DataFrame
 
 
 
 class CausalGraphicalModel():
-    dataset_filename: str = None 
+    dataset_filename: str = None
+    disctetised_ds: DataFrame = None 
     b_net: BayesNet = None
     c_model: CausalModel = None
     G: DiGraph = None
@@ -22,11 +24,11 @@ class CausalGraphicalModel():
 
     Lp_smoothing: float = None
  
-    def __init__(self, dataset_filename: str):
+    def __init__(self, disctetised_ds: DataFrame):
         """
         parameter: dataset_filename = the name of the training dataset (including its file extention)
-        """
-        self.dataset_filename = dataset_filename
+        """ 
+        self.disctetised_ds = disctetised_ds
         return
     
 
@@ -149,8 +151,8 @@ class CausalGraphicalModel():
         return
     
 
-    def learn_params(self, data_file_name: str) -> None:
-        data = pd.read_csv(filepath_or_buffer=f"DATA/{data_file_name}", dtype=int)
+    def learn_params(self, data_file_name: str, data: DataFrame) -> None:
+        #data = pd.read_csv(filepath_or_buffer=f"DATA/{data_file_name}", dtype=int)
         learner = gum.BNLearner(data, self.b_net)
         learner.useSmoothingPrior(self.Lp_smoothing) # Laplace smoothing (e.g. a count C is replaced by C+1)
         self.b_net = learner.learnParameters(self.b_net.dag())
@@ -176,7 +178,7 @@ class CausalGraphicalModel():
     def build(self) -> None:
         self.add_nodes()
         self.add_causal_edges()
-        self.learn_params(data_file_name=self.dataset_filename)
+        self.learn_params(data_file_name=self.dataset_filename, data=self.disctetised_ds)
         self.add_latent_vars()
         return
     

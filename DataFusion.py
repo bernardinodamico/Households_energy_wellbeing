@@ -259,4 +259,4 @@ def gen_training_dataset(ref_year: int, Y_0_bins_num: int, W_bins_num: int, V_1_
 
     print("Processing time (h:m:s) ", str(datetime.timedelta(seconds = round(end_time - start_time, 0))))
 
-    return
+    return dp.discrete_ds_obsrv_vars
