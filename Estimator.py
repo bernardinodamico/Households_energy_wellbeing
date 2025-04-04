@@ -135,3 +135,32 @@ class Estimator():
         values = df_Xx[val_col_name].to_numpy()
 
         return np.sum(values * probabilities)
+
+
+
+
+
+
+class ComputeEffects:
+
+    @staticmethod
+    def compute_ATEs(which: str, Y_0_bins_num: int, W_bins_num: int, V_1_bins_num: int, V_7_bins_num: int, Laplace_sm: float, dd: DataFrame) -> None:
+        # Initialise Causal Graphical Model
+        if which == 'ATE_G':
+            cg_model = CausalGraphicalModel(disctetised_ds=dd, remove_W_Y0_edge=False)
+        elif which == 'ATE_G_W_unders':
+            cg_model = CausalGraphicalModel(disctetised_ds=dd, remove_W_Y0_edge=True)
+        cg_model.set_bin_numbers(Y_0_bins_num=Y_0_bins_num, W_bins_num=W_bins_num, V_1_bins_num=V_1_bins_num, V_7_bins_num=V_7_bins_num)
+        cg_model.set_Lp_smoothing(Lp_sm=Laplace_sm)
+        cg_model.build()
+
+        # obtain causal effect distributions i.e. P(Y_0 | do(X=x)) 
+        est = Estimator(cg_model=cg_model, Y_0_bins_num=Y_0_bins_num, W_bins_num=W_bins_num, V_1_bins_num=V_1_bins_num, V_7_bins_num=V_7_bins_num)
+        p_Y0_given_doXx_1 = est.effect_distribution(X_val='1', use_label_vals=True)
+        p_Y0_given_doXx_2 = est.effect_distribution(X_val='2', use_label_vals=True)
+
+        # obtain causal effect expectations i.e. E(Y_0 | do(X=x)) 
+        exp_Y0_given_doXx_1 = est.expectation(df_Xx=p_Y0_given_doXx_1, val_col_name='Y_0', prob_col_name='P(Y_0 | do(X=1))')
+        exp_Y0_given_doXx_2 = est.expectation(df_Xx=p_Y0_given_doXx_2, val_col_name='Y_0', prob_col_name='P(Y_0 | do(X=2))')
+
+        return p_Y0_given_doXx_1, p_Y0_given_doXx_2, exp_Y0_given_doXx_1, exp_Y0_given_doXx_2

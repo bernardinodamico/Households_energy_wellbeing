@@ -5,67 +5,60 @@ import pyAgrum.causal as csl
 from CausalGraphicalModel import CausalGraphicalModel
 from pyAgrum import Potential
 from DataFusion import gen_training_dataset
-from Estimator import Estimator
+from Estimator import Estimator, ComputeEffects
 from Plotter import Plotter
 from Values_mapping import GetVariableValues
 pd.option_context('display.max_rows', None)
 
+import os
+os.environ['PATH'] += ':/usr/local/texlive/2023/bin/x86_64-linux'  # Adjust this path if needed
+import matplotlib.pyplot as plt
+
+print(f"Matplotlib usetex enabled: {plt.rcParams['text.usetex']}")
 
 #set bin number for real-valued variables
-Y0bn = 50
-Wbn = 12
+Y0bn = 35
+Wbn = 13
 V1bn = 12
 V7bn = 12
 Laplace_sm = 0.001
-ref_year = 2018 # the reference year for the dataset. Any of the following: 2015, 2016, 2017, 2018
 
-# Generate training dataset 
-discretised_dtset = gen_training_dataset(ref_year=ref_year, Y_0_bins_num=Y0bn, W_bins_num=Wbn, V_1_bins_num=V1bn, V_7_bins_num=V7bn)
+discretised_dtset = gen_training_dataset(Y_0_bins_num=Y0bn, W_bins_num=Wbn, V_1_bins_num=V1bn, V_7_bins_num=V7bn)
 
-# Initialise Causal Graphical Model
-cg_model = CausalGraphicalModel(disctetised_ds=discretised_dtset)
-cg_model.set_bin_numbers(Y_0_bins_num=Y0bn, W_bins_num=Wbn, V_1_bins_num=V1bn, V_7_bins_num=V7bn)
-cg_model.set_Lp_smoothing(Lp_sm=Laplace_sm)
-cg_model.build()
+p_Y0_given_doXx_1G, p_Y0_given_doXx_2G, exp_Y0_given_doXx_1G, exp_Y0_given_doXx_2G = ComputeEffects.compute_ATEs(which='ATE_G', Y_0_bins_num=Y0bn, W_bins_num=Wbn, V_1_bins_num=V1bn, V_7_bins_num=V7bn, Laplace_sm=Laplace_sm, dd=discretised_dtset)
+p_Y0_given_doXx_1GW, p_Y0_given_doXx_2GW, exp_Y0_given_doXx_1GW, exp_Y0_given_doXx_2GW = ComputeEffects.compute_ATEs(which='ATE_G_W_unders', Y_0_bins_num=Y0bn, W_bins_num=Wbn, V_1_bins_num=V1bn, V_7_bins_num=V7bn, Laplace_sm=Laplace_sm, dd=discretised_dtset)
 
-# obtain causal effect distributions i.e. P(Y_0 | do(X=x)) 
-est = Estimator(cg_model=cg_model, Y_0_bins_num=Y0bn, W_bins_num=Wbn, V_1_bins_num=V1bn, V_7_bins_num=V7bn)
-p_Y0_given_doXx_1 = est.effect_distribution(X_val='1', use_label_vals=True)
-p_Y0_given_doXx_2 = est.effect_distribution(X_val='2', use_label_vals=True)
-
-# obtain causal effect expectations i.e. E(Y_0 | do(X=x)) 
-exp_Y0_given_doXx_1 = est.expectation(df_Xx=p_Y0_given_doXx_1, val_col_name='Y_0', prob_col_name='P(Y_0 | do(X=1))')
-exp_Y0_given_doXx_2 = est.expectation(df_Xx=p_Y0_given_doXx_2, val_col_name='Y_0', prob_col_name='P(Y_0 | do(X=2))')
-
-
-# Plot ATE 
+# Plot ATEs 
 plotter = Plotter()
-plotter.plot_ATE(figure_name=f'ATE_{ref_year}', 
+plotter.plot_ATEs(figure_name=f'ATE', 
                  width_cm=8., 
-                 height_cm=8.,
-                 doXx_1_distrib=p_Y0_given_doXx_1, 
-                 doXx_2_distrib=p_Y0_given_doXx_2,
-                 exp_Xx_1=exp_Y0_given_doXx_1,
-                 exp_Xx_2=exp_Y0_given_doXx_2
+                 height_cm=11.,
+                 doXx_1_distrib_G=p_Y0_given_doXx_1G, 
+                 doXx_2_distrib_G=p_Y0_given_doXx_2G,
+                 exp_Xx_1_G=exp_Y0_given_doXx_1G,
+                 exp_Xx_2_G=exp_Y0_given_doXx_2G,
+                 doXx_1_distrib_GW=p_Y0_given_doXx_1GW, 
+                 doXx_2_distrib_GW=p_Y0_given_doXx_2GW,
+                 exp_Xx_1_GW=exp_Y0_given_doXx_1GW,
+                 exp_Xx_2_GW=exp_Y0_given_doXx_2GW,
                  )
-
+'''
 
 
 #===============================================================================================================
-'''
+
 #set bin number for real-valued variables
-Y0bn = 12
-Wbn = 10
+Y0bn = 10
+Wbn = 13
 V1bn = 12
 V7bn = 12
-Laplace_sm = 0.01
-ref_year = 2019 # the reference year for the dataset. Any of the following: 2015, 2016, 2017, 2018
+Laplace_sm = 0.005
 
 # Generate training dataset 
-gen_training_dataset(ref_year=ref_year, Y_0_bins_num=Y0bn, W_bins_num=Wbn, V_1_bins_num=V1bn, V_7_bins_num=V7bn)
+discretised_dtset = gen_training_dataset(Y_0_bins_num=Y0bn, W_bins_num=Wbn, V_1_bins_num=V1bn, V_7_bins_num=V7bn)
 
 # Initialise Causal Graphical Model
-cg_model = CausalGraphicalModel(dataset_filename='discretised_processed_dataset.csv')
+cg_model = CausalGraphicalModel(disctetised_ds=discretised_dtset)
 cg_model.set_bin_numbers(Y_0_bins_num=Y0bn, W_bins_num=Wbn, V_1_bins_num=V1bn, V_7_bins_num=V7bn)
 cg_model.set_Lp_smoothing(Lp_sm=Laplace_sm)
 cg_model.build()
@@ -83,5 +76,4 @@ for w in range(1, Wbn+1):
 
     print(GetVariableValues.get_labels(var_symbol='W', Y0bn=Y0bn, Wbn=Wbn, V1bn=V1bn, V7bn=V7bn)[w-1], exp_Y0_given_doXx_2_Ww_1 - exp_Y0_given_doXx_1_Ww_1)
 '''
-
 

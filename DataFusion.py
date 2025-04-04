@@ -68,7 +68,9 @@ class DataFusion():
         EHS Fuel Povery datasets use different column heading for some variables
         depedning on the Year release. The method fetches the correct string name.
         '''
-        if self.ref_year == 2015:
+        if self.ref_year == 2014:
+            self.weight_factor_name = 'aagph1314'
+        elif self.ref_year == 2015:
             self.weight_factor_name = 'aagph1415'
         elif self.ref_year == 2016:
             self.weight_factor_name = 'aagph1516'
@@ -76,6 +78,12 @@ class DataFusion():
             self.weight_factor_name = 'aagph1617'
         elif self.ref_year == 2018:
             self.weight_factor_name = 'aagph1718'
+        elif self.ref_year == 2019:
+            self.weight_factor_name = 'aagph1819'
+        elif self.ref_year == 2020:
+            self.weight_factor_name = 'aagph1920'
+        elif self.ref_year == 2021:
+            self.weight_factor_name = 'aagph2021'
 
         return
 
@@ -161,7 +169,7 @@ class DataFusion():
         '''
         Removes instances (rows) where energy_burden is biggher (smaller) than a treshold.
         '''
-        self.ds_obsrv_vars = self.ds_obsrv_vars[self.ds_obsrv_vars.W < 0.3]
+        self.ds_obsrv_vars = self.ds_obsrv_vars[self.ds_obsrv_vars.W < 0.15]
         self.ds_obsrv_vars = self.ds_obsrv_vars[self.ds_obsrv_vars.W > 0.01]
         return
 
@@ -226,37 +234,45 @@ Below is a function instantiating the DataFusion class. It builds the dataset
 for training the model parameters of the Causal Bayesian Network.
 '''
 
-def gen_training_dataset(ref_year: int, Y_0_bins_num: int, W_bins_num: int, V_1_bins_num: int, V_7_bins_num: int):
+def gen_training_dataset(Y_0_bins_num: int, W_bins_num: int, V_1_bins_num: int, V_7_bins_num: int):
 
     start_time = time.time()
-    dp = DataFusion(year=ref_year, subset_only=False, how_many=None)
+    combined_ds_obsrv_vars = pd.DataFrame()
+    combined_discrete_ds_obsrv_vars = pd.DataFrame()
+    
+    for ref_year in range(2015, 2019): #2016
+        dp = DataFusion(year=ref_year, subset_only=False, how_many=None)
 
-    dp.filter_for_main_fuel_type()
-    dp.filter_for_method_of_payment()
-    dp.filter_for_income()
+        dp.filter_for_main_fuel_type()
+        dp.filter_for_method_of_payment()
+        dp.filter_for_income()
 
-    dp.aggregate_wall_type()
+        dp.aggregate_wall_type()
 
-    dp.fill_in_gas_cnsmp_data() 
-    dp.fill_in_energy_burden_data()
-    dp.fill_in_W_binary(fuel_poverty_treshold=0.1)
-    dp.filter_for_en_burden()
+        dp.fill_in_gas_cnsmp_data() 
+        dp.fill_in_energy_burden_data()
+        dp.fill_in_W_binary(fuel_poverty_treshold=0.1)
+        dp.filter_for_en_burden()
 
-    dp.weighted_resampling(sample_size=100000)
+        dp.weighted_resampling(sample_size=60000)
 
-    dp.ds_obsrv_vars.drop('Mainfueltype', axis=1, inplace=True)
-    dp.ds_obsrv_vars.drop('gasmop', axis=1, inplace=True)
-    dp.ds_obsrv_vars.drop('litecost', axis=1, inplace=True)
-    dp.ds_obsrv_vars.drop(dp.weight_factor_name, axis=1, inplace=True)
+        dp.ds_obsrv_vars.drop('Mainfueltype', axis=1, inplace=True)
+        dp.ds_obsrv_vars.drop('gasmop', axis=1, inplace=True)
+        dp.ds_obsrv_vars.drop('litecost', axis=1, inplace=True)
+        dp.ds_obsrv_vars.drop(dp.weight_factor_name, axis=1, inplace=True)
 
-    dp.rearrange_cols()
-    dp.discretise(Y_0_bins_num=Y_0_bins_num, W_bins_num=W_bins_num, V_1_bins_num=V_1_bins_num, V_7_bins_num=V_7_bins_num) 
+        dp.rearrange_cols()
+        dp.discretise(Y_0_bins_num=Y_0_bins_num, W_bins_num=W_bins_num, V_1_bins_num=V_1_bins_num, V_7_bins_num=V_7_bins_num) 
 
-    # save processed datasets to csv files
-    dp.ds_obsrv_vars.to_csv(path_or_buf="DATA/processed_dataset.csv", index=False)
-    dp.discrete_ds_obsrv_vars.to_csv(path_or_buf="DATA/discretised_processed_dataset.csv", index=False)
+        combined_ds_obsrv_vars = pd.concat([combined_ds_obsrv_vars, dp.ds_obsrv_vars], ignore_index=True)
+        combined_discrete_ds_obsrv_vars = pd.concat([combined_discrete_ds_obsrv_vars, dp.discrete_ds_obsrv_vars], ignore_index=True)
+
+    # save processed datasets to csv files   
+    combined_ds_obsrv_vars.to_csv(path_or_buf="DATA/processed_dataset.csv", index=False)
+    combined_discrete_ds_obsrv_vars.to_csv(path_or_buf="DATA/discretised_processed_dataset.csv", index=False)
+    
     end_time = time.time()
 
-    print("Processing time (h:m:s) ", str(datetime.timedelta(seconds = round(end_time - start_time, 0))))
+    print("Data pre-processing time (h:m:s) ", str(datetime.timedelta(seconds = round(end_time - start_time, 0))))
 
-    return dp.discrete_ds_obsrv_vars
+    return combined_discrete_ds_obsrv_vars

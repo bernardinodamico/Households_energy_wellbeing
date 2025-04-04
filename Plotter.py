@@ -1,72 +1,130 @@
 import matplotlib.pyplot as plt
+plt.rcParams['text.usetex'] = True
+import matplotlib as mpl
+mpl.rcParams.update(mpl.rcParamsDefault)
 from pandas import DataFrame
-from scipy.stats import gaussian_kde, gamma
 import numpy as np
 from scipy.stats import gaussian_kde
+from matplotlib.ticker import MultipleLocator
 
 
 
 class Plotter():
 
 
-    def plot_ATE(self, figure_name: str, width_cm: float, height_cm: float, doXx_1_distrib: DataFrame, doXx_2_distrib: DataFrame, exp_Xx_1: float, exp_Xx_2: float) -> None:
+    def plot_ATEs(self, figure_name: str, width_cm: float, height_cm: float, doXx_1_distrib_G: DataFrame, doXx_2_distrib_G: DataFrame, exp_Xx_1_G: float, exp_Xx_2_G: float, doXx_1_distrib_GW: DataFrame, doXx_2_distrib_GW: DataFrame, exp_Xx_1_GW: float, exp_Xx_2_GW: float) -> None:
         '''
         NOTE: doXx_1_distrib and doXx_2_distrib are two-column dataframes 
         reporting the post-intervention probability distribution P(Y_0 | do(X=1) and P(Y_0 | do(X=2) 
         '''
-        doXx_1_distrib.iloc[0, 0] = doXx_1_distrib.iloc[1, 0] - self._bin_width(doXx_1_distrib)
-        doXx_1_distrib.iloc[-1, 0] = doXx_1_distrib.iloc[-2, 0] + self._bin_width(doXx_1_distrib)
-        doXx_2_distrib.iloc[0, 0] = doXx_2_distrib.iloc[1, 0] - self._bin_width(doXx_2_distrib)
-        doXx_2_distrib.iloc[-1, 0] = doXx_2_distrib.iloc[-2, 0] + self._bin_width(doXx_2_distrib)
+        doXx_1_distrib_G.iloc[0, 0] = doXx_1_distrib_G.iloc[1, 0] - self._bin_width(doXx_1_distrib_G)
+        doXx_1_distrib_G.iloc[-1, 0] = doXx_1_distrib_G.iloc[-2, 0] + self._bin_width(doXx_1_distrib_G)
+        doXx_2_distrib_G.iloc[0, 0] = doXx_2_distrib_G.iloc[1, 0] - self._bin_width(doXx_2_distrib_G)
+        doXx_2_distrib_G.iloc[-1, 0] = doXx_2_distrib_G.iloc[-2, 0] + self._bin_width(doXx_2_distrib_G)
 
-        fig, ax = plt.subplots(figsize=(width_cm/2.54, height_cm/2.54))
+        doXx_1_distrib_GW.iloc[0, 0] = doXx_1_distrib_GW.iloc[1, 0] - self._bin_width(doXx_1_distrib_GW)
+        doXx_1_distrib_GW.iloc[-1, 0] = doXx_1_distrib_GW.iloc[-2, 0] + self._bin_width(doXx_1_distrib_GW)
+        doXx_2_distrib_GW.iloc[0, 0] = doXx_2_distrib_GW.iloc[1, 0] - self._bin_width(doXx_2_distrib_GW)
+        doXx_2_distrib_GW.iloc[-1, 0] = doXx_2_distrib_GW.iloc[-2, 0] + self._bin_width(doXx_2_distrib_GW)
 
+        fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(width_cm/2.54, height_cm/2.54))
+
+
+
+        #---------------------------------------------------------------------------------------------
         # Add regression curves
-        x, y = self._add_regresssion_curves(df_Xx=doXx_1_distrib, prob_col_name='P(Y_0 | do(X=1))')
-        plt.plot(x, y, linewidth=0.9, color='#42A05C')
-        x2, y2 = self._add_regresssion_curves(df_Xx=doXx_2_distrib, prob_col_name='P(Y_0 | do(X=2))')
-        plt.plot(x2, y2, linewidth=0.9, color='#B35933')
+        x, y = self._add_regresssion_curves(df_Xx=doXx_1_distrib_G, prob_col_name='P(Y_0 | do(X=1))')
+        ax1.plot(x, y, linewidth=0.9, color='#42A05C')
+        x2, y2 = self._add_regresssion_curves(df_Xx=doXx_2_distrib_G, prob_col_name='P(Y_0 | do(X=2))')
+        ax1.plot(x2, y2, linewidth=0.9, color='#B35933')
 
-        plt.axvline(exp_Xx_1, color='#42A05C', linestyle='--', linewidth=1.5)
-        plt.axvline(exp_Xx_2, color='#B35933', linestyle='--', linewidth=1.5)
+        ax1.axvline(exp_Xx_1_G, color='#42A05C', linestyle='--', linewidth=1.5)
+        ax1.axvline(exp_Xx_2_G, color='#B35933', linestyle='--', linewidth=1.5)
+
+        # set tick values
+        ax1.yaxis.set_major_locator(MultipleLocator(0.05)) # Major ticks every 0.05units
+        ax1.yaxis.set_minor_locator(MultipleLocator(0.02))
+        ax1.xaxis.set_major_locator(MultipleLocator(5000))
+        ax1.xaxis.set_minor_locator(MultipleLocator(1000))
 
         # Add bars
-        plt.bar(x=doXx_1_distrib['Y_0'], height=doXx_1_distrib['P(Y_0 | do(X=1))'], width=self._bin_width(doXx_1_distrib), edgecolor='#3CB371', alpha=0.65, label="X=false", color='#3CB371')
-        plt.bar(x=doXx_2_distrib['Y_0'], height=doXx_2_distrib['P(Y_0 | do(X=2))'], width=self._bin_width(doXx_2_distrib), edgecolor='#FF6347', alpha=0.5, label="X=true", color='#FF6347')
+        ax1.bar(x=doXx_1_distrib_G['Y_0'], height=doXx_1_distrib_G['P(Y_0 | do(X=1))'], width=self._bin_width(doXx_1_distrib_G), edgecolor='#3CB371', alpha=0.65, label="X=false", color='#3CB371')
+        ax1.bar(x=doXx_2_distrib_G['Y_0'], height=doXx_2_distrib_G['P(Y_0 | do(X=2))'], width=self._bin_width(doXx_2_distrib_G), edgecolor='#FF6347', alpha=0.5, label="X=true", color='#FF6347')
 
         plt.rcParams["font.family"] = "Arial"
-        plt.xlabel(r'Gas consumtion $(Y_0)$ [kWh/year]', fontsize=8)
-        plt.ylabel(r'$P(Y_0 \mid do(X))_{G}$', fontsize=8)
+        #ax1.set_xlabel(r'Gas consumtion $(Y_0)$ [kWh/year]', fontsize=8)
+        ax1.set_xlabel('')
+        ax1.set_ylabel(r'$P(Y_0 \mid do(X))_{G}$', fontsize=8)
 
-        plt.minorticks_on()
-        plt.gca().yaxis.set_major_locator(plt.MultipleLocator(0.05))  # Major ticks every 0.05units
-        plt.gca().yaxis.set_minor_locator(plt.MultipleLocator(0.01))
-        plt.gca().xaxis.set_major_locator(plt.MultipleLocator(5000))
-        plt.gca().xaxis.set_minor_locator(plt.MultipleLocator(1000))
+        ax1.minorticks_on()
 
-        plt.tick_params(axis='x', which='major', direction='out', length=6, labelsize=7)
-        plt.tick_params(axis='x', which='minor', direction='out', length=3)
-        plt.tick_params(axis='y', which='major', direction='in', length=6, labelsize=7)
-        plt.tick_params(axis='y', which='minor', direction='in', length=3)
+        ax1.tick_params(axis='x', which='major', direction='out', length=6, labelsize=7)
+        ax1.tick_params(axis='x', which='minor', direction='out', length=3)
+        ax1.tick_params(axis='y', which='major', direction='in', length=6, labelsize=7)
+        ax1.tick_params(axis='y', which='minor', direction='in', length=3)
+        ax1.tick_params(labelbottom=False)
 
-        plt.legend(title="Wall insulation:", frameon=True, fontsize=8, title_fontsize=8)
+        ax1.legend(title="Wall insulation:", frameon=True, fontsize=7, title_fontsize=7)
 
-        plt.xticks(rotation=90)
+        for label in ax1.get_xticklabels():
+            label.set_rotation(90)
         plt.tight_layout()
-        y_axis_upper_limit = max(doXx_2_distrib['P(Y_0 | do(X=2))'].to_list()) * 1.15
-        plt.ylim(0, y_axis_upper_limit)
-        plt.xlim(0, 35000)
+        y_axis_upper_limit = 0.1 # max(doXx_2_distrib_G['P(Y_0 | do(X=2))'].to_list()) * 1.15
+        ax1.set_ylim([0, y_axis_upper_limit])
+        ax1.set_xlim([0, 35000])
+
+        ax1.annotate("", xy=(exp_Xx_1_G, y_axis_upper_limit*0.55), xytext=(exp_Xx_2_G-300, y_axis_upper_limit*0.55), arrowprops=dict(facecolor='black', edgecolor='black', arrowstyle='<->', lw=0.8, shrinkB=0.))
+        ax1.text(exp_Xx_1_G+400, y_axis_upper_limit*0.55, r'$ATE_{G}$' + f' = {int(exp_Xx_2_G-exp_Xx_1_G)}', fontsize=8, ha='left', va='center')
+        #-------------------------------------------------------------------------------------------------
+        # Add regression curves
+        x, y = self._add_regresssion_curves(df_Xx=doXx_1_distrib_GW, prob_col_name='P(Y_0 | do(X=1))')
+        ax2.plot(x, y, linewidth=0.9, color='#42A05C')
+        x2, y2 = self._add_regresssion_curves(df_Xx=doXx_2_distrib_GW, prob_col_name='P(Y_0 | do(X=2))')
+        ax2.plot(x2, y2, linewidth=0.9, color='#B35933')
+
+        ax2.axvline(exp_Xx_1_GW, color='#42A05C', linestyle='--', linewidth=1.5)
+        ax2.axvline(exp_Xx_2_GW, color='#B35933', linestyle='--', linewidth=1.5)
+
+        # set tick values
+        ax2.yaxis.set_major_locator(MultipleLocator(0.05)) # Major ticks every 0.05units
+        ax2.yaxis.set_minor_locator(MultipleLocator(0.02))
+        ax2.xaxis.set_major_locator(MultipleLocator(5000))
+        ax2.xaxis.set_minor_locator(MultipleLocator(1000))
+
+        # Add bars
+        ax2.bar(x=doXx_1_distrib_GW['Y_0'], height=doXx_1_distrib_GW['P(Y_0 | do(X=1))'], width=self._bin_width(doXx_1_distrib_GW), edgecolor='#3CB371', alpha=0.65, label="X=false", color='#3CB371')
+        ax2.bar(x=doXx_2_distrib_GW['Y_0'], height=doXx_2_distrib_GW['P(Y_0 | do(X=2))'], width=self._bin_width(doXx_2_distrib_GW), edgecolor='#FF6347', alpha=0.5, label="X=true", color='#FF6347')
+
+        plt.rcParams["font.family"] = "Arial"
+        ax2.set_xlabel(r'Gas consumtion $(Y_0)$ [kWh/year]', fontsize=8)
+        w_underlined = 'W\u0332'
+        ax2.set_ylabel(fr'$P(Y_0 \mid do(X))_{{G_{{{w_underlined}}}}}$', fontsize=8)
+
+        ax2.minorticks_on()
+
+        ax2.tick_params(axis='x', which='major', direction='out', length=6, labelsize=7)
+        ax2.tick_params(axis='x', which='minor', direction='out', length=3)
+        ax2.tick_params(axis='y', which='major', direction='in', length=6, labelsize=7)
+        ax2.tick_params(axis='y', which='minor', direction='in', length=3)
+
+        #ax2.legend(title="Wall insulation:", frameon=True, fontsize=8, title_fontsize=8)
+
+        for label in ax2.get_xticklabels():
+            label.set_rotation(90)
+        plt.tight_layout()
+        y_axis_upper_limit = 0.1 # max(doXx_2_distrib_GW['P(Y_0 | do(X=2))'].to_list()) * 1.15
+        ax2.set_ylim([0, y_axis_upper_limit])
+        ax2.set_xlim([0, 35000])
+
+        ax2.annotate("", xy=(exp_Xx_1_GW, y_axis_upper_limit*0.76), xytext=(exp_Xx_2_GW-300, y_axis_upper_limit*0.76), arrowprops=dict(facecolor='black', edgecolor='black', arrowstyle='<->', lw=0.8, shrinkB=0.))
+        ax2.text(exp_Xx_1_GW+400, y_axis_upper_limit*0.76, fr'$ATE_{{G_{{{w_underlined}}}}}$' + f' = {int(exp_Xx_2_GW-exp_Xx_1_GW)}', fontsize=8, ha='left', va='center')
+        #-------------------------------------------------------------------------------------------------
+
+
 
         w = str(width_cm).replace('.', '-')
         h = str(height_cm).replace('.', '-')
-        #------------------------------------------------------
-
-
         
-        ax.annotate("", xy=(exp_Xx_1, y_axis_upper_limit*0.68), xytext=(exp_Xx_2-300, y_axis_upper_limit*0.68), arrowprops=dict(facecolor='black', edgecolor='black', arrowstyle='<->', lw=0.8, shrinkB=0.))
-        ax.text(exp_Xx_1+400, y_axis_upper_limit*0.68, r'$ATE_{G}$' + f' = {int(exp_Xx_2-exp_Xx_1)}', fontsize=8, ha='left', va='center')
-
-
         fig.savefig(f"Figures/figure_{w}_cm_by_{h}_cm_{figure_name}.png", bbox_inches="tight", dpi=600)
 
         return

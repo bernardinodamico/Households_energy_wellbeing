@@ -18,10 +18,9 @@ Wbn = 12
 V1bn = 12
 V7bn = 12
 Laplace_sm = 0.001
-ref_year = 2018 # the reference year for the dataset. Any of the following: 2015, 2016, 2017, 2018
 
 # Generate training dataset 
-discretised_dtset = gen_training_dataset(ref_year=ref_year, Y_0_bins_num=Y0bn, W_bins_num=Wbn, V_1_bins_num=V1bn, V_7_bins_num=V7bn)
+discretised_dtset = gen_training_dataset(Y_0_bins_num=Y0bn, W_bins_num=Wbn, V_1_bins_num=V1bn, V_7_bins_num=V7bn)
 
 # Initialise Causal Graphical Model
 cg_model = CausalGraphicalModel(disctetised_ds=discretised_dtset)
