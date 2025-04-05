@@ -240,7 +240,7 @@ def gen_training_dataset(Y_0_bins_num: int, W_bins_num: int, V_1_bins_num: int, 
     combined_ds_obsrv_vars = pd.DataFrame()
     combined_discrete_ds_obsrv_vars = pd.DataFrame()
     
-    for ref_year in range(2015, 2019): #2016
+    for ref_year in range(2015, 2019): # i.e. the 5-year time period from 2015 to 2019 inclusive
         dp = DataFusion(year=ref_year, subset_only=False, how_many=None)
 
         dp.filter_for_main_fuel_type()

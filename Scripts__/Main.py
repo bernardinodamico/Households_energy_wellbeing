@@ -10,17 +10,13 @@ from Plotter import Plotter
 from Values_mapping import GetVariableValues
 pd.option_context('display.max_rows', None)
 
-import os
-os.environ['PATH'] += ':/usr/local/texlive/2023/bin/x86_64-linux'  # Adjust this path if needed
-import matplotlib.pyplot as plt
-
-print(f"Matplotlib usetex enabled: {plt.rcParams['text.usetex']}")
+'''
 
 #set bin number for real-valued variables
 Y0bn = 35
-Wbn = 13
-V1bn = 12
-V7bn = 12
+Wbn = 13 
+V1bn = 13
+V7bn = 13
 Laplace_sm = 0.001
 
 discretised_dtset = gen_training_dataset(Y_0_bins_num=Y0bn, W_bins_num=Wbn, V_1_bins_num=V1bn, V_7_bins_num=V7bn)
@@ -48,17 +44,17 @@ plotter.plot_ATEs(figure_name=f'ATE',
 #===============================================================================================================
 
 #set bin number for real-valued variables
-Y0bn = 10
+Y0bn = 13
 Wbn = 13
-V1bn = 12
-V7bn = 12
-Laplace_sm = 0.005
+V1bn = 13
+V7bn = 13
+Laplace_sm = 0.002
 
 # Generate training dataset 
 discretised_dtset = gen_training_dataset(Y_0_bins_num=Y0bn, W_bins_num=Wbn, V_1_bins_num=V1bn, V_7_bins_num=V7bn)
 
 # Initialise Causal Graphical Model
-cg_model = CausalGraphicalModel(disctetised_ds=discretised_dtset)
+cg_model = CausalGraphicalModel(disctetised_ds=discretised_dtset, remove_W_Y0_edge=False) 
 cg_model.set_bin_numbers(Y_0_bins_num=Y0bn, W_bins_num=Wbn, V_1_bins_num=V1bn, V_7_bins_num=V7bn)
 cg_model.set_Lp_smoothing(Lp_sm=Laplace_sm)
 cg_model.build()
@@ -75,5 +71,5 @@ for w in range(1, Wbn+1):
     exp_Y0_given_doXx_2_Ww_1 = est.expectation(df_Xx=p_Y0_given_doXx_2_Ww_1, val_col_name='Y_0', prob_col_name=f'P(Y_0 | do(X=2), W={w})')
 
     print(GetVariableValues.get_labels(var_symbol='W', Y0bn=Y0bn, Wbn=Wbn, V1bn=V1bn, V7bn=V7bn)[w-1], exp_Y0_given_doXx_2_Ww_1 - exp_Y0_given_doXx_1_Ww_1)
-'''
+
 
