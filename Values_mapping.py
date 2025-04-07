@@ -167,7 +167,7 @@ class VariableValues():
         Real-valued variables (to discretise)
         '''
         discrete_setting_Y_0 = set_discrete_range_and_bounds(lower_bond=1000., upper_bond=34000., bins_num=Y_0_bins_num, round_by=0)
-        discrete_setting_W = set_discrete_range_and_bounds(lower_bond=0.02, upper_bond=0.12, bins_num=W_bins_num, round_by=5)
+        discrete_setting_W = set_discrete_range_and_bounds(lower_bond=0.02, upper_bond=0.11, bins_num=W_bins_num, round_by=5)
         discrete_setting_V_1 = set_discrete_range_and_bounds(lower_bond=171, upper_bond=1460, bins_num=V_1_bins_num, round_by=1)
         discrete_setting_V_7 = set_discrete_range_and_bounds(lower_bond=7650, upper_bond=87600, bins_num=V_7_bins_num, round_by=0)
 

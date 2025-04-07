@@ -169,7 +169,7 @@ class DataFusion():
         '''
         Removes instances (rows) where energy_burden is biggher (smaller) than a treshold.
         '''
-        self.ds_obsrv_vars = self.ds_obsrv_vars[self.ds_obsrv_vars.W < 0.15]
+        self.ds_obsrv_vars = self.ds_obsrv_vars[self.ds_obsrv_vars.W < 0.13]
         self.ds_obsrv_vars = self.ds_obsrv_vars[self.ds_obsrv_vars.W > 0.01]
         return
 
