@@ -44,7 +44,8 @@ class Estimator():
         p_Y0_given_X_W_V7 = ve.evidenceJointImpact(targets=['Y_0'], evs={'X', 'W', 'V_7'})
         manual_estimate_do_X_given_W = (p_Y0_given_X_W_V7 * ((p_V7_W_given_X_V2 * p_V2).sumOut(['V_2']) / (p_W_given_X_V2 * p_V2).sumOut(['V_2']))).sumOut(['V_7'])
         
-        estimand, manual_estimate_do_X_given_W , message = csl.causalImpact(cm=self.causal_grap_model.c_model, on="Y_0", doing="X", knowing={"V_7"})
+        
+        #estimand, manual_estimate_do_X_given_W , message = csl.causalImpact(cm=self.causal_grap_model.c_model, on="Y_0", doing="X", knowing={"W"})
         
         self.p_Y0_given_do_X_W = manual_estimate_do_X_given_W
 
@@ -63,6 +64,7 @@ class Estimator():
 
         #estimand, manual_estimate_do_X , message = csl.causalImpact(cm=self.causal_grap_model.c_model, on="Y_0", doing="X")
         
+
         self.p_Y0_given_do_X = manual_estimate_do_X 
 
         return 
@@ -79,14 +81,14 @@ class Estimator():
         the corresponding (covariate_specific) post-intervention probabilities
         '''
         self.cov_specific_causal_effect()
-        #self.causal_effect()
+        self.causal_effect()
 
-        pot = self.p_Y0_given_do_X_W.extract({'X':X_val, 'V_7': W_val})
+        pot = self.p_Y0_given_do_X_W.extract({'X':X_val, 'W': W_val})
         pSeries: Series = pot.topandas()
 
         pSeries = pSeries.reset_index(level=0, drop=True)
         df = pSeries.to_frame().reset_index()
-        df.columns = ['Y_0', f'P(Y_0 | do(X={X_val}), V_7={W_val})']
+        df.columns = ['Y_0', f'P(Y_0 | do(X={X_val}), W={W_val})']
 
         if use_label_vals is True:
             label_list = GetVariableValues.get_labels(var_symbol='Y_0', Y0bn=self.Y0bn, Wbn=self.Wbn, V1bn=self.V1bn, V7bn=self.V7bn)
