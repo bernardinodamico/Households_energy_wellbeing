@@ -10,8 +10,8 @@ from Plotter import Plotter
 from Values_mapping import GetVariableValues
 pd.option_context('display.max_rows', None)
 
-'''
 
+'''
 #set bin number for real-valued variables
 Y0bn = 35
 Wbn = 13 
@@ -38,14 +38,14 @@ plotter.plot_ATEs(figure_name=f'ATE',
                  exp_Xx_1_GW=exp_Y0_given_doXx_1GW,
                  exp_Xx_2_GW=exp_Y0_given_doXx_2GW,
                  )
+
+
 '''
-
-
 #===============================================================================================================
 
 #set bin number for real-valued variables
 Y0bn = 13
-Wbn = 13
+Wbn = 8
 V1bn = 13
 V7bn = 13
 Laplace_sm = 0.002
@@ -54,7 +54,7 @@ Laplace_sm = 0.002
 discretised_dtset = gen_training_dataset(Y_0_bins_num=Y0bn, W_bins_num=Wbn, V_1_bins_num=V1bn, V_7_bins_num=V7bn)
 
 # Initialise Causal Graphical Model
-cg_model = CausalGraphicalModel(disctetised_ds=discretised_dtset, remove_W_Y0_edge=False) 
+cg_model = CausalGraphicalModel(disctetised_ds=discretised_dtset, remove_W_Y0_edge=True) 
 cg_model.set_bin_numbers(Y_0_bins_num=Y0bn, W_bins_num=Wbn, V_1_bins_num=V1bn, V_7_bins_num=V7bn)
 cg_model.set_Lp_smoothing(Lp_sm=Laplace_sm)
 cg_model.build()
