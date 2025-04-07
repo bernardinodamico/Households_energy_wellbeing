@@ -44,7 +44,6 @@ class Estimator():
         p_Y0_given_X_W_V7 = ve.evidenceJointImpact(targets=['Y_0'], evs={'X', 'W', 'V_7'})
         manual_estimate_do_X_given_W = (p_Y0_given_X_W_V7 * ((p_V7_W_given_X_V2 * p_V2).sumOut(['V_2']) / (p_W_given_X_V2 * p_V2).sumOut(['V_2']))).sumOut(['V_7'])
         
-        
         #estimand, manual_estimate_do_X_given_W , message = csl.causalImpact(cm=self.causal_grap_model.c_model, on="Y_0", doing="X", knowing={"W"})
         
         self.p_Y0_given_do_X_W = manual_estimate_do_X_given_W
@@ -64,7 +63,6 @@ class Estimator():
 
         #estimand, manual_estimate_do_X , message = csl.causalImpact(cm=self.causal_grap_model.c_model, on="Y_0", doing="X")
         
-
         self.p_Y0_given_do_X = manual_estimate_do_X 
 
         return 

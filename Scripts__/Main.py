@@ -11,7 +11,7 @@ from Values_mapping import GetVariableValues
 pd.option_context('display.max_rows', None)
 
 
-'''
+
 #set bin number for real-valued variables
 Y0bn = 35
 Wbn = 13 
@@ -54,7 +54,7 @@ Laplace_sm = 0.002
 discretised_dtset = gen_training_dataset(Y_0_bins_num=Y0bn, W_bins_num=Wbn, V_1_bins_num=V1bn, V_7_bins_num=V7bn)
 
 # Initialise Causal Graphical Model
-cg_model = CausalGraphicalModel(disctetised_ds=discretised_dtset, remove_W_Y0_edge=False) 
+cg_model = CausalGraphicalModel(disctetised_ds=discretised_dtset, remove_W_Y0_edge=True) 
 cg_model.set_bin_numbers(Y_0_bins_num=Y0bn, W_bins_num=Wbn, V_1_bins_num=V1bn, V_7_bins_num=V7bn)
 cg_model.set_Lp_smoothing(Lp_sm=Laplace_sm)
 cg_model.build()
@@ -69,7 +69,8 @@ for w in range(1, Wbn+1):
     # obtain causal effect expectations i.e. E(Y_0 | do(X=x), W=w) 
     exp_Y0_given_doXx_1_Ww_1 = est.expectation(df_Xx=p_Y0_given_doXx_1_Ww_1, val_col_name='Y_0', prob_col_name=f'P(Y_0 | do(X=1), W={w})')
     exp_Y0_given_doXx_2_Ww_1 = est.expectation(df_Xx=p_Y0_given_doXx_2_Ww_1, val_col_name='Y_0', prob_col_name=f'P(Y_0 | do(X=2), W={w})')
+    relative = (exp_Y0_given_doXx_2_Ww_1 - exp_Y0_given_doXx_1_Ww_1) / exp_Y0_given_doXx_1_Ww_1
 
-    print(GetVariableValues.get_labels(var_symbol='W', Y0bn=Y0bn, Wbn=Wbn, V1bn=V1bn, V7bn=V7bn)[w-1], exp_Y0_given_doXx_2_Ww_1 - exp_Y0_given_doXx_1_Ww_1)
-
+    print(GetVariableValues.get_labels(var_symbol='W', Y0bn=Y0bn, Wbn=Wbn, V1bn=V1bn, V7bn=V7bn)[w-1], exp_Y0_given_doXx_2_Ww_1 - exp_Y0_given_doXx_1_Ww_1, f'{relative*100}%')
+'''
 
