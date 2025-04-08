@@ -21,22 +21,21 @@ Laplace_sm = 0.001
 
 discretised_dtset = gen_training_dataset(Y_0_bins_num=Y0bn, W_bins_num=Wbn, V_1_bins_num=V1bn, V_7_bins_num=V7bn)
 
-p_Y0_given_doXx_1G, p_Y0_given_doXx_2G, exp_Y0_given_doXx_1G, exp_Y0_given_doXx_2G = ComputeEffects.compute_ATEs(which='ATE_G', Y_0_bins_num=Y0bn, W_bins_num=Wbn, V_1_bins_num=V1bn, V_7_bins_num=V7bn, Laplace_sm=Laplace_sm, dd=discretised_dtset)
-p_Y0_given_doXx_1GW, p_Y0_given_doXx_2GW, exp_Y0_given_doXx_1GW, exp_Y0_given_doXx_2GW = ComputeEffects.compute_ATEs(which='ATE_G_W_unders', Y_0_bins_num=Y0bn, W_bins_num=Wbn, V_1_bins_num=V1bn, V_7_bins_num=V7bn, Laplace_sm=Laplace_sm, dd=discretised_dtset)
+ce = ComputeEffects()
+p_Y0_given_doXx_1G, p_Y0_given_doXx_2G, exp_Y0_given_doXx_1G, exp_Y0_given_doXx_2G = ce.compute_ATE(Y_0_bins_num=Y0bn, W_bins_num=Wbn, V_1_bins_num=V1bn, V_7_bins_num=V7bn, Laplace_sm=Laplace_sm, dd=discretised_dtset)
+effect_distrib = ce.compute_effect_distribution(bin_num=Y0bn)
+
+print(effect_distrib)
 
 # Plot ATEs 
 plotter = Plotter()
 plotter.plot_ATEs(figure_name=f'ATE', 
-                 width_cm=8., 
-                 height_cm=11.,
+                 width_cm=13., 
+                 height_cm=6.,
                  doXx_1_distrib_G=p_Y0_given_doXx_1G, 
                  doXx_2_distrib_G=p_Y0_given_doXx_2G,
                  exp_Xx_1_G=exp_Y0_given_doXx_1G,
                  exp_Xx_2_G=exp_Y0_given_doXx_2G,
-                 doXx_1_distrib_GW=p_Y0_given_doXx_1GW, 
-                 doXx_2_distrib_GW=p_Y0_given_doXx_2GW,
-                 exp_Xx_1_GW=exp_Y0_given_doXx_1GW,
-                 exp_Xx_2_GW=exp_Y0_given_doXx_2GW,
                  )
 
 

@@ -23,13 +23,11 @@ class CausalGraphicalModel():
     V7bn: int = None
 
     Lp_smoothing: float = None
-    remove_W_Y0_edge: bool = None
  
-    def __init__(self, disctetised_ds: DataFrame, remove_W_Y0_edge: bool = False):
+    def __init__(self, disctetised_ds: DataFrame):
         """
         parameter: dataset_filename = the name of the training dataset (including its file extention)
         """ 
-        self.remove_W_Y0_edge = remove_W_Y0_edge
         self.disctetised_ds = disctetised_ds
 
         return
@@ -86,11 +84,7 @@ class CausalGraphicalModel():
         self.b_net.addArc('V_1', 'W')
         self.b_net.addArc('V_0', 'V_1')
         self.b_net.addArc('X', 'V_1')
-
-        if self.remove_W_Y0_edge is False:
-            self.b_net.addArc('W', 'Y_0')
-        elif self.remove_W_Y0_edge is True:
-            pass
+        self.b_net.addArc('W', 'Y_0')
 
         return
     
