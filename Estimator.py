@@ -61,8 +61,6 @@ class Estimator():
         p_V2 = ve.evidenceJointImpact(targets=['V_2'], evs={})
         manual_estimate_do_X = (self.p_Y0_given_do_X_W * (p_W_given_X_V2 * p_V2).sumOut(['V_2'])).sumOut(['W'])
 
-        #estimand, manual_estimate_do_X , message = csl.causalImpact(cm=self.causal_grap_model.c_model, on="Y_0", doing="X")
-        
         self.p_Y0_given_do_X = manual_estimate_do_X 
 
         return 
@@ -152,8 +150,8 @@ class ComputeEffects():
     p_Y0_given_doXx_2: DataFrame = None
 
     def compute_ATE(self, Y_0_bins_num: int, W_bins_num: int, V_1_bins_num: int, V_7_bins_num: int, Laplace_sm: float, dd: DataFrame):
+        
         # Initialise Causal Graphical Model
-
         cg_model = CausalGraphicalModel(disctetised_ds=dd)
         cg_model.set_bin_numbers(Y_0_bins_num=Y_0_bins_num, W_bins_num=W_bins_num, V_1_bins_num=V_1_bins_num, V_7_bins_num=V_7_bins_num)
         cg_model.set_Lp_smoothing(Lp_sm=Laplace_sm)
@@ -174,45 +172,36 @@ class ComputeEffects():
         return p_Y0_given_doXx_1, p_Y0_given_doXx_2, exp_Y0_given_doXx_1, exp_Y0_given_doXx_2
     
 
-    def compute_effect_distribution(self, bin_num: int):
+    def compute_CATE(self, Y_0_bins_num: int, W_bins_num: int, V_1_bins_num: int, V_7_bins_num: int, Laplace_sm: float, dd: DataFrame):
+        # Initialise Causal Graphical Model
+        cg_model = CausalGraphicalModel(disctetised_ds=dd) 
+        cg_model.set_bin_numbers(Y_0_bins_num=Y_0_bins_num, W_bins_num=W_bins_num, V_1_bins_num=V_1_bins_num, V_7_bins_num=V_7_bins_num)
+        cg_model.set_Lp_smoothing(Lp_sm=Laplace_sm)
+        cg_model.build()
 
-        self.p_Y0_given_doXx_1['Y_0'] = self.p_Y0_given_doXx_1['Y_0'].replace({'<': '', '>': '', ',': ''}, regex=True).astype(float)
-        self.p_Y0_given_doXx_1['P(Y_0 | do(X=1))'] = self.p_Y0_given_doXx_1['P(Y_0 | do(X=1))'].astype(float)
+        list_distribs_doXx_1 = []
+        list_w = []
 
-        self.p_Y0_given_doXx_2['Y_0'] = self.p_Y0_given_doXx_2['Y_0'].replace({'<': '', '>': '', ',': ''}, regex=True).astype(float)
-        self.p_Y0_given_doXx_2['P(Y_0 | do(X=2))'] = self.p_Y0_given_doXx_2['P(Y_0 | do(X=2))'].astype(float)
+        est = Estimator(cg_model=cg_model, Y_0_bins_num=Y_0_bins_num, W_bins_num=W_bins_num, V_1_bins_num=V_1_bins_num, V_7_bins_num=V_7_bins_num)
+        for w in range(1, W_bins_num+1):
+            # obtain causal effect distributions i.e. P(Y_0 | do(X=x), W=w)
+            p_Y0_given_doXx_1_Ww = est.cov_specific_effect_distribution(X_val='1', W_val=f'{w}', use_label_vals=True)
+            p_Y0_given_doXx_2_Ww = est.cov_specific_effect_distribution(X_val='2', W_val=f'{w}', use_label_vals=True)
 
-        values_1 = self.p_Y0_given_doXx_1['Y_0'].to_numpy()
-        probabilities_1 = self.p_Y0_given_doXx_1['P(Y_0 | do(X=1))'].to_numpy()
+            # obtain causal effect expectations i.e. E(Y_0 | do(X=x), W=w) 
+            exp_Y0_given_doXx_1_Ww_1 = est.expectation(df_Xx=p_Y0_given_doXx_1_Ww, val_col_name='Y_0', prob_col_name=f'P(Y_0 | do(X=1), W={w})')
+            exp_Y0_given_doXx_2_Ww_1 = est.expectation(df_Xx=p_Y0_given_doXx_2_Ww, val_col_name='Y_0', prob_col_name=f'P(Y_0 | do(X=2), W={w})')
+            
 
-        values_2 = self.p_Y0_given_doXx_2['Y_0'].to_numpy()
-        probabilities_2 = self.p_Y0_given_doXx_2['P(Y_0 | do(X=2))'].to_numpy()
+            w_val_label = GetVariableValues.get_labels(var_symbol='W', Y0bn=Y_0_bins_num, Wbn=W_bins_num, V1bn=V_1_bins_num, V7bn=V_7_bins_num)[w-1]
+            w_val_label = w_val_label.replace('>', '')
+            w_val_label = w_val_label.replace('<', '')
 
-        #sample the effect distribution
-        #------------------------------------------------------------------
-        sample_dataset = pd.DataFrame()
-        n = 100000
+ 
+            p_Y0_given_doXx_1_Ww = p_Y0_given_doXx_1_Ww.rename(columns={f'P(Y_0 | do(X=1), W={w})': f'P(Y_0 | do(X=1), W={w_val_label})'})
+            list_distribs_doXx_1.append(p_Y0_given_doXx_1_Ww)
+            list_w.append(w_val_label)
 
-        sample_dataset['samples1'] = pd.DataFrame(data=np.random.choice(a=values_1, size=n, p=probabilities_1))
-        sample_dataset['samples2'] = pd.DataFrame(data=np.random.choice(a=values_2, size=n, p=probabilities_2))
 
-        bin_width = self.p_Y0_given_doXx_1['Y_0'].iloc[2] - self.p_Y0_given_doXx_1['Y_0'].iloc[1]
-        sample_dataset['samples1'] = sample_dataset['samples1'] + np.random.uniform(-bin_width/1.9, bin_width/1.9)
-        sample_dataset['samples2'] = sample_dataset['samples2'] + np.random.uniform(-bin_width/1.9, bin_width/1.9)
-
-        sample_dataset['values'] = sample_dataset['samples2'] - sample_dataset['samples1']
-        sample_dataset.drop(columns=['samples1', 'samples2'], inplace=True)
-
-        sample_dataset, binsInterval = pd.cut(x=sample_dataset['values'], bins=bin_num, retbins=True)
-        
-        bin_counts = sample_dataset.value_counts().sort_index()
-        bin_probs = bin_counts / len(sample_dataset)
-
-        distrib = pd.DataFrame()
-        distrib['P(values)'] = bin_probs
-        vals = binsInterval + float((binsInterval[2] - binsInterval[1]) / 2.)
-        distrib['values'] = vals[:-1]
-        distrib = distrib.reset_index(drop=True)
-
-        return distrib
+        return list_w, list_distribs_doXx_1
 
