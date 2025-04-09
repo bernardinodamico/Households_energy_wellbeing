@@ -7,6 +7,7 @@ import numpy as np
 from scipy.stats import gaussian_kde
 from matplotlib.ticker import MultipleLocator
 import pandas as pd
+from scipy.interpolate import griddata
 
 
 class Plotter():
@@ -77,25 +78,18 @@ class Plotter():
 
     def plot_CATE(self, figure_name: str, width_cm: float, height_cm: float, w_values: list, list_distribs_doXx_1: DataFrame):
 
-        long_df = pd.DataFrame()
-
-        for idx, (df, w_val) in enumerate(zip(list_distribs_doXx_1, w_values)):
-            temp = df.copy()
-            temp["W"] = w_val
-            temp.columns = ["Y", "P"] + (temp.columns[2:].tolist())  # In case there are other columns
-            long_df = pd.concat([long_df, temp])
-        
-        print(long_df)
 
 
+        '''
+        see the chat
+        '''
 
+        plt.xlabel(r'Energy burden $(W)$ [£/£]', fontsize=8)
+        plt.ylabel(r'Gas consumption $(Y_0)$ [kWh/year]', fontsize=8)
 
-        #fig, ax = plt.subplots(figsize=(width_cm/2.54, height_cm/2.54))
-
-
-        #w = str(width_cm).replace('.', '-')
-        #h = str(height_cm).replace('.', '-')
-        #fig.savefig(f"Figures/figure_{w}_cm_by_{h}_cm_{figure_name}.png", bbox_inches="tight", dpi=600)
+        w = str(width_cm).replace('.', '-')
+        h = str(height_cm).replace('.', '-')
+        fig.savefig(f"Figures/figure_{w}_cm_by_{h}_cm_{figure_name}.png", bbox_inches="tight", dpi=600)
 
         return
 
