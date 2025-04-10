@@ -7,7 +7,8 @@ import numpy as np
 from scipy.stats import gaussian_kde
 from matplotlib.ticker import MultipleLocator
 import pandas as pd
-from scipy.interpolate import griddata
+import matplotlib.gridspec as gridspec
+from numpy.polynomial.polynomial import Polynomial
 
 
 class Plotter():
@@ -23,54 +24,95 @@ class Plotter():
         doXx_2_distrib.iloc[0, 0] = doXx_2_distrib.iloc[1, 0] - self._bin_width(doXx_2_distrib)
         doXx_2_distrib.iloc[-1, 0] = doXx_2_distrib.iloc[-2, 0] + self._bin_width(doXx_2_distrib)
 
-        fig, ax = plt.subplots(figsize=(width_cm/2.54, height_cm/2.54))
+        fig = plt.figure(figsize=(width_cm/2.54, height_cm/2.54))
+        gs = gridspec.GridSpec(2, 1, height_ratios=[2.6, 1])
+        ax1 = fig.add_subplot(gs[0])
+        ax2 = fig.add_subplot(gs[1])
+        
 
         # Add regression curves
         x, y = self._add_regresssion_curves(df_Xx=doXx_1_distrib, prob_col_name='P(Y_0 | do(X=1))')
-        plt.plot(x, y, linewidth=0.9, color='#42A05C')
+        ax1.plot(x, y, linewidth=1.1, color='#42A05C')
         x2, y2 = self._add_regresssion_curves(df_Xx=doXx_2_distrib, prob_col_name='P(Y_0 | do(X=2))')
-        plt.plot(x2, y2, linewidth=0.9, color='#B35933')
+        ax1.plot(x2, y2, linewidth=1.1, color='#B35933')
 
-        plt.axvline(exp_Xx_1, color='#42A05C', linestyle='--', linewidth=1.5)
-        plt.axvline(exp_Xx_2, color='#B35933', linestyle='--', linewidth=1.5)
+        ax1.axvline(exp_Xx_1, color='#42A05C', linestyle='--', linewidth=1.3)
+        ax1.axvline(exp_Xx_2, color='#B35933', linestyle='--', linewidth=1.3)
 
         # Add bars
-        plt.bar(x=doXx_1_distrib['Y_0'], height=doXx_1_distrib['P(Y_0 | do(X=1))'], width=self._bin_width(doXx_1_distrib), edgecolor='#3CB371', alpha=0.65, label="X=false", color='#3CB371')
-        plt.bar(x=doXx_2_distrib['Y_0'], height=doXx_2_distrib['P(Y_0 | do(X=2))'], width=self._bin_width(doXx_2_distrib), edgecolor='#FF6347', alpha=0.5, label="X=true", color='#FF6347')
+        ax1.bar(x=doXx_1_distrib['Y_0'], height=doXx_1_distrib['P(Y_0 | do(X=1))'], width=self._bin_width(doXx_1_distrib), edgecolor='#3CB371', alpha=0.8, label="X = false", color='#3CB371')
+        ax1.bar(x=doXx_2_distrib['Y_0'], height=doXx_2_distrib['P(Y_0 | do(X=2))'], width=self._bin_width(doXx_2_distrib), edgecolor='#FF6347', alpha=0.65, label="X = true", color='#FF6347')
 
         plt.rcParams["font.family"] = "Arial"
-        plt.xlabel(r'Gas consumption $(Y_0)$ [kWh/year]', fontsize=8)
-        plt.ylabel(r'$P(Y_0 \mid do(X))_{G}$', fontsize=8)
+        ax1.set_xlabel('')
+        ax1.set_ylabel(r'$P(Y_0 \mid do(X))_{G}$', fontsize=8)
 
-        plt.minorticks_on()
-        plt.gca().yaxis.set_major_locator(plt.MultipleLocator(0.05))  # Major ticks every 0.05units
-        plt.gca().yaxis.set_minor_locator(plt.MultipleLocator(0.01))
-        plt.gca().xaxis.set_major_locator(plt.MultipleLocator(5000))
-        plt.gca().xaxis.set_minor_locator(plt.MultipleLocator(1000))
+        ax1.minorticks_on()
+        ax1.yaxis.set_major_locator(plt.MultipleLocator(0.05))
+        ax1.yaxis.set_minor_locator(plt.MultipleLocator(0.01))
 
-        plt.tick_params(axis='x', which='major', direction='out', length=6, labelsize=7)
-        plt.tick_params(axis='x', which='minor', direction='out', length=3)
-        plt.tick_params(axis='y', which='major', direction='in', length=6, labelsize=7)
-        plt.tick_params(axis='y', which='minor', direction='in', length=3)
+        ax1.tick_params(axis='x', which='major', direction='out', length=4, labelsize=7)
+        ax1.tick_params(axis='x', which='minor', direction='out', length=2)
+        ax1.tick_params(axis='y', which='major', direction='in', length=4, labelsize=7)
+        ax1.tick_params(axis='y', which='minor', direction='in', length=2)
 
-        plt.legend(title="Wall insulation:", frameon=True, fontsize=8, title_fontsize=8)
+        ax1.axvline(40000, color='dimgray', linestyle='--', linewidth=1.3, label=r'$E(Y_0 \mid do(X))$')
+        order = [1, 2, 0]  # Example: third, first, second
+        handles, labels = ax1.get_legend_handles_labels()
+        ax1.legend([handles[idx] for idx in order], [labels[idx] for idx in order], title=r'Wall insulation $(X):$', frameon=True, fontsize=7, title_fontsize=7)
+        #ax1.legend(title="Wall insulation:", frameon=True, fontsize=7, title_fontsize=7)
+        
+        ax1.set_xticklabels([]) 
+        
+        y_axis_upper_limit = max(doXx_2_distrib['P(Y_0 | do(X=2))'].to_list()) * 1.15
+        ax1.set_ylim(0, y_axis_upper_limit)
+        ax1.set_xlim(0, 35000)
+        
+
+ 
+        ax1.annotate("", xy=(exp_Xx_1, y_axis_upper_limit*0.62), xytext=(exp_Xx_2-300, y_axis_upper_limit*0.62), arrowprops=dict(facecolor='black', edgecolor='black', arrowstyle='<->', lw=0.8, shrinkB=0.))
+        ax1.text(exp_Xx_1+400, y_axis_upper_limit*0.62, r'$ATE_{G}$' + rf'$ = {int(exp_Xx_2-exp_Xx_1)}$', fontsize=7, ha='left', va='center')
+        ax1.text(-0.26, 1.07, 'a', transform=ax1.transAxes, fontsize=11, fontweight='bold', va='top', ha='left')
+        #-----------------------------------------------------------------------------------------------
+
+        bar_height = pd.DataFrame()
+        bar_height['Y_0'] = doXx_1_distrib['Y_0']
+        bar_height['PR(Y_0)'] = (doXx_2_distrib['P(Y_0 | do(X=2))'] / doXx_1_distrib['P(Y_0 | do(X=1))']) - 1.
+        p = Polynomial.fit(bar_height['Y_0'], bar_height['PR(Y_0)'], 5)
+        
+        # Add regression curve
+        #x = np.linspace(bar_height['Y_0'].min(), bar_height['Y_0'].max(), 1000)
+        #y = p(x)
+        #ax2.plot(x, y, linewidth=0.9, color='darkblue')
+        ax2.axhline(y=0., color='black', linestyle='-', linewidth=0.8)
+        ax2.axvline(x=13000., color='darkblue', linestyle='-.', linewidth=0.8)
+        ax2.text(13000, -2.2, '13000', fontsize=7, ha='center', va='top', rotation=90)
+
+        ax2.bar(x=doXx_1_distrib['Y_0'], height=bar_height['PR(Y_0)'], width=self._bin_width(doXx_1_distrib), edgecolor='royalblue', alpha=0.8, color='royalblue')
+        
+        ax2.set_xlabel(r'Gas consumption $(Y_0)$ [kWh/year]', fontsize=8)
+        ax2.set_ylabel(r'$\frac{P(Y_0 \mid do(X=true))_{G}}{P(Y_0 \mid do(X=false))_{G}} - 1$', fontsize=10)
+
+        ax2.minorticks_on()
+        ax2.yaxis.set_major_locator(plt.MultipleLocator(2))
+        ax2.yaxis.set_minor_locator(plt.MultipleLocator(0.5))
+
+        ax2.tick_params(axis='x', which='major', direction='out', length=4, labelsize=7)
+        ax2.tick_params(axis='x', which='minor', direction='out', length=2)
+        ax2.tick_params(axis='y', which='major', direction='in', length=4, labelsize=7)
+        ax2.tick_params(axis='y', which='minor', direction='in', length=2)
 
         plt.xticks(rotation=90)
-        plt.tight_layout()
-        y_axis_upper_limit = max(doXx_2_distrib['P(Y_0 | do(X=2))'].to_list()) * 1.15
-        plt.ylim(0, y_axis_upper_limit)
-        plt.xlim(0, 35000)
+        
+        #y_axis_upper_limit = max(doXx_2_distrib['P(Y_0 | do(X=2))'].to_list()) * 1.15
+        ax2.set_ylim(-2, 2.)
+        ax2.set_xlim(0, 35000)
+
+        ax2.text(-0.26, -.07, 'b', transform=ax1.transAxes, fontsize=12, fontweight='bold', va='top', ha='left')
+        
 
         w = str(width_cm).replace('.', '-')
         h = str(height_cm).replace('.', '-')
-        #------------------------------------------------------
-
-
-        
-        ax.annotate("", xy=(exp_Xx_1, y_axis_upper_limit*0.68), xytext=(exp_Xx_2-300, y_axis_upper_limit*0.68), arrowprops=dict(facecolor='black', edgecolor='black', arrowstyle='<->', lw=0.8, shrinkB=0.))
-        ax.text(exp_Xx_1+400, y_axis_upper_limit*0.68, r'$ATE_{G}$' + f' = {int(exp_Xx_2-exp_Xx_1)}', fontsize=8, ha='left', va='center')
-
-
         fig.savefig(f"Figures/figure_{w}_cm_by_{h}_cm_{figure_name}.png", bbox_inches="tight", dpi=600)
 
         return
