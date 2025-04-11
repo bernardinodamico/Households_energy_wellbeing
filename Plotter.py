@@ -70,9 +70,9 @@ class Plotter():
         
 
  
-        ax1.annotate("", xy=(exp_Xx_1, y_axis_upper_limit*0.62), xytext=(exp_Xx_2-300, y_axis_upper_limit*0.62), arrowprops=dict(facecolor='black', edgecolor='black', arrowstyle='<->', lw=0.8, shrinkB=0.))
-        ax1.text(exp_Xx_1+400, y_axis_upper_limit*0.62, r'$ATE_{G}$' + rf'$ = {int(exp_Xx_2-exp_Xx_1)}$', fontsize=7, ha='left', va='center')
-        ax1.text(-0.26, 1.07, 'a', transform=ax1.transAxes, fontsize=11, fontweight='bold', va='top', ha='left')
+        ax1.annotate("", xy=(exp_Xx_1, y_axis_upper_limit*0.63), xytext=(exp_Xx_2-300, y_axis_upper_limit*0.63), arrowprops=dict(facecolor='black', edgecolor='black', arrowstyle='<->', lw=0.8, shrinkB=0.))
+        ax1.text(exp_Xx_1+400, y_axis_upper_limit*0.63, r'$ATE_{G}$' + rf'$ = {int(exp_Xx_2-exp_Xx_1)}$', fontsize=7, ha='left', va='center')
+        ax1.text(-0.24, 1.07, 'a', transform=ax1.transAxes, fontsize=11, fontweight='bold', va='top', ha='left')
         #-----------------------------------------------------------------------------------------------
 
         bar_height = pd.DataFrame()
@@ -86,15 +86,15 @@ class Plotter():
         #ax2.plot(x, y, linewidth=0.9, color='darkblue')
         ax2.axhline(y=0., color='black', linestyle='-', linewidth=0.8)
         ax2.axvline(x=13000., color='darkblue', linestyle='-.', linewidth=0.8)
-        ax2.text(13000, -2.2, '13000', fontsize=7, ha='center', va='top', rotation=90)
+        ax2.text(13000, -0.9, '13000', fontsize=7, ha='center', va='top', rotation=90)
 
         ax2.bar(x=doXx_1_distrib['Y_0'], height=bar_height['PR(Y_0)'], width=self._bin_width(doXx_1_distrib), edgecolor='royalblue', alpha=0.8, color='royalblue')
         
         ax2.set_xlabel(r'Gas consumption $(Y_0)$ [kWh/year]', fontsize=8)
-        ax2.set_ylabel(r'$\frac{P(Y_0 \mid do(X=true))_{G}}{P(Y_0 \mid do(X=false))_{G}} - 1$', fontsize=10)
+        ax2.set_ylabel(r'$\frac{P(Y_0 \mid do(X=true))_{G}}{P(Y_0 \mid do(X=false))_{G}}$', fontsize=10)
 
         ax2.minorticks_on()
-        ax2.yaxis.set_major_locator(plt.MultipleLocator(2))
+        ax2.yaxis.set_major_locator(plt.MultipleLocator(1))
         ax2.yaxis.set_minor_locator(plt.MultipleLocator(0.5))
 
         ax2.tick_params(axis='x', which='major', direction='out', length=4, labelsize=7)
@@ -103,13 +103,16 @@ class Plotter():
         ax2.tick_params(axis='y', which='minor', direction='in', length=2)
 
         plt.xticks(rotation=90)
+
+        # Set new y labels shifted by +1
+        yticks = ax2.get_yticks()
+        ax2.set_yticklabels([str(int(tick + 1)) for tick in yticks])
         
-        #y_axis_upper_limit = max(doXx_2_distrib['P(Y_0 | do(X=2))'].to_list()) * 1.15
-        ax2.set_ylim(-2, 2.)
+        #ax2.set_ylim(-3, 3.)
         ax2.set_xlim(0, 35000)
 
-        ax2.text(-0.26, -.07, 'b', transform=ax1.transAxes, fontsize=12, fontweight='bold', va='top', ha='left')
-        
+        ax2.text(-0.24, -.07, 'b', transform=ax1.transAxes, fontsize=11, fontweight='bold', va='top', ha='left')
+
 
         w = str(width_cm).replace('.', '-')
         h = str(height_cm).replace('.', '-')
