@@ -180,6 +180,9 @@ class ComputeEffects():
         cg_model.build()
 
         list_distribs_doXx_1 = []
+        list_distribs_doXx_2 = []
+        list_exp_Y0_given_doXx_1_Ww_1 = []
+        list_exp_Y0_given_doXx_2_Ww_1 = []
         list_w = []
 
         est = Estimator(cg_model=cg_model, Y_0_bins_num=Y_0_bins_num, W_bins_num=W_bins_num, V_1_bins_num=V_1_bins_num, V_7_bins_num=V_7_bins_num)
@@ -200,8 +203,12 @@ class ComputeEffects():
  
             p_Y0_given_doXx_1_Ww = p_Y0_given_doXx_1_Ww.rename(columns={f'P(Y_0 | do(X=1), W={w})': f'P(Y_0 | do(X=1), W={w_val_label})'})
             list_distribs_doXx_1.append(p_Y0_given_doXx_1_Ww)
+            p_Y0_given_doXx_2_Ww = p_Y0_given_doXx_2_Ww.rename(columns={f'P(Y_0 | do(X=2), W={w})': f'P(Y_0 | do(X=2), W={w_val_label})'})
+            list_distribs_doXx_2.append(p_Y0_given_doXx_2_Ww)
+            list_exp_Y0_given_doXx_1_Ww_1.append(exp_Y0_given_doXx_1_Ww_1)
+            list_exp_Y0_given_doXx_2_Ww_1.append(exp_Y0_given_doXx_2_Ww_1)
             list_w.append(w_val_label)
 
 
-        return list_w, list_distribs_doXx_1
+        return list_w, list_distribs_doXx_1, list_distribs_doXx_2, list_exp_Y0_given_doXx_1_Ww_1, list_exp_Y0_given_doXx_2_Ww_1
 

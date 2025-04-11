@@ -11,7 +11,7 @@ from Values_mapping import GetVariableValues
 pd.option_context('display.max_rows', None)
 
 
-
+'''
 #set bin number for real-valued variables
 Y0bn = 35
 Wbn = 13 
@@ -38,8 +38,8 @@ plotter.plot_ATE(figure_name=f'ATE',
 #===============================================================================================================
 
 #set bin number for real-valued variables
-Y0bn = 13
-Wbn = 7
+Y0bn = 10
+Wbn = 12
 V1bn = 13
 V7bn = 13
 Laplace_sm = 0.002
@@ -48,17 +48,18 @@ Laplace_sm = 0.002
 discretised_dtset = gen_training_dataset(Y_0_bins_num=Y0bn, W_bins_num=Wbn, V_1_bins_num=V1bn, V_7_bins_num=V7bn)
 
 ce = ComputeEffects()
-list_w, list_distribs_doXx_1 = ce.compute_CATE(Y_0_bins_num=Y0bn, W_bins_num=Wbn, V_1_bins_num=V1bn, V_7_bins_num=V7bn, Laplace_sm=Laplace_sm, dd=discretised_dtset)
+list_w, list_distribs_doXx_1, list_distribs_doXx_2, list_exp_Y0_given_doXx_1_Ww_1, list_exp_Y0_given_doXx_2_Ww_1 = ce.compute_CATE(Y_0_bins_num=Y0bn, W_bins_num=Wbn, V_1_bins_num=V1bn, V_7_bins_num=V7bn, Laplace_sm=Laplace_sm, dd=discretised_dtset)
 
-for d in list_distribs_doXx_1:
-    print(d)
 
 # Plot CATEs
 plotter = Plotter()
 plotter.plot_CATE(figure_name=f'CATE',
                   width_cm=12.,
-                  height_cm=8.,
+                  height_cm=11.,
                   w_values=list_w,
-                  list_distribs_doXx_1=list_distribs_doXx_1
+                  list_distribs_doXx_1=list_distribs_doXx_1,
+                  list_exp_Y0_given_doXx_1_Ww_1=list_exp_Y0_given_doXx_1_Ww_1,
+                  list_distribs_doXx_2=list_distribs_doXx_2,
+                  list_exp_Y0_given_doXx_2_Ww_1=list_exp_Y0_given_doXx_2_Ww_1
                   )
-'''
+

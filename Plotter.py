@@ -9,6 +9,7 @@ from matplotlib.ticker import MultipleLocator
 import pandas as pd
 import matplotlib.gridspec as gridspec
 from numpy.polynomial.polynomial import Polynomial
+import seaborn as sns
 
 
 class Plotter():
@@ -78,12 +79,13 @@ class Plotter():
         bar_height = pd.DataFrame()
         bar_height['Y_0'] = doXx_1_distrib['Y_0']
         bar_height['PR(Y_0)'] = (doXx_2_distrib['P(Y_0 | do(X=2))'] / doXx_1_distrib['P(Y_0 | do(X=1))']) - 1.
-        p = Polynomial.fit(bar_height['Y_0'], bar_height['PR(Y_0)'], 5)
         
+        #p = Polynomial.fit(bar_height['Y_0'], bar_height['PR(Y_0)'], 5)
         # Add regression curve
         #x = np.linspace(bar_height['Y_0'].min(), bar_height['Y_0'].max(), 1000)
         #y = p(x)
         #ax2.plot(x, y, linewidth=0.9, color='darkblue')
+        
         ax2.axhline(y=0., color='black', linestyle='-', linewidth=0.8)
         ax2.axvline(x=13000., color='darkblue', linestyle='-.', linewidth=0.8)
         ax2.text(13000, -0.9, '13000', fontsize=7, ha='center', va='top', rotation=90)
@@ -121,22 +123,114 @@ class Plotter():
         return
    
 
-    def plot_CATE(self, figure_name: str, width_cm: float, height_cm: float, w_values: list, list_distribs_doXx_1: DataFrame):
+    def plot_CATE(self, figure_name: str, width_cm: float, height_cm: float, w_values: list, list_distribs_doXx_1: DataFrame, list_exp_Y0_given_doXx_1_Ww_1: list[float], list_distribs_doXx_2: DataFrame, list_exp_Y0_given_doXx_2_Ww_1: list[float]):
+        
+        w_values[0] = float(w_values[1]) - (float(w_values[2]) - float(w_values[1]))
+        w_values[-1] = float(w_values[-2]) + (float(w_values[2]) - float(w_values[1]))
+        samples_df, percentiles, means = self._generate_points_for_CATE(w_values=w_values, list_distribs_doX_given_W=list_distribs_doXx_1)
+
+        fig = plt.figure(figsize=(width_cm/2.54, height_cm/2.54))
+        gs = gridspec.GridSpec(2, 1, height_ratios=[3.2, 1])
+        ax1 = fig.add_subplot(gs[0])
+        ax2 = fig.add_subplot(gs[1])
+
+        # Shaded percentile bands
+        ax1.fill_between(percentiles['W_center'], percentiles['q25'], percentiles['q75'], alpha=0.3, label='25-75%', color='#3CB371')
+        ax1.fill_between(percentiles['W_center'], percentiles['q30'], percentiles['q70'], alpha=0.3, label='30-70%', color='#3CB371')
+        ax1.fill_between(percentiles['W_center'], percentiles['q35'], percentiles['q65'], alpha=0.3, label='35-65%', color='#3CB371')
+        ax1.fill_between(percentiles['W_center'], percentiles['q40'], percentiles['q60'], alpha=0.3, label='40-60%', color='#3CB371')
+        ax1.fill_between(percentiles['W_center'], percentiles['q45'], percentiles['q55'], alpha=0.3, label='45-55%', color='#3CB371')
+        #ax1.plot(percentiles['W_center'], percentiles['q50'], color='#42A05C', label='Median', linestyle='-', linewidth=1.3)
+        ax1.plot(percentiles['W_center'], means['Y_0'], color='#42A05C', label=r'$E(Y_0 \mid do(X=false), W)$', linestyle='--', linewidth=1.3)
+
+        ax1.set_xlabel('')
+        ax1.set_ylabel(r'Gas consumption $(Y_0)$ [kWh/year]', fontsize=8)
 
 
+        samples_df, percentiles, means = self._generate_points_for_CATE(w_values=w_values, list_distribs_doX_given_W=list_distribs_doXx_2)
 
-        '''
-        see the chat
-        '''
+        # Shaded percentile bands
+        ax1.fill_between(percentiles['W_center'], percentiles['q25'], percentiles['q75'], alpha=0.25, label='25-75%', color='#FF6347')
+        ax1.fill_between(percentiles['W_center'], percentiles['q30'], percentiles['q70'], alpha=0.25, label='30-70%', color='#FF6347')
+        ax1.fill_between(percentiles['W_center'], percentiles['q35'], percentiles['q65'], alpha=0.25, label='35-65%', color='#FF6347')
+        ax1.fill_between(percentiles['W_center'], percentiles['q40'], percentiles['q60'], alpha=0.25, label='40-60%', color='#FF6347')
+        ax1.fill_between(percentiles['W_center'], percentiles['q45'], percentiles['q55'], alpha=0.25, label='45-55%', color='#FF6347')
+        #ax1.plot(percentiles['W_center'], percentiles['q50'], color='#B35933', label='Median', linestyle='-', linewidth=1.3)
+        ax1.plot(percentiles['W_center'], means['Y_0'], color='#B35933', label=r'$E(Y_0 \mid do(X=true), W)$', linestyle='--', linewidth=1.3)
 
-        plt.xlabel(r'Energy burden $(W)$ [£/£]', fontsize=8)
-        plt.ylabel(r'Gas consumption $(Y_0)$ [kWh/year]', fontsize=8)
+        ax1.set_xlim(w_values[0], w_values[-1])
+        ax1.set_ylim(0, 35000)
+        #-----------------------------------------------------------------------------
+
+        CATE_vals = np.array(list_exp_Y0_given_doXx_2_Ww_1) - np.array(list_exp_Y0_given_doXx_1_Ww_1) 
+        ax2.plot(np.array(w_values), CATE_vals, color='royalblue', label='no label', linestyle='-', linewidth=1.3, marker='o', markersize=3)
+
+
+        ax2.set_ylabel(r'$CATE_{G}$', fontsize=8)
+        ax2.set_xlabel(r'Energy burden $(W)$ [£/£]', fontsize=8)
+
 
         w = str(width_cm).replace('.', '-')
         h = str(height_cm).replace('.', '-')
         fig.savefig(f"Figures/figure_{w}_cm_by_{h}_cm_{figure_name}.png", bbox_inches="tight", dpi=600)
 
         return
+
+
+    def _generate_points_for_CATE(self, w_values: list, list_distribs_doX_given_W: DataFrame) -> DataFrame:
+        '''
+        The method generates a point cloud of {W, Y_0} value pairs based on the w-specific 
+        probability distributions  P(Y_0 | do(x), W=w) that is the input parameter: list_distribs_doX_given_W 
+        (i.e. the list containing all the dataframes of prob distributions for different values of W)
+        '''
+
+        bins_width_W = float(w_values[2]) - float(w_values[1])
+        first_df = list_distribs_doX_given_W[0]
+        bins_width_Y_0 = first_df.iloc[2]['Y_0'] - first_df.iloc[1]['Y_0']
+
+        long_df_list = []
+        for i in range(0, len(list_distribs_doX_given_W)):
+            df: DataFrame = list_distribs_doX_given_W[i]
+            w_value = w_values[i]
+            p_col = df.columns[1]
+
+            temp_df = df.rename(columns={p_col: 'P'})
+            temp_df['W'] = float(w_value)
+
+            long_df_list.append(temp_df)
+
+        long_df = pd.concat(long_df_list, ignore_index=True)
+
+        #print(long_df)
+
+        samples = []
+        for w_value, group in long_df.groupby('W'):
+            probs = group['P'] / group['P'].sum()
+            n_samples = 1000
+            sampled_y_bin_centers = np.random.choice(group['Y_0'], size=n_samples, p=probs)
+            sampled_y = np.random.uniform(sampled_y_bin_centers - bins_width_Y_0 / 2, sampled_y_bin_centers + bins_width_Y_0 / 2)
+            sampled_w = np.random.uniform(w_value - bins_width_W / 2, w_value + bins_width_W / 2, size=n_samples)
+            samples.append(pd.DataFrame({'Y_0': sampled_y, 'W': sampled_w}))
+            
+        samples_df = pd.concat(samples, ignore_index=True)
+        #-------------------------------------------------------------------------
+
+        bins = np.arange(samples_df['W'].min()-bins_width_W/2, samples_df['W'].max() + 1.5*bins_width_W, bins_width_W)
+        samples_df['W_bin'] = pd.cut(samples_df['W'], bins=bins, labels=False)
+        quantiles = samples_df.groupby('W_bin')['Y_0'].quantile([0.25, 0.3, 0.35, 0.4, 0.45, 0.5, 0.55, 0.6, 0.65, 0.7, 0.75])
+        quantiles = quantiles.reset_index()
+        percentiles = quantiles.pivot(index='W_bin', columns='level_1', values='Y_0')
+        percentiles.columns = ['q25', 'q30', 'q35', 'q40', 'q45', 'q50', 'q55', 'q60', 'q65', 'q70', 'q75']
+
+        percentiles['W_center'] = (bins[:-1] + bins[1:]) / 2
+
+        means = samples_df.groupby('W_bin')['Y_0'].mean()
+        means = means.reset_index()
+
+
+        return samples_df, percentiles, means
+
+
 
 
     def _bin_width(self, df_Xx: DataFrame) -> float:
