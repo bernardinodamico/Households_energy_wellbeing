@@ -135,10 +135,10 @@ class Plotter():
         ax2 = fig.add_subplot(gs[1])
 
         # Shaded percentile bands
-        ax1.fill_between(percentiles['W_center'], percentiles['q25'], percentiles['q75'], alpha=0.3, label='25-75%', color='#3CB371')
-        ax1.fill_between(percentiles['W_center'], percentiles['q30'], percentiles['q70'], alpha=0.3, label='30-70%', color='#3CB371')
-        ax1.fill_between(percentiles['W_center'], percentiles['q35'], percentiles['q65'], alpha=0.3, label='35-65%', color='#3CB371')
-        ax1.fill_between(percentiles['W_center'], percentiles['q40'], percentiles['q60'], alpha=0.3, label='40-60%', color='#3CB371')
+        ax1.fill_between(percentiles['W_center'], percentiles['q25'], percentiles['q75'], alpha=0.18, label='25-75%', color='#3CB371')
+        ax1.fill_between(percentiles['W_center'], percentiles['q30'], percentiles['q70'], alpha=0.21, label='30-70%', color='#3CB371')
+        ax1.fill_between(percentiles['W_center'], percentiles['q35'], percentiles['q65'], alpha=0.24, label='35-65%', color='#3CB371')
+        ax1.fill_between(percentiles['W_center'], percentiles['q40'], percentiles['q60'], alpha=0.27, label='40-60%', color='#3CB371')
         ax1.fill_between(percentiles['W_center'], percentiles['q45'], percentiles['q55'], alpha=0.3, label='45-55%', color='#3CB371')
         #ax1.plot(percentiles['W_center'], percentiles['q50'], color='#42A05C', label='Median', linestyle='-', linewidth=1.3)
         ax1.plot(percentiles['W_center'], means['Y_0'], color='#42A05C', label=r'$E(Y_0 \mid do(X=false), W)$', linestyle='--', linewidth=1.3)
@@ -150,10 +150,10 @@ class Plotter():
         samples_df, percentiles, means = self._generate_points_for_CATE(w_values=w_values, list_distribs_doX_given_W=list_distribs_doXx_2)
 
         # Shaded percentile bands
-        ax1.fill_between(percentiles['W_center'], percentiles['q25'], percentiles['q75'], alpha=0.25, label='25-75%', color='#FF6347')
-        ax1.fill_between(percentiles['W_center'], percentiles['q30'], percentiles['q70'], alpha=0.25, label='30-70%', color='#FF6347')
-        ax1.fill_between(percentiles['W_center'], percentiles['q35'], percentiles['q65'], alpha=0.25, label='35-65%', color='#FF6347')
-        ax1.fill_between(percentiles['W_center'], percentiles['q40'], percentiles['q60'], alpha=0.25, label='40-60%', color='#FF6347')
+        ax1.fill_between(percentiles['W_center'], percentiles['q25'], percentiles['q75'], alpha=0.18, label='25-75%', color='#FF6347')
+        ax1.fill_between(percentiles['W_center'], percentiles['q30'], percentiles['q70'], alpha=0.21, label='30-70%', color='#FF6347')
+        ax1.fill_between(percentiles['W_center'], percentiles['q35'], percentiles['q65'], alpha=0.24, label='35-65%', color='#FF6347')
+        ax1.fill_between(percentiles['W_center'], percentiles['q40'], percentiles['q60'], alpha=0.27, label='40-60%', color='#FF6347')
         ax1.fill_between(percentiles['W_center'], percentiles['q45'], percentiles['q55'], alpha=0.25, label='45-55%', color='#FF6347')
         #ax1.plot(percentiles['W_center'], percentiles['q50'], color='#B35933', label='Median', linestyle='-', linewidth=1.3)
         ax1.plot(percentiles['W_center'], means['Y_0'], color='#B35933', label=r'$E(Y_0 \mid do(X=true), W)$', linestyle='--', linewidth=1.3)
