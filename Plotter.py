@@ -9,7 +9,6 @@ from matplotlib.ticker import MultipleLocator
 import pandas as pd
 import matplotlib.gridspec as gridspec
 from numpy.polynomial.polynomial import Polynomial
-import seaborn as sns
 
 
 class Plotter():
@@ -67,7 +66,7 @@ class Plotter():
         
         y_axis_upper_limit = max(doXx_2_distrib['P(Y_0 | do(X=2))'].to_list()) * 1.15
         ax1.set_ylim(0, y_axis_upper_limit)
-        ax1.set_xlim(0, 35000)
+        ax1.set_xlim(1000, 35000)
         
 
  
@@ -111,7 +110,7 @@ class Plotter():
         ax2.set_yticklabels([str(int(tick + 1)) for tick in yticks])
         
         #ax2.set_ylim(-3, 3.)
-        ax2.set_xlim(0, 35000)
+        ax2.set_xlim(1000, 35000)
 
         ax2.text(-0.24, -.07, 'b', transform=ax1.transAxes, fontsize=11, fontweight='bold', va='top', ha='left')
 
@@ -135,13 +134,14 @@ class Plotter():
         ax2 = fig.add_subplot(gs[1])
 
         # Shaded percentile bands
-        ax1.fill_between(percentiles['W_center'], percentiles['q25'], percentiles['q75'], alpha=0.18, label='25-75%', color='#3CB371')
-        ax1.fill_between(percentiles['W_center'], percentiles['q30'], percentiles['q70'], alpha=0.21, label='30-70%', color='#3CB371')
-        ax1.fill_between(percentiles['W_center'], percentiles['q35'], percentiles['q65'], alpha=0.24, label='35-65%', color='#3CB371')
-        ax1.fill_between(percentiles['W_center'], percentiles['q40'], percentiles['q60'], alpha=0.27, label='40-60%', color='#3CB371')
-        ax1.fill_between(percentiles['W_center'], percentiles['q45'], percentiles['q55'], alpha=0.3, label='45-55%', color='#3CB371')
-        #ax1.plot(percentiles['W_center'], percentiles['q50'], color='#42A05C', label='Median', linestyle='-', linewidth=1.3)
-        ax1.plot(percentiles['W_center'], means['Y_0'], color='#42A05C', label=r'$E(Y_0 \mid do(X=false), W)$', linestyle='--', linewidth=1.3)
+        ax1.fill_between(percentiles['W_center'], percentiles['q40'], percentiles['q60'], alpha=0.15, label='40-60%', color='#3CB371')
+        ax1.fill_between(percentiles['W_center'], percentiles['q42'], percentiles['q58'], alpha=0.25, label='42-58%', color='#3CB371')
+        ax1.fill_between(percentiles['W_center'], percentiles['q44'], percentiles['q56'], alpha=0.35, label='44-56%', color='#3CB371')
+        ax1.fill_between(percentiles['W_center'], percentiles['q46'], percentiles['q54'], alpha=0.45, label='46-54%', color='#3CB371')
+        ax1.fill_between(percentiles['W_center'], percentiles['q48'], percentiles['q52'], alpha=0.55, label='48-52%', color='#3CB371')
+        ax1.plot(percentiles['W_center'], percentiles['q50'], color='#217338', label='Median', linestyle='-', linewidth=1.5, alpha=0.7)
+        ax1.plot(percentiles['W_center'], means['Y_0'], color='#217338', label=r'$E(Y_0 \mid do(X=false), W)$', linestyle='--', linewidth=1.4)
+        median_doX_1 = percentiles['q50']
 
         ax1.set_xlabel('')
         ax1.set_ylabel(r'Gas consumption $(Y_0)$ [kWh/year]', fontsize=8)
@@ -150,23 +150,31 @@ class Plotter():
         samples_df, percentiles, means = self._generate_points_for_CATE(w_values=w_values, list_distribs_doX_given_W=list_distribs_doXx_2)
 
         # Shaded percentile bands
-        ax1.fill_between(percentiles['W_center'], percentiles['q25'], percentiles['q75'], alpha=0.18, label='25-75%', color='#FF6347')
-        ax1.fill_between(percentiles['W_center'], percentiles['q30'], percentiles['q70'], alpha=0.21, label='30-70%', color='#FF6347')
-        ax1.fill_between(percentiles['W_center'], percentiles['q35'], percentiles['q65'], alpha=0.24, label='35-65%', color='#FF6347')
-        ax1.fill_between(percentiles['W_center'], percentiles['q40'], percentiles['q60'], alpha=0.27, label='40-60%', color='#FF6347')
-        ax1.fill_between(percentiles['W_center'], percentiles['q45'], percentiles['q55'], alpha=0.25, label='45-55%', color='#FF6347')
-        #ax1.plot(percentiles['W_center'], percentiles['q50'], color='#B35933', label='Median', linestyle='-', linewidth=1.3)
-        ax1.plot(percentiles['W_center'], means['Y_0'], color='#B35933', label=r'$E(Y_0 \mid do(X=true), W)$', linestyle='--', linewidth=1.3)
+        ax1.fill_between(percentiles['W_center'], percentiles['q40'], percentiles['q60'], alpha=0.15, label='40-60%', color='#FF6347')
+        ax1.fill_between(percentiles['W_center'], percentiles['q42'], percentiles['q58'], alpha=0.25, label='42-58%', color='#FF6347')
+        ax1.fill_between(percentiles['W_center'], percentiles['q44'], percentiles['q56'], alpha=0.35, label='44-56%', color='#FF6347')
+        ax1.fill_between(percentiles['W_center'], percentiles['q46'], percentiles['q54'], alpha=0.45, label='46-54%', color='#FF6347')
+        ax1.fill_between(percentiles['W_center'], percentiles['q48'], percentiles['q52'], alpha=0.55, label='48-52%', color='#FF6347')
+        ax1.plot(percentiles['W_center'], percentiles['q50'], color='#b03c0b', label='Median', linestyle='-', linewidth=1.5, alpha=0.7)
+        ax1.plot(percentiles['W_center'], means['Y_0'], color='#b03c0b', label=r'$E(Y_0 \mid do(X=true), W)$', linestyle='--', linewidth=1.4)
+        median_doX_2 = percentiles['q50']
 
         ax1.set_xlim(w_values[0], w_values[-1])
-        ax1.set_ylim(0, 35000)
+        ax1.set_ylim(7500, 22000)
         #-----------------------------------------------------------------------------
 
-        CATE_vals = np.array(list_exp_Y0_given_doXx_2_Ww_1) - np.array(list_exp_Y0_given_doXx_1_Ww_1) 
-        ax2.plot(np.array(w_values), CATE_vals, color='royalblue', label='no label', linestyle='-', linewidth=1.3, marker='o', markersize=3)
+        CATE_vals = np.array(list_exp_Y0_given_doXx_2_Ww_1) - np.array(list_exp_Y0_given_doXx_1_Ww_1)
+        CMTE_vals = np.array(median_doX_2) - np.array(median_doX_2) # Conditional Median Treatment Effect
+
+        ax2.plot(np.array(w_values), CATE_vals, color='royalblue', label=r'$CATE_{G}$', linestyle='--', linewidth=1.3)
+        
+        '''
+        NOTE: this below need be fixed
+        '''
+        ax2.plot(np.array(percentiles['W_center']), CMTE_vals, color='royalblue', label=r'$CMTE_{G}$', linestyle='-', linewidth=1.1)
 
 
-        ax2.set_ylabel(r'$CATE_{G}$', fontsize=8)
+        ax2.set_ylabel(r'$Treatment effect$ [kWh/year]', fontsize=8)
         ax2.set_xlabel(r'Energy burden $(W)$ [£/£]', fontsize=8)
 
 
@@ -217,10 +225,10 @@ class Plotter():
 
         bins = np.arange(samples_df['W'].min()-bins_width_W/2, samples_df['W'].max() + 1.5*bins_width_W, bins_width_W)
         samples_df['W_bin'] = pd.cut(samples_df['W'], bins=bins, labels=False)
-        quantiles = samples_df.groupby('W_bin')['Y_0'].quantile([0.25, 0.3, 0.35, 0.4, 0.45, 0.5, 0.55, 0.6, 0.65, 0.7, 0.75])
+        quantiles = samples_df.groupby('W_bin')['Y_0'].quantile([0.40, 0.42, 0.44, 0.46, 0.48, 0.5, 0.52, 0.54, 0.56, 0.58, 0.60])
         quantiles = quantiles.reset_index()
         percentiles = quantiles.pivot(index='W_bin', columns='level_1', values='Y_0')
-        percentiles.columns = ['q25', 'q30', 'q35', 'q40', 'q45', 'q50', 'q55', 'q60', 'q65', 'q70', 'q75']
+        percentiles.columns = ['q40', 'q42', 'q44', 'q46', 'q48', 'q50', 'q52', 'q54', 'q56', 'q58', 'q60']
 
         percentiles['W_center'] = (bins[:-1] + bins[1:]) / 2
 
