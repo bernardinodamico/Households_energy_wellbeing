@@ -140,12 +140,21 @@ class Plotter():
         ax1.fill_between(percentiles['W_center'], percentiles['q46'], percentiles['q54'], alpha=0.45, label='46-54%', color='#3CB371')
         ax1.fill_between(percentiles['W_center'], percentiles['q48'], percentiles['q52'], alpha=0.55, label='48-52%', color='#3CB371')
         ax1.plot(percentiles['W_center'], percentiles['q50'], color='#217338', label='Median', linestyle='-', linewidth=1.5, alpha=0.7)
-        ax1.plot(percentiles['W_center'], means['Y_0'], color='#217338', label=r'$E(Y_0 \mid do(X=false), W)$', linestyle='--', linewidth=1.4)
+        ax1.plot(np.asarray(w_values, dtype=float), list_exp_Y0_given_doXx_1_Ww_1, color='#217338', label=r'$E(Y_0 \mid do(X=false), W)$', linestyle='--', linewidth=1.4)
         median_doX_1 = percentiles['q50']
 
         ax1.set_xlabel('')
         ax1.set_ylabel(r'Gas consumption $(Y_0)$ [kWh/year]', fontsize=8)
+        plt.rcParams["font.family"] = "Arial"
+        ax1.minorticks_on()
+        ax1.xaxis.set_major_locator(plt.MultipleLocator(0.01))
+        ax1.xaxis.set_minor_locator(plt.MultipleLocator(0.005))
+        ax1.tick_params(axis='x', which='major', direction='out', length=4, labelsize=7)
+        ax1.tick_params(axis='x', which='minor', direction='out', length=2)
+        ax1.tick_params(axis='y', which='major', direction='in', length=4, labelsize=7)
+        ax1.tick_params(axis='y', which='minor', direction='in', length=2)
 
+        #ax1.set_xticklabels([]) 
 
         samples_df, percentiles, means = self._generate_points_for_CATE(w_values=w_values, list_distribs_doX_given_W=list_distribs_doXx_2)
 
@@ -156,7 +165,7 @@ class Plotter():
         ax1.fill_between(percentiles['W_center'], percentiles['q46'], percentiles['q54'], alpha=0.45, label='46-54%', color='#FF6347')
         ax1.fill_between(percentiles['W_center'], percentiles['q48'], percentiles['q52'], alpha=0.55, label='48-52%', color='#FF6347')
         ax1.plot(percentiles['W_center'], percentiles['q50'], color='#b03c0b', label='Median', linestyle='-', linewidth=1.5, alpha=0.7)
-        ax1.plot(percentiles['W_center'], means['Y_0'], color='#b03c0b', label=r'$E(Y_0 \mid do(X=true), W)$', linestyle='--', linewidth=1.4)
+        ax1.plot(np.asarray(w_values, dtype=float), list_exp_Y0_given_doXx_2_Ww_1, color='#b03c0b', label=r'$E(Y_0 \mid do(X=true), W)$', linestyle='--', linewidth=1.4)
         median_doX_2 = percentiles['q50']
 
         ax1.set_xlim(w_values[0], w_values[-1])
@@ -164,20 +173,31 @@ class Plotter():
         #-----------------------------------------------------------------------------
 
         CATE_vals = np.array(list_exp_Y0_given_doXx_2_Ww_1) - np.array(list_exp_Y0_given_doXx_1_Ww_1)
-        CMTE_vals = np.array(median_doX_2) - np.array(median_doX_2) # Conditional Median Treatment Effect
+        #CMTE_vals = np.array(median_doX_2) - np.array(median_doX_1) # Conditional Median Treatment Effect
 
-        ax2.plot(np.array(w_values), CATE_vals, color='royalblue', label=r'$CATE_{G}$', linestyle='--', linewidth=1.3)
+        ax2.plot(np.asarray(w_values, dtype=float), CATE_vals, color='royalblue', label=r'$CATE_{G}$', linestyle='--', linewidth=1.3)
         
-        '''
-        NOTE: this below need be fixed
-        '''
-        ax2.plot(np.array(percentiles['W_center']), CMTE_vals, color='royalblue', label=r'$CMTE_{G}$', linestyle='-', linewidth=1.1)
 
+        #ax2.plot(np.array(percentiles['W_center']), CMTE_vals, color='royalblue', label=r'$CMTE_{G}$', linestyle='-', linewidth=1.1)
+  
 
-        ax2.set_ylabel(r'$Treatment effect$ [kWh/year]', fontsize=8)
+        ax2.set_ylabel(r'$CATE_{G}$ [kWh/year]', fontsize=8)
         ax2.set_xlabel(r'Energy burden $(W)$ [£/£]', fontsize=8)
+        ax2.minorticks_on()
+        ax2.xaxis.set_major_locator(plt.MultipleLocator(0.01))
+        ax2.xaxis.set_minor_locator(plt.MultipleLocator(0.005))
+        ax2.yaxis.set_major_locator(plt.MultipleLocator(1000))
+        ax2.yaxis.set_minor_locator(plt.MultipleLocator(500))
+        ax2.tick_params(axis='x', which='major', direction='out', length=4, labelsize=7)
+        ax2.tick_params(axis='x', which='minor', direction='out', length=2)
+        ax2.tick_params(axis='y', which='major', direction='in', length=4, labelsize=7)
+        ax2.tick_params(axis='y', which='minor', direction='in', length=2)
+        ax2.set_xticks([0., 0.01, 0.02, 0.03, 0.04, 0.05, 0.06, 0.07, 0.08, 0.09, 0.10, 0.11]) 
+        ax2.set_xticklabels(['0.00', '0.01', '0.02', '0.03', '0.04', '0.05', '0.06', '0.07', '0.08', '0.09', '0.10', '0.11']) 
 
-
+        ax2.grid(True, which='major', axis='both', linestyle='--', linewidth=0.5,  color='black', alpha=0.5)
+        ax2.set_xlim(w_values[0], w_values[-1])
+        ax2.set_ylim(-4000, 0)
         w = str(width_cm).replace('.', '-')
         h = str(height_cm).replace('.', '-')
         fig.savefig(f"Figures/figure_{w}_cm_by_{h}_cm_{figure_name}.png", bbox_inches="tight", dpi=600)
@@ -214,7 +234,7 @@ class Plotter():
         samples = []
         for w_value, group in long_df.groupby('W'):
             probs = group['P'] / group['P'].sum()
-            n_samples = 1000
+            n_samples = 10000
             sampled_y_bin_centers = np.random.choice(group['Y_0'], size=n_samples, p=probs)
             sampled_y = np.random.uniform(sampled_y_bin_centers - bins_width_Y_0 / 2, sampled_y_bin_centers + bins_width_Y_0 / 2)
             sampled_w = np.random.uniform(w_value - bins_width_W / 2, w_value + bins_width_W / 2, size=n_samples)
