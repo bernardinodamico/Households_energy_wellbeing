@@ -154,7 +154,7 @@ class Plotter():
         ax1.tick_params(axis='y', which='major', direction='in', length=4, labelsize=7)
         ax1.tick_params(axis='y', which='minor', direction='in', length=2)
 
-        #ax1.set_xticklabels([]) 
+        ax1.set_xticklabels([]) 
 
         samples_df, percentiles, means = self._generate_points_for_CATE(w_values=w_values, list_distribs_doX_given_W=list_distribs_doXx_2)
 
@@ -175,7 +175,7 @@ class Plotter():
         CATE_vals = np.array(list_exp_Y0_given_doXx_2_Ww_1) - np.array(list_exp_Y0_given_doXx_1_Ww_1)
         #CMTE_vals = np.array(median_doX_2) - np.array(median_doX_1) # Conditional Median Treatment Effect
 
-        ax2.plot(np.asarray(w_values, dtype=float), CATE_vals, color='royalblue', label=r'$CATE_{G}$', linestyle='--', linewidth=1.3)
+        ax2.plot(np.asarray(w_values, dtype=float), CATE_vals, color='black', label=r'$CATE_{G}$', linestyle='--', linewidth=1.3)
         
 
         #ax2.plot(np.array(percentiles['W_center']), CMTE_vals, color='royalblue', label=r'$CMTE_{G}$', linestyle='-', linewidth=1.1)
