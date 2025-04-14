@@ -134,13 +134,13 @@ class Plotter():
         ax2 = fig.add_subplot(gs[1])
 
         # Shaded percentile bands
-        ax1.fill_between(percentiles['W_center'], percentiles['q40'], percentiles['q60'], alpha=0.15, label='40-60%', color='#3CB371')
-        ax1.fill_between(percentiles['W_center'], percentiles['q42'], percentiles['q58'], alpha=0.25, label='42-58%', color='#3CB371')
-        ax1.fill_between(percentiles['W_center'], percentiles['q44'], percentiles['q56'], alpha=0.35, label='44-56%', color='#3CB371')
-        ax1.fill_between(percentiles['W_center'], percentiles['q46'], percentiles['q54'], alpha=0.45, label='46-54%', color='#3CB371')
-        ax1.fill_between(percentiles['W_center'], percentiles['q48'], percentiles['q52'], alpha=0.55, label='48-52%', color='#3CB371')
-        ax1.plot(percentiles['W_center'], percentiles['q50'], color='#217338', label='Median', linestyle='-', linewidth=1.5, alpha=0.7)
-        ax1.plot(np.asarray(w_values, dtype=float), list_exp_Y0_given_doXx_1_Ww_1, color='#217338', label=r'$E(Y_0 \mid do(X=false), W)$', linestyle='--', linewidth=1.4)
+        ax1.fill_between(percentiles['W_center'], percentiles['q40'], percentiles['q60'], alpha=0.15, label='_40-60%', color='#3CB371', linewidth=0.7, linestyle='--', edgecolor='black')
+        ax1.fill_between(percentiles['W_center'], percentiles['q42'], percentiles['q58'], alpha=0.25, label='_42-58%', color='#3CB371', linewidth=0.2)
+        ax1.fill_between(percentiles['W_center'], percentiles['q44'], percentiles['q56'], alpha=0.35, label='_44-56%', color='#3CB371', linewidth=0.2)
+        ax1.fill_between(percentiles['W_center'], percentiles['q46'], percentiles['q54'], alpha=0.45, label='_46-54%', color='#3CB371', linewidth=0.2)
+        ax1.fill_between(percentiles['W_center'], percentiles['q48'], percentiles['q52'], alpha=0.55, label='X = false', color='#3CB371', linewidth=0.2) #'_48-52%'
+        ax1.plot(percentiles['W_center'], percentiles['q50'], color='#217338', label='_Median', linestyle='-', linewidth=1.5, alpha=0.7)
+        ax1.plot(np.asarray(w_values, dtype=float), list_exp_Y0_given_doXx_1_Ww_1, color='#217338', label='_no_label', linestyle='--', linewidth=1.4)
         median_doX_1 = percentiles['q50']
 
         ax1.set_xlabel('')
@@ -159,23 +159,31 @@ class Plotter():
         samples_df, percentiles, means = self._generate_points_for_CATE(w_values=w_values, list_distribs_doX_given_W=list_distribs_doXx_2)
 
         # Shaded percentile bands
-        ax1.fill_between(percentiles['W_center'], percentiles['q40'], percentiles['q60'], alpha=0.15, label='40-60%', color='#FF6347')
-        ax1.fill_between(percentiles['W_center'], percentiles['q42'], percentiles['q58'], alpha=0.25, label='42-58%', color='#FF6347')
-        ax1.fill_between(percentiles['W_center'], percentiles['q44'], percentiles['q56'], alpha=0.35, label='44-56%', color='#FF6347')
-        ax1.fill_between(percentiles['W_center'], percentiles['q46'], percentiles['q54'], alpha=0.45, label='46-54%', color='#FF6347')
-        ax1.fill_between(percentiles['W_center'], percentiles['q48'], percentiles['q52'], alpha=0.55, label='48-52%', color='#FF6347')
-        ax1.plot(percentiles['W_center'], percentiles['q50'], color='#b03c0b', label='Median', linestyle='-', linewidth=1.5, alpha=0.7)
-        ax1.plot(np.asarray(w_values, dtype=float), list_exp_Y0_given_doXx_2_Ww_1, color='#b03c0b', label=r'$E(Y_0 \mid do(X=true), W)$', linestyle='--', linewidth=1.4)
+        ax1.fill_between(percentiles['W_center'], percentiles['q40'], percentiles['q60'], alpha=0.15, label='_40-60%', color='#FF6347', linewidth=0.7, linestyle='--', edgecolor='black')
+        ax1.fill_between(percentiles['W_center'], percentiles['q42'], percentiles['q58'], alpha=0.25, label='_42-58%', color='#FF6347', linewidth=0.2)
+        ax1.fill_between(percentiles['W_center'], percentiles['q44'], percentiles['q56'], alpha=0.35, label='_44-56%', color='#FF6347', linewidth=0.2)
+        ax1.fill_between(percentiles['W_center'], percentiles['q46'], percentiles['q54'], alpha=0.45, label='_46-54%', color='#FF6347', linewidth=0.2)
+        ax1.fill_between(percentiles['W_center'], percentiles['q48'], percentiles['q52'], alpha=0.55, label='X = true', color='#FF6347', linewidth=0.2) #'_48-52%'
+        ax1.plot(percentiles['W_center'], percentiles['q50'], color='#b03c0b', label='_Median', linestyle='-', linewidth=1.5, alpha=0.7)
+        ax1.plot(np.asarray(w_values, dtype=float), list_exp_Y0_given_doXx_2_Ww_1, color='#b03c0b', label='_no_label', linestyle='--', linewidth=1.4)
         median_doX_2 = percentiles['q50']
+
+        ax1.axvline(40000, color='dimgray', linestyle='--', linewidth=1.4, label=r'$E(Y_0 \mid do(X), W)$')
+        ax1.axvline(40000, color='dimgray', linestyle='-', linewidth=1.5, label='Median')
+        ax1.fill_between(percentiles['W_center'], percentiles['q40'] *1000, percentiles['q60']*1000, alpha=0.15, label='40-60% CI', color='dimgray', linewidth=0.7, linestyle='--', edgecolor='black')
 
         ax1.set_xlim(w_values[0], w_values[-1])
         ax1.set_ylim(7500, 22000)
+
+        order = [0, 1, 4, 2, 3]  
+        handles, labels = ax1.get_legend_handles_labels()
+        ax1.legend([handles[idx] for idx in order], [labels[idx] for idx in order], loc='upper left', title=r'Wall insulation $(X):$', frameon=True, fontsize=7, title_fontsize=7)
         #-----------------------------------------------------------------------------
 
         CATE_vals = np.array(list_exp_Y0_given_doXx_2_Ww_1) - np.array(list_exp_Y0_given_doXx_1_Ww_1)
         #CMTE_vals = np.array(median_doX_2) - np.array(median_doX_1) # Conditional Median Treatment Effect
 
-        ax2.plot(np.asarray(w_values, dtype=float), CATE_vals, color='black', label=r'$CATE_{G}$', linestyle='--', linewidth=1.3)
+        ax2.plot(np.asarray(w_values, dtype=float), CATE_vals, color='darkblue', label=r'$CATE_{G}$', linestyle='--', linewidth=1.3)
         
 
         #ax2.plot(np.array(percentiles['W_center']), CMTE_vals, color='royalblue', label=r'$CMTE_{G}$', linestyle='-', linewidth=1.1)
