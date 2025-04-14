@@ -55,7 +55,7 @@ list_w, list_distribs_doXx_1, list_distribs_doXx_2, list_exp_Y0_given_doXx_1_Ww_
 plotter = Plotter()
 plotter.plot_CATE(figure_name=f'CATE',
                   width_cm=12.,
-                  height_cm=11.,
+                  height_cm=15.5,
                   w_values=list_w,
                   list_distribs_doXx_1=list_distribs_doXx_1,
                   list_exp_Y0_given_doXx_1_Ww_1=list_exp_Y0_given_doXx_1_Ww_1,

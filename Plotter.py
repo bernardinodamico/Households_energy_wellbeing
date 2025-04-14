@@ -129,9 +129,13 @@ class Plotter():
         samples_df, percentiles, means = self._generate_points_for_CATE(w_values=w_values, list_distribs_doX_given_W=list_distribs_doXx_1)
 
         fig = plt.figure(figsize=(width_cm/2.54, height_cm/2.54))
-        gs = gridspec.GridSpec(2, 1, height_ratios=[3.2, 1])
-        ax1 = fig.add_subplot(gs[0])
-        ax2 = fig.add_subplot(gs[1])
+        gs = gridspec.GridSpec(3, 4, height_ratios=[4.7, 1.2, 1.8], hspace=0.4)
+        ax1 = fig.add_subplot(gs[0, :])
+        ax2 = fig.add_subplot(gs[1, :])
+        ax_bottom_1 = fig.add_subplot(gs[2, 0])
+        ax_bottom_2 = fig.add_subplot(gs[2, 1])
+        ax_bottom_3 = fig.add_subplot(gs[2, 2])
+        ax_bottom_4 = fig.add_subplot(gs[2, 3])
 
         # Shaded percentile bands
         ax1.fill_between(percentiles['W_center'], percentiles['q40'], percentiles['q60'], alpha=0.15, label='_40-60%', color='#3CB371', linewidth=0.7, linestyle='--', edgecolor='black')
@@ -154,7 +158,7 @@ class Plotter():
         ax1.tick_params(axis='y', which='major', direction='in', length=4, labelsize=7)
         ax1.tick_params(axis='y', which='minor', direction='in', length=2)
 
-        ax1.set_xticklabels([]) 
+        #ax1.set_xticklabels([]) 
 
         samples_df, percentiles, means = self._generate_points_for_CATE(w_values=w_values, list_distribs_doX_given_W=list_distribs_doXx_2)
 
@@ -169,13 +173,13 @@ class Plotter():
         median_doX_2 = percentiles['q50']
 
         ax1.axvline(40000, color='dimgray', linestyle='--', linewidth=1.4, label=r'$E(Y_0 \mid do(X), W)$')
-        ax1.axvline(40000, color='dimgray', linestyle='-', linewidth=1.5, label='Median')
-        ax1.fill_between(percentiles['W_center'], percentiles['q40'] *1000, percentiles['q60']*1000, alpha=0.15, label='40-60% CI', color='dimgray', linewidth=0.7, linestyle='--', edgecolor='black')
+        ax1.axvline(40000, color='dimgray', linestyle='-', linewidth=1.5, label='Median (50%)')
+        ax1.fill_between(percentiles['W_center'], percentiles['q40'] *1000, percentiles['q60']*1000, alpha=0.20, label='CI (40-60%)', color='dimgray', linewidth=0.8, linestyle='--', edgecolor='black')
 
         ax1.set_xlim(w_values[0], w_values[-1])
         ax1.set_ylim(7500, 22000)
 
-        order = [0, 1, 4, 2, 3]  
+        order = [0, 1, 4, 3, 2]  
         handles, labels = ax1.get_legend_handles_labels()
         ax1.legend([handles[idx] for idx in order], [labels[idx] for idx in order], loc='upper left', title=r'Wall insulation $(X):$', frameon=True, fontsize=7, title_fontsize=7)
         #-----------------------------------------------------------------------------
@@ -206,6 +210,92 @@ class Plotter():
         ax2.grid(True, which='major', axis='both', linestyle='--', linewidth=0.5,  color='black', alpha=0.5)
         ax2.set_xlim(w_values[0], w_values[-1])
         ax2.set_ylim(-4000, 0)
+
+        #---------------------------------------------------
+        distribs_doXx_2 = list_distribs_doXx_2[0]
+        distribs_doXx_1 = list_distribs_doXx_1[0]
+        bar_height = pd.DataFrame()
+        bar_height['Y_0'] = distribs_doXx_2['Y_0']
+        bar_height.loc[bar_height.index[0], 'Y_0'] = bar_height.loc[bar_height.index[1], 'Y_0'] - 4125
+        bar_height.loc[bar_height.index[-1], 'Y_0'] = bar_height.loc[bar_height.index[-2], 'Y_0'] + 4125
+        bar_height['PR(Y_0)'] = (distribs_doXx_2[f'P(Y_0 | do(X=2), W={0.02})'] / distribs_doXx_1[f'P(Y_0 | do(X=1), W={0.02})']) - 1.
+        ax_bottom_1.barh(y=bar_height['Y_0'], width=bar_height['PR(Y_0)'], height=4125, edgecolor='royalblue', alpha=0.8, color='royalblue')
+
+        distribs_doXx_2 = list_distribs_doXx_2[4]
+        distribs_doXx_1 = list_distribs_doXx_1[4]
+        bar_height = pd.DataFrame()
+        bar_height['Y_0'] = distribs_doXx_2['Y_0']
+        bar_height.loc[bar_height.index[0], 'Y_0'] = bar_height.loc[bar_height.index[1], 'Y_0'] - 4125
+        bar_height.loc[bar_height.index[-1], 'Y_0'] = bar_height.loc[bar_height.index[-2], 'Y_0'] + 4125
+        bar_height['PR(Y_0)'] = (distribs_doXx_2[f'P(Y_0 | do(X=2), W={0.0515})'] / distribs_doXx_1[f'P(Y_0 | do(X=1), W={0.0515})']) - 1.
+        ax_bottom_2.barh(y=bar_height['Y_0'], width=bar_height['PR(Y_0)'], height=4125, edgecolor='royalblue', alpha=0.8, color='royalblue')
+
+        distribs_doXx_2 = list_distribs_doXx_2[7]
+        distribs_doXx_1 = list_distribs_doXx_1[7]
+        bar_height = pd.DataFrame()
+        bar_height['Y_0'] = distribs_doXx_2['Y_0']
+        bar_height.loc[bar_height.index[0], 'Y_0'] = bar_height.loc[bar_height.index[1], 'Y_0'] - 4125
+        bar_height.loc[bar_height.index[-1], 'Y_0'] = bar_height.loc[bar_height.index[-2], 'Y_0'] + 4125
+        bar_height['PR(Y_0)'] = (distribs_doXx_2[f'P(Y_0 | do(X=2), W={0.0785})'] / distribs_doXx_1[f'P(Y_0 | do(X=1), W={0.0785})']) - 1.
+        ax_bottom_3.barh(y=bar_height['Y_0'], width=bar_height['PR(Y_0)'], height=4125, edgecolor='royalblue', alpha=0.8, color='royalblue')
+
+        distribs_doXx_2 = list_distribs_doXx_2[11]
+        distribs_doXx_1 = list_distribs_doXx_1[11]
+        bar_height = pd.DataFrame()
+        bar_height['Y_0'] = distribs_doXx_2['Y_0']
+        bar_height.loc[bar_height.index[0], 'Y_0'] = bar_height.loc[bar_height.index[1], 'Y_0'] - 4125
+        bar_height.loc[bar_height.index[-1], 'Y_0'] = bar_height.loc[bar_height.index[-2], 'Y_0'] + 4125
+        bar_height['PR(Y_0)'] = (distribs_doXx_2[f'P(Y_0 | do(X=2), W={0.11})'] / distribs_doXx_1[f'P(Y_0 | do(X=1), W={0.11})']) - 1.
+        ax_bottom_4.barh(y=bar_height['Y_0'], width=bar_height['PR(Y_0)'], height=4125, edgecolor='royalblue', alpha=0.8, color='royalblue')
+
+        ax_bottom_1.axvline(x=0, color='black', linestyle='-', linewidth=0.8)
+        ax_bottom_2.axvline(x=0, color='black', linestyle='-', linewidth=0.8)
+        ax_bottom_3.axvline(x=0, color='black', linestyle='-', linewidth=0.8)
+        ax_bottom_4.axvline(x=0, color='black', linestyle='-', linewidth=0.8)
+
+        ax_bottom_1.set_ylim(875, 35000 - 875)
+        ax_bottom_2.set_ylim(875, 35000 - 875)
+        ax_bottom_3.set_ylim(875, 35000 - 875)
+        ax_bottom_4.set_ylim(875, 35000 - 875)
+
+        ax_bottom_1.xaxis.set_major_locator(plt.MultipleLocator(1))
+        ax_bottom_1.xaxis.set_minor_locator(plt.MultipleLocator(0.5))
+        ax_bottom_1.yaxis.set_major_locator(plt.MultipleLocator(5000))
+        ax_bottom_1.yaxis.set_minor_locator(plt.MultipleLocator(2500))
+
+        ax_bottom_1.tick_params(axis='x', which='major', direction='out', length=4, labelsize=7)
+
+        ax_bottom_1.tick_params(axis='y', which='major', direction='out', length=4, labelsize=7)
+        ax_bottom_1.tick_params(axis='y', which='minor', direction='in', length=0)
+        ax_bottom_2.tick_params(axis='y', which='major', direction='out', length=4, labelsize=7)
+        ax_bottom_2.tick_params(axis='y', which='minor', direction='in', length=0)
+        ax_bottom_3.tick_params(axis='y', which='major', direction='out', length=4, labelsize=7)
+        ax_bottom_3.tick_params(axis='y', which='minor', direction='out', length=0)
+        ax_bottom_4.tick_params(axis='y', which='major', direction='in', length=4, labelsize=7)
+        ax_bottom_4.tick_params(axis='y', which='minor', direction='out', length=0)
+
+        #ax_bottom_1.set_xticks([-1, 0., 1., 2.]) 
+
+        # Set new x labels shifted by +1
+        xticks = ax_bottom_1.get_yticks()
+        #ax_bottom_1.set_xticklabels([str(int(tick + 1)) for tick in xticks])
+        xticks = ax_bottom_2.get_yticks()
+        #ax_bottom_2.set_xticklabels([str(int(tick + 1)) for tick in xticks])
+        xticks = ax_bottom_3.get_yticks()
+        #ax_bottom_3.set_xticklabels([str(int(tick + 1)) for tick in xticks])
+        xticks = ax_bottom_4.get_yticks()
+        #ax_bottom_4.set_xticklabels([str(int(tick + 1)) for tick in xticks])
+
+        ax_bottom_2.set_yticklabels([]) 
+        ax_bottom_3.set_yticklabels([])
+        ax_bottom_4.set_yticklabels([])
+
+        
+
+
+
+        #---------------------------------------------------
+        
         w = str(width_cm).replace('.', '-')
         h = str(height_cm).replace('.', '-')
         fig.savefig(f"Figures/figure_{w}_cm_by_{h}_cm_{figure_name}.png", bbox_inches="tight", dpi=600)
