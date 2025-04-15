@@ -187,13 +187,14 @@ class Plotter():
         CATE_vals = np.array(list_exp_Y0_given_doXx_2_Ww_1) - np.array(list_exp_Y0_given_doXx_1_Ww_1)
         #CMTE_vals = np.array(median_doX_2) - np.array(median_doX_1) # Conditional Median Treatment Effect
 
-        ax2.plot(np.asarray(w_values, dtype=float), CATE_vals, color='darkblue', label=r'$CATE_{G}$', linestyle='--', linewidth=1.3)
-        
+        ax2.plot(np.asarray(w_values, dtype=float), CATE_vals, color='purple', label=r'$CATE_{G}$', linestyle='--', linewidth=1.3)
+        ax2.axhline(y=-2980., color='black', linestyle='-.', linewidth=0.9, label=r'$ATE_{G}$')
+        ax2.legend(loc='upper left', frameon=True, fontsize=7, ncol=2)
 
         #ax2.plot(np.array(percentiles['W_center']), CMTE_vals, color='royalblue', label=r'$CMTE_{G}$', linestyle='-', linewidth=1.1)
   
 
-        ax2.set_ylabel(r'$CATE_{G}$ [kWh/year]', fontsize=8)
+        ax2.set_ylabel(r'Treatment effect', fontsize=8)
         ax2.set_xlabel(r'Energy burden $(W)$ [£/£]', fontsize=8)
         ax2.minorticks_on()
         ax2.xaxis.set_major_locator(plt.MultipleLocator(0.01))
