@@ -129,7 +129,7 @@ class Plotter():
         samples_df, percentiles, means = self._generate_points_for_CATE(w_values=w_values, list_distribs_doX_given_W=list_distribs_doXx_1)
 
         fig = plt.figure(figsize=(width_cm/2.54, height_cm/2.54))
-        gs = gridspec.GridSpec(3, 4, height_ratios=[4.7, 1.2, 1.8], hspace=0.4)
+        gs = gridspec.GridSpec(3, 4, height_ratios=[4.8, 1.3, 1.7], hspace=0.4)
         ax1 = fig.add_subplot(gs[0, :])
         ax2 = fig.add_subplot(gs[1, :])
         ax_bottom_1 = fig.add_subplot(gs[2, 0])
@@ -258,43 +258,62 @@ class Plotter():
         ax_bottom_3.set_ylim(875, 35000 - 875)
         ax_bottom_4.set_ylim(875, 35000 - 875)
 
-        ax_bottom_1.xaxis.set_major_locator(plt.MultipleLocator(1))
-        ax_bottom_1.xaxis.set_minor_locator(plt.MultipleLocator(0.5))
-        ax_bottom_1.yaxis.set_major_locator(plt.MultipleLocator(5000))
-        ax_bottom_1.yaxis.set_minor_locator(plt.MultipleLocator(2500))
+        plots = [ax_bottom_1, ax_bottom_2, ax_bottom_3, ax_bottom_4]
+        for pl in plots:
+            pl.xaxis.set_major_locator(plt.MultipleLocator(1.))
+            pl.xaxis.set_minor_locator(plt.MultipleLocator(0.5))
+            pl.yaxis.set_major_locator(plt.MultipleLocator(5000))
+            pl.yaxis.set_minor_locator(plt.MultipleLocator(2500))
 
-        ax_bottom_1.tick_params(axis='x', which='major', direction='out', length=4, labelsize=7)
+            pl.tick_params(axis='y', which='major', direction='out', length=4, labelsize=7)
+            pl.tick_params(axis='y', which='minor', direction='out', length=2)
+            pl.tick_params(axis='x', which='major', direction='out', length=4, labelsize=7)
+            pl.tick_params(axis='x', which='minor', direction='out', length=2)
 
-        ax_bottom_1.tick_params(axis='y', which='major', direction='out', length=4, labelsize=7)
-        ax_bottom_1.tick_params(axis='y', which='minor', direction='in', length=0)
-        ax_bottom_2.tick_params(axis='y', which='major', direction='out', length=4, labelsize=7)
-        ax_bottom_2.tick_params(axis='y', which='minor', direction='in', length=0)
-        ax_bottom_3.tick_params(axis='y', which='major', direction='out', length=4, labelsize=7)
-        ax_bottom_3.tick_params(axis='y', which='minor', direction='out', length=0)
-        ax_bottom_4.tick_params(axis='y', which='major', direction='in', length=4, labelsize=7)
-        ax_bottom_4.tick_params(axis='y', which='minor', direction='out', length=0)
+            pl.set_xlim(-1, 2)
 
-        #ax_bottom_1.set_xticks([-1, 0., 1., 2.]) 
+            pl.set_xticks([-1., 0., 1., 2., 3.]) 
+            #pl.set_xticklabels(['0', '1', '2', '3'])
+            xticks = pl.get_xticks()
+            pl.set_xticklabels([str(int(tick + 1)) for tick in xticks])
 
+            if pl != ax_bottom_1: 
+                pl.set_yticklabels([])
+
+        #ax_bottom_1.set_xticks([1, 0., 1., 2.]) 
+        #ax_bottom_1..set_xticklabels([-1, 0., 1., 2.]) 
+        #ax2.set_xticks([0., 0.01, 0.02, 0.03, 0.04, 0.05, 0.06, 0.07, 0.08, 0.09, 0.10, 0.11]) 
+        #ax2.set_xticklabels(['0.00', '0.01', '0.02', '0.03', '0.04', '0.05', '0.06', '0.07', '0.08', '0.09', '0.10', '0.11']) 
+        '''
         # Set new x labels shifted by +1
         xticks = ax_bottom_1.get_yticks()
-        #ax_bottom_1.set_xticklabels([str(int(tick + 1)) for tick in xticks])
+        ax_bottom_1.set_xticklabels([str(int(tick + 1)) for tick in xticks])
         xticks = ax_bottom_2.get_yticks()
-        #ax_bottom_2.set_xticklabels([str(int(tick + 1)) for tick in xticks])
+        ax_bottom_2.set_xticklabels([str(int(tick + 1)) for tick in xticks])
         xticks = ax_bottom_3.get_yticks()
-        #ax_bottom_3.set_xticklabels([str(int(tick + 1)) for tick in xticks])
+        ax_bottom_3.set_xticklabels([str(int(tick + 1)) for tick in xticks])
         xticks = ax_bottom_4.get_yticks()
-        #ax_bottom_4.set_xticklabels([str(int(tick + 1)) for tick in xticks])
-
+        ax_bottom_4.set_xticklabels([str(int(tick + 1)) for tick in xticks])
+        
         ax_bottom_2.set_yticklabels([]) 
         ax_bottom_3.set_yticklabels([])
         ax_bottom_4.set_yticklabels([])
-
+        '''
         
+        ax_bottom_1.set_ylabel(r'Gas consumption $(Y_0)$', fontsize=8)
 
-
-
+        ax_bottom_1.text(2.3, -.43, r'$\frac{P(Y_0 \mid do(X=true), W)_{G}}{P(Y_0 \mid do(X=false), W)_{G}}$', transform=ax_bottom_1.transAxes, fontsize=10, va='center', ha='center')
+        
+        ax_bottom_1.text(0.7, 0.9, r'$W=0.02$', transform=ax_bottom_1.transAxes, fontsize=7, va='center', ha='center')
+        ax_bottom_2.text(0.7, 0.9, r'$W=0.05$', transform=ax_bottom_2.transAxes, fontsize=7, va='center', ha='center')
+        ax_bottom_3.text(0.7, 0.9, r'$W=0.08$', transform=ax_bottom_3.transAxes, fontsize=7, va='center', ha='center')
+        ax_bottom_4.text(0.7, 0.9, r'$W=0.11$', transform=ax_bottom_4.transAxes, fontsize=7, va='center', ha='center')
+        
+        #plt.tight_layout(rect=[0, 0.05, 1, 1])
         #---------------------------------------------------
+        ax1.text(-0.218, 1.1, 'a', transform=ax1.transAxes, fontsize=11, fontweight='bold', va='top', ha='left')
+        ax2.text(-0.218, 1.16, 'b', transform=ax2.transAxes, fontsize=11, fontweight='bold', va='top', ha='left')
+        ax_bottom_1.text(-1, 1.14, 'c', transform=ax_bottom_1.transAxes, fontsize=11, fontweight='bold', va='top', ha='left')
         
         w = str(width_cm).replace('.', '-')
         h = str(height_cm).replace('.', '-')
