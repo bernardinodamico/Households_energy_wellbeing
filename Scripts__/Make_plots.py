@@ -16,7 +16,12 @@ def make_ATEg_plot() -> None:
     discretised_dtset = gen_training_dataset(Y_0_bins_num=Y0bn, W_bins_num=Wbn, V_1_bins_num=V1bn, V_7_bins_num=V7bn)
 
     ce = ComputeEffects()
-    p_Y0_given_doXx_1G, p_Y0_given_doXx_2G, exp_Y0_given_doXx_1G, exp_Y0_given_doXx_2G = ce.compute_ATE(Y_0_bins_num=Y0bn, W_bins_num=Wbn, V_1_bins_num=V1bn, V_7_bins_num=V7bn, Laplace_sm=Laplace_sm, dd=discretised_dtset)
+    p_Y0_given_doXx_1G, p_Y0_given_doXx_2G, exp_Y0_given_doXx_1G, exp_Y0_given_doXx_2G = ce.compute_ATE(Y_0_bins_num=Y0bn, 
+                                                                                                        W_bins_num=Wbn, 
+                                                                                                        V_1_bins_num=V1bn, 
+                                                                                                        V_7_bins_num=V7bn, 
+                                                                                                        Laplace_sm=Laplace_sm, 
+                                                                                                        dd=discretised_dtset)
 
     # Plot ATEs 
     plotter = Plotter()
@@ -42,7 +47,12 @@ def make_CATEg_plot() -> None:
     discretised_dtset = gen_training_dataset(Y_0_bins_num=Y0bn, W_bins_num=Wbn, V_1_bins_num=V1bn, V_7_bins_num=V7bn)
 
     ce = ComputeEffects()
-    list_w, list_distribs_doXx_1, list_distribs_doXx_2, list_exp_Y0_given_doXx_1_Ww_1, list_exp_Y0_given_doXx_2_Ww_1 = ce.compute_CATE(Y_0_bins_num=Y0bn, W_bins_num=Wbn, V_1_bins_num=V1bn, V_7_bins_num=V7bn, Laplace_sm=Laplace_sm, dd=discretised_dtset)
+    list_w, list_distribs_doXx_1, list_distribs_doXx_2, list_exp_Y0_given_doXx_1_Ww_1, list_exp_Y0_given_doXx_2_Ww_1 = ce.compute_CATE(Y_0_bins_num=Y0bn, 
+                                                                                                                                       W_bins_num=Wbn, 
+                                                                                                                                       V_1_bins_num=V1bn, 
+                                                                                                                                       V_7_bins_num=V7bn, 
+                                                                                                                                       Laplace_sm=Laplace_sm, 
+                                                                                                                                       dd=discretised_dtset)
 
     # Plot CATEs
     plotter = Plotter()
@@ -65,4 +75,4 @@ def make_CATEg_plot() -> None:
 
 if __name__ == "__main__":
     make_ATEg_plot()
-    #make_CATEg_plot()
+    make_CATEg_plot()
