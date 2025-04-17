@@ -49,4 +49,4 @@ def placebo_tretment(tot_samples: int) -> None:
 
 
 if __name__ == "__main__":
-    placebo_tretment(tot_samples=50)
+    placebo_tretment(tot_samples=5000)
