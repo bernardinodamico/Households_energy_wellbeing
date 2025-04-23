@@ -67,7 +67,7 @@ def data_subsample_test(tot_samples: int) -> None:
     data_subsample_reslt = pd.DataFrame({'Random_seed': pd.Series(dtype='int'), 
                                           'ATE_subsample': pd.Series(dtype='float')})
 
-    subsample_size = 0.3 # percentage of the original dataset
+    subsample_size = 0.5 # percentage of the original dataset
     for random_seed in range(1, tot_samples):
         subsample_discretised_dtset = discretised_dtset.sample(frac=subsample_size, random_state=random_seed)  
 
