@@ -60,14 +60,14 @@ def data_subsample_test(tot_samples: int) -> None:
     Wbn = 13 
     V1bn = 13
     V7bn = 13
-    Laplace_sm = 0.001
+    Laplace_sm = 0.0001
 
     discretised_dtset = gen_training_dataset(Y_0_bins_num=Y0bn, W_bins_num=Wbn, V_1_bins_num=V1bn, V_7_bins_num=V7bn)
 
     data_subsample_reslt = pd.DataFrame({'Random_seed': pd.Series(dtype='int'), 
                                           'ATE_subsample': pd.Series(dtype='float')})
 
-    subsample_size = random.uniform(0.19, 0.21) # between x and x of the original dataset
+    subsample_size = 0.3 # percentage of the original dataset
     for random_seed in range(1, tot_samples):
         subsample_discretised_dtset = discretised_dtset.sample(frac=subsample_size, random_state=random_seed)  
 
@@ -82,7 +82,7 @@ def data_subsample_test(tot_samples: int) -> None:
         ATE_subsample = round(exp_Y0_given_doXx_2G - exp_Y0_given_doXx_1G, 3)
         new_row = {'Random_seed': random_seed, 'ATE_subsample': ATE_subsample}
         data_subsample_reslt = pd.concat([data_subsample_reslt, pd.DataFrame([new_row])], ignore_index=True)
-        data_subsample_reslt.to_csv(path_or_buf="DATA/REFUTATION_TEST_RESULTS/data_subsample_results.csv", index=False)
+        data_subsample_reslt.to_csv(path_or_buf=f"DATA/REFUTATION_TEST_RESULTS/data_subsample_results_{int(subsample_size*100)}percent.csv", index=False)
 
         print(f'Random seed {random_seed} out of {tot_samples}. Data subsample ATE = {ATE_subsample} kWh/year')
 
