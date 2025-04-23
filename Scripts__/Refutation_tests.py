@@ -60,14 +60,14 @@ def data_subsample_test(tot_samples: int) -> None:
     Wbn = 13 
     V1bn = 13
     V7bn = 13
-    Laplace_sm = 0.0001
+    Laplace_sm = 0.001
 
     discretised_dtset = gen_training_dataset(Y_0_bins_num=Y0bn, W_bins_num=Wbn, V_1_bins_num=V1bn, V_7_bins_num=V7bn)
 
     data_subsample_reslt = pd.DataFrame({'Random_seed': pd.Series(dtype='int'), 
                                           'ATE_subsample': pd.Series(dtype='float')})
 
-    subsample_size = 0.5 # percentage of the original dataset
+    subsample_size = 0.4 # percentage of the original dataset
     for random_seed in range(1, tot_samples):
         subsample_discretised_dtset = discretised_dtset.sample(frac=subsample_size, random_state=random_seed)  
 
