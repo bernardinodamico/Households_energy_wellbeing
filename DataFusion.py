@@ -78,12 +78,6 @@ class DataFusion():
             self.weight_factor_name = 'aagph1617'
         elif self.ref_year == 2018:
             self.weight_factor_name = 'aagph1718'
-        elif self.ref_year == 2019:
-            self.weight_factor_name = 'aagph1819'
-        elif self.ref_year == 2020:
-            self.weight_factor_name = 'aagph1920'
-        elif self.ref_year == 2021:
-            self.weight_factor_name = 'aagph2021'
 
         return
 
