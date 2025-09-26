@@ -5,6 +5,10 @@ from Plotter import Plotter
 pd.option_context('display.max_rows', None)
 
 
+import numpy as np
+import matplotlib.pyplot as plt
+
+
 def make_ATEg_plot() -> None:
     #set bin number for real-valued variables
     Y0bn = 35
@@ -70,9 +74,57 @@ def make_CATEg_plot() -> None:
 
 
 
+def make_plot_sensitivity_analisys() -> None:
+    ATE_G = -2980.1  # kWh/yr
 
+    # Define ranges for pi and gamma
+    pi_vals = np.linspace(0, 1, 300)  # pi ranges from 0 (no effect on treatment) to 1 (deterministic)
+    gamma_vals = np.linspace(-6000, 0, 300)  # plausible outcome shifts in kWh/yr
+
+    # Create grid
+    PI, GAMMA = np.meshgrid(pi_vals, gamma_vals)
+
+    # Compute adjusted ATE
+    ATE_adj = ATE_G - PI * GAMMA
+
+    # Plot
+    fig, ax = plt.subplots(figsize=(6, 4))
+
+    # Shaded heatmap of adjusted effects
+    cmap = plt.cm.coolwarm
+    im = ax.contourf(PI, GAMMA, ATE_adj, levels=50, cmap=cmap, alpha=0.9)
+
+    # Contour lines
+    contours = ax.contour(PI, GAMMA, ATE_adj, levels=[0], colors='black', linewidths=1.6)
+    #ax.clabel(contours, inline=True, fontsize=10, fmt={0: 'Tipping line (ATE_adj=0)'})
+
+    # Add colorbar
+    cbar = plt.colorbar(im, ax=ax)
+    cbar.set_label(r'$ATE_{adj}$ [kWh/yr]')
+
+    # Axis labels and title
+    ax.set_xlabel(r'Confounder-Treatment association ($\pi$)')
+    ax.set_ylabel(r'Confounder-Outcome association ($\gamma$) [kWh/yr]')
+
+    ax.set_xticks(np.arange(0, 1.1, 0.1))
+    ax.set_yticks(np.arange(-6000, 500, 500))
+
+    ax.grid(True, which='both', linestyle='--', color='black', linewidth=0.7, alpha=0.6)
+    
+    # Reference lines for readability
+    ax.axhline(0, color='grey', linestyle='--', linewidth=1)
+    ax.axvline(0, color='grey', linestyle='--', linewidth=1)
+
+    plt.tight_layout()
+    #plt.show()
+
+    fig.savefig(f"Figures/figure_sensitivity.png", bbox_inches="tight", dpi=600)
+
+    return
 
 
 if __name__ == "__main__":
     make_ATEg_plot()
     make_CATEg_plot()
+
+    make_plot_sensitivity_analisys()
